@@ -6,7 +6,7 @@
   'use strict';
 
   angular.module('krakenApp.Graph')
-    .service('viewModelService', ['$scope', ViewModelService]);
+    .service('viewModelService', ['$scope', viewModelService]);
 
   var viewModelService = function ViewModelService($scope) {
   };
