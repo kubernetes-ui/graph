@@ -72,8 +72,6 @@ angular.module('krakenApp.Graph')
                         .attr("width", width)
                         .attr("height", height);
 
-                    //var mis = element.getElementById('mis').innerHTML;
-                    //graph = JSON.parse(mis);
                     var graph = data;
 
                     var force = d3.layout.force()
