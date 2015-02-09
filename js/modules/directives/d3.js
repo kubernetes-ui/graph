@@ -4,8 +4,9 @@ angular.module('krakenApp.Graph')
             restrict: 'E',
             link: function (scope, element, attrs) {
                 d3Service.d3().then(function (d3) {
+                    var nextSample = 0;
                     // TODO(duftler/jackgr): Remove this and fetch data from $scope (where viewModel would have set it).
-                    var data = {
+                    var dataSamples = [{
                         "settings": {
                             "clustered": true,
                             "showEdgeLabels": true,
@@ -60,7 +61,270 @@ angular.module('krakenApp.Graph')
                             "group": 5,
                             "radius": 20
                         }]
-                    };
+                    },
+                    {
+                        "settings": {
+                            "clustered": false,
+                            "showEdgeLabels": true,
+                            "showNodeLabels": true
+                        },
+                        "nodes": [{
+                            "name": "svc: guestbook",
+                            "group": 1,
+                            "radius": 16
+                        }, {
+                            "name": "pod: guestbook-controller",
+                            "group": 2,
+                            "radius": 20
+                        }, {
+                            "name": "pod: guestbook-controller",
+                            "group": 2,
+                            "radius": 20
+                        }, {
+                            "name": "pod: guestbook-controller",
+                            "group": 2,
+                            "radius": 20
+                        }, {
+                            "name": "container: php-redis",
+                            "group": 3,
+                            "radius": 24
+                        }, {
+                            "name": "container: php-redis",
+                            "group": 3,
+                            "radius": 24
+                        }, {
+                            "name": "container: php-redis",
+                            "group": 3,
+                            "radius": 24
+                        }, {
+                            "name": "svc: redis-master",
+                            "group": 1,
+                            "radius": 16
+                        }, {
+                            "name": "pod: redis-master",
+                            "group": 2,
+                            "radius": 20
+                        }, {
+                            "name": "container: master",
+                            "group": 3,
+                            "radius": 24
+                        }, {
+                            "name": "lb: guestbook",
+                            "group": 4,
+                            "radius": 16
+                        }, {
+                            "name": "svc: redis-worker",
+                            "group": 1,
+                            "radius": 16
+                        }, {
+                            "name": "pod: redis-worker-controller",
+                            "group": 2,
+                            "radius": 20
+                        }, {
+                            "name": "container: slave",
+                            "group": 3,
+                            "radius": 24
+                        }, {
+                            "name": "container: slave",
+                            "group": 3,
+                            "radius": 24
+                        }],
+                        "links": [{
+                            "source": 0,
+                            "target": 1,
+                            "thickness": 2,
+                            "distance": 160
+                        }, {
+                            "source": 0,
+                            "target": 2,
+                            "thickness": 2,
+                            "distance": 160
+                        }, {
+                            "source": 0,
+                            "target": 3,
+                            "thickness": 2,
+                            "distance": 160
+                        }, {
+                            "source": 1,
+                            "target": 4,
+                            "thickness": 1,
+                            "distance": 240
+                        }, {
+                            "source": 2,
+                            "target": 5,
+                            "thickness": 1,
+                            "distance": 240
+                        }, {
+                            "source": 3,
+                            "target": 6,
+                            "thickness": 1,
+                            "distance": 240
+                        }, {
+                            "source": 7,
+                            "target": 8,
+                            "thickness": 2,
+                            "distance": 160
+                        }, {
+                            "source": 8,
+                            "target": 9,
+                            "thickness": 1,
+                            "distance": 240
+                        }, {
+                            "source": 10,
+                            "target": 0,
+                            "thickness": 3,
+                            "distance": 80,
+                            "label": "port: 3000"
+                        }, {
+                            "source": 11,
+                            "target": 12,
+                            "thickness": 2,
+                            "distance": 160
+                        }, {
+                            "source": 12,
+                            "target": 13,
+                            "thickness": 1,
+                            "distance": 240
+                        }, {
+                            "source": 12,
+                            "target": 14,
+                            "thickness": 1,
+                            "distance": 240
+                        }]
+                    },
+                        {
+                            "settings": {
+                                "clustered": false,
+                                "showEdgeLabels": true,
+                                "showNodeLabels": true
+                            },
+                            "nodes": [{
+                                "name": "svc: guestbook",
+                                "group": 1,
+                                "radius": 16
+                            }, {
+                                "name": "pod: guestbook-controller",
+                                "group": 2,
+                                "radius": 20
+                            }, {
+                                "name": "pod: guestbook-controller",
+                                "group": 2,
+                                "radius": 20
+                            }, {
+                                "name": "pod: guestbook-controller",
+                                "group": 2,
+                                "radius": 20
+                            }, {
+                                "name": "svc: redis-master",
+                                "group": 1,
+                                "radius": 16
+                            }, {
+                                "name": "pod: redis-master",
+                                "group": 2,
+                                "radius": 20
+                            }, {
+                                "name": "svc: redis-worker",
+                                "group": 1,
+                                "radius": 16
+                            }, {
+                                "name": "pod: redis-worker-controller",
+                                "group": 2,
+                                "radius": 20
+                            }, {
+                                "name": "pod: redis-worker-controller",
+                                "group": 2,
+                                "radius": 20
+                            }, {
+                                "name": "lb: guestbook",
+                                "group": 3,
+                                "radius": 16
+                            }],
+                            "links": [{
+                                "source": 0,
+                                "target": 1,
+                                "thickness": 2,
+                                "distance": 160
+                            }, {
+                                "source": 0,
+                                "target": 2,
+                                "thickness": 2,
+                                "distance": 160
+                            }, {
+                                "source": 0,
+                                "target": 3,
+                                "thickness": 2,
+                                "distance": 160
+                            }, {
+                                "source": 9,
+                                "target": 0,
+                                "thickness": 3,
+                                "distance": 80,
+                                "label": "port: 3000"
+                            }, {
+                                "source": 4,
+                                "target": 5,
+                                "thickness": 2,
+                                "distance": 160
+                            }, {
+                                "source": 6,
+                                "target": 7,
+                                "thickness": 2,
+                                "distance": 160
+                            }, {
+                                "source": 6,
+                                "target": 8,
+                                "thickness": 2,
+                                "distance": 160
+                            }, {
+                                "source": 7,
+                                "target": 4,
+                                "thickness": 4,
+                                "distance": 240,
+                                "dashes": true
+                            }, {
+                                "source": 8,
+                                "target": 4,
+                                "thickness": 4,
+                                "distance": 240,
+                                "dashes": true
+                            }, {
+                                "source": 1,
+                                "target": 4,
+                                "thickness": 4,
+                                "distance": 240,
+                                "dashes": true
+                            }, {
+                                "source": 2,
+                                "target": 4,
+                                "thickness": 4,
+                                "distance": 240,
+                                "dashes": true
+                            }, {
+                                "source": 3,
+                                "target": 4,
+                                "thickness": 4,
+                                "distance": 240,
+                                "dashes": true
+                            }, {
+                                "source": 1,
+                                "target": 6,
+                                "thickness": 4,
+                                "distance": 240,
+                                "dashes": true
+                            }, {
+                                "source": 2,
+                                "target": 6,
+                                "thickness": 4,
+                                "distance": 240,
+                                "dashes": true
+                            }, {
+                                "source": 3,
+                                "target": 6,
+                                "thickness": 4,
+                                "distance": 240,
+                                "dashes": true
+                            }]
+                        }];
 
                     // TODO(duftler): Externalize these settings.
                     var width = 1000,
@@ -68,7 +332,15 @@ angular.module('krakenApp.Graph')
 
                     var color = d3.scale.category20();
 
-                    var svg = d3.select(element[0]).append("svg")
+                    update();
+
+                    function update() {
+                    var data = dataSamples[nextSample++];
+                    nextSample = nextSample % dataSamples.length;
+                        console.log("nextSample=" + nextSample);
+                    var svg = d3.select(element[0]).select("svg");
+                    svg.remove();
+                    svg = d3.select(element[0]).append("svg")
                         .attr("width", width)
                         .attr("height", height);
 
@@ -92,6 +364,7 @@ angular.module('krakenApp.Graph')
                             .data(graph.links)
                             .enter().append("line")
                             .attr("class", "link")
+                            .style("stroke", "#100")
                             .style("stroke-dasharray", function (d) {
                                 return d.dashes ? ("3, 3") : ("1, 0");
                             })
@@ -216,6 +489,7 @@ angular.module('krakenApp.Graph')
                     function dblclick(d) {
                         // TODO(duftler): This is just a place-holder for now.
                         console.log("Double-clicked: d=" + JSON.stringify(d));
+                        update();
                     }
 
                     // Now we are giving the SVGs co-ordinates - the force layout is generating the co-ordinates which this code is using to update the attributes of the SVG elements.
@@ -337,6 +611,7 @@ angular.module('krakenApp.Graph')
                             });
                         };
                     }
+                }
                 });
             }
         };
