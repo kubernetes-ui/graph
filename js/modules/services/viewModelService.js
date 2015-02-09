@@ -5,14 +5,11 @@
 (function() {
 	'use strict';
 
-	angular.module('krakenApp.Graph')
-	.service('viewModelService', ['$scope', viewModelService]);
-
 	// Compute the view model based on the data model and control parameters
 	// and place the result in the current scope at $scope.viewModel.
-	var viewModelService = function ViewModelService($scope) {
+	var viewModelService = function ViewModelService() {
 		// For now, just hardwire the view model contents.
-	  	return {
+	  	return { data: {
   			"Clustered" : { 
   				"nodes" : [ 
 	  			  { "group" : 1,
@@ -69,9 +66,11 @@
 		            "showEdgeLabels" : true,
 		            "showNodeLabels" : true
 		        }
-    		}
+    		}}
 		};
 	};
 
-})();
+	angular.module('krakenApp.Graph')
+	.service('viewModelService', viewModelService);
 
+})();
