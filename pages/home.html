@@ -1,19 +1,19 @@
 <div ng-controller="GraphCtrl" flex layout="row" layout-fill>
 	<div layout="column" flex="33">
-		<div flex="50" layout="row" layout-fill>
-			<md-whiteframe class="md-whiteframe-z2" flex layout layout-align="center center">
-				<span>.md-whiteframe-z2</span>
+		<div flex="50" layout="row" layout-fill layout-padding>
+			<md-whiteframe class="md-whiteframe-z1" flex layout layout-align="center center">
+				<span>graph controls</span>
   			</md-whiteframe>
 		</div>
-		<div flex="50" layout="row" layout-fill>
-			<md-whiteframe class="md-whiteframe-z2" flex layout layout-align="center center">
-				<span>.md-whiteframe-z2</span>
+		<div flex="50" layout="row" layout-fill layout-padding>
+			<md-whiteframe class="md-whiteframe-z1" flex layout layout-align="center center">
+				<span>selection details</span>
   			</md-whiteframe>
 		</div>
 	</div>
-	<div flex="66" layout="column" layout-fill>
-		<md-whiteframe class="md-whiteframe-z2" flex layout layout-align="center center">
-			<span>.md-whiteframe-z2</span>
+	<div flex="66" layout="column" layout-fill layout-padding>
+		<md-whiteframe class="md-whiteframe-z1" flex layout layout-align="center center">
+			<d3-visualization></d3-visualization>
   		</md-whiteframe>
 	</div>
 </div>
