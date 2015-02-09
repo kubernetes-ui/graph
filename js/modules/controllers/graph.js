@@ -5,7 +5,7 @@
 (function() {
   'use strict';
 
-  angular.module('krakenApp.Graph')
+  angular.module('krakenApp.Graph', [])
     .controller('GraphCtrl', ['$scope', function($scope) {
     }]);
 
