@@ -1,0 +1,9 @@
+{
+  "manifest_version": 1,
+  "name": "Graph",
+  "version": "1",
+
+  "default_locale": "en",
+  "description": "Force Directed Graph",
+  "icons": {}
+}
