@@ -15,6 +15,6 @@
         // which can then be passed into viewModelService for the projection (TODO).
         var dataModel = pollK8sDataService.k8sdatamodel.data;
 
-    	$scope.viewModel = viewModelService.data;
+    	$scope.viewModel = viewModelService;
     }]);
 })();
