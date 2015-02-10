@@ -12,7 +12,8 @@ angular.module('krakenApp.Graph')
 
                     var svg = d3.select(element[0]).append("svg")
                         .attr("width", width)
-                        .attr("height", height);
+                        .attr("height", height)
+                        .attr("class", "graph");
 
                     var graph = scope.viewModel.Clustered;
 
@@ -34,7 +35,6 @@ angular.module('krakenApp.Graph')
                             .data(graph.links)
                             .enter().append("line")
                             .attr("class", "link")
-                            .style("stroke", "#100")
                             .style("stroke-dasharray", function (d) {
                                 return d.dashes ? ("3, 3") : ("1, 0");
                             })
@@ -125,9 +125,7 @@ angular.module('krakenApp.Graph')
                                 'dx': function (d) {
                                     return d.distance / 3
                                 },
-                                'dy': 0,
-                                'font-size': 14,
-                                'fill': '#aaa'
+                                'dy': 0
                             });
 
                         edgelabels.append('textPath')
