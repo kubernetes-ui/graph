@@ -1,18 +1,18 @@
 <div ng-controller="GraphCtrl" flex layout="row" layout-fill layout-padding>
-	<div flex="25" layout="column" layout-align="top center">
-		<div flex layout>
-			<md-whiteframe class="md-whiteframe-z1" layout-fill layout-padding>
-		        <md-button class="md-raised md-primary" flex layout-fill ng-click="changeDataSet()">Change</md-button>
-			</md-whiteframe>
-		</div>
-		<div flex layout>
-			<md-card flex layout-fill>
-			</md-card>
-		</div>
-	</div>
-	<div flex="75" layout="column" layout-fill>
-		<md-whiteframe class="md-whiteframe-z1" flex layout layout-align="center center">
-			<d3-visualization></d3-visualization>
-  		</md-whiteframe>
-	</div>
+  <div flex="25" layout="column" layout-align="top center">
+    <div flex layout>
+      <md-whiteframe class="md-whiteframe-z1" layout-fill layout-padding>
+        <md-button class="md-raised md-primary" flex layout-fill ng-click="changeDataSet()">Change</md-button>
+      </md-whiteframe>
+    </div>
+    <div flex layout>
+      <md-card flex layout-fill>
+      </md-card>
+    </div>
+  </div>
+  <div flex="75" layout="column" layout-fill>
+    <md-whiteframe class="md-whiteframe-z1" flex layout layout-align="center center">
+      <d3-visualization></d3-visualization>
+    </md-whiteframe>
+  </div>
 </div>
