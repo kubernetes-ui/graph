@@ -238,7 +238,7 @@
   .controller('GraphCtrl', ['$scope', 'viewModelService', 'pollK8sDataService',
     function($scope, viewModelService, pollK8sDataService) {
       // For now, just hardwire the data model contents.
-      var dataSamples = ;
+      var dataSamples = MOCK_SAMPLE_DATA;
 
       // Get the data model wrapper from pollK8sDataService.k8sdatamodel,
       // which can then be passed into viewModelService for the projection (TODO).
