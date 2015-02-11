@@ -3,19 +3,48 @@ angular.module('krakenApp.Graph')
         return {
             restrict: 'E',
             link: function (scope, element, attrs) {
-                d3Service.d3().then(function (d3) {
+                scope.$watch("viewModelService.viewModel.version", function(newValue, oldValue) {
+                    d3Service.d3().then(draw);
+                });
+
+                var draw = function(d3) {
                     // TODO(duftler): Externalize these settings.
-                    var width = 1000,
-                        height = 750;
+                    var width = 600,
+                        height = 500;
 
                     var color = d3.scale.category20();
 
-                    var svg = d3.select(element[0]).append("svg")
+                    var svg = d3.select(element[0]).select("svg");
+                    svg.remove();
+
+                    svg = d3.select(element[0]).append("svg")
                         .attr("width", width)
                         .attr("height", height)
                         .attr("class", "graph");
 
-                    var graph = scope.viewModel.Clustered;
+                    var graph = undefined;
+                    if (scope.viewModelService.viewModel.data) {
+                        graph = scope.viewModelService.viewModel.data;
+                    } else {
+                        graph = { 
+                            "nodes" : [ 
+                                { 
+                                    "group" : 1,
+                                    "name" : "no data",
+                                    "radius" : 20
+                                }
+                            ],
+                            "settings" : { 
+                                "clusterSettings" : { 
+                                    "clusterPadding" : 25,
+                                    "padding" : 1.5
+                                },
+                                "clustered" : true,
+                                "showEdgeLabels" : true,
+                                "showNodeLabels" : true
+                            }
+                        };
+                    }
 
                     var force = d3.layout.force()
                         .size([width, height])
@@ -278,7 +307,7 @@ angular.module('krakenApp.Graph')
                             });
                         };
                     }
-                });
+                };
             }
         };
     }]);
