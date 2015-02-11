@@ -245,7 +245,7 @@
 				$scope.pollK8sDataService = pollK8sDataService;
 
 				// TODO: Start polling when we go in scope and stop when we go out of scope.
-				// pollK8sDataService.start();
+				pollK8sDataService.start();
 
 				// Watch the configuration and the data model, and generate the view model when they change.
 				$scope.viewModelService = viewModelService;
