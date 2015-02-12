@@ -244,22 +244,27 @@
       // which can then be passed into viewModelService for the projection (TODO).
       $scope.pollK8sDataService = pollK8sDataService;
 
-      // TODO: Start polling when we go in scope and stop when we go out of scope.
-      pollK8sDataService.start();
-
       // Watch the configuration and the data model, and generate the view model when they change.
       $scope.viewModelService = viewModelService;
+
+      $scope.$watch("pollK8sDataService.k8sdatamodel.sequenceNumber", function(newValue, oldValue) {
+        viewModelService.generateViewModel($scope.pollK8sDataService.k8sdatamodel.data);
+      });
+
+      // TODO: Start polling when we go in scope and stop when we go out of scope.
+      pollK8sDataService.start();
 
       // For now, just generate the view model once.
       var nextSample = 0;
 
       // Dummy function to run through the default data sets.
       var changeDataSet = function() {
-        nextSample = nextSample % dataSamples.length;
-        viewModelService.generateViewModel(dataSamples[nextSample++]);
+        // nextSample = nextSample % dataSamples.length;
+        // viewModelService.viewModel.data = dataSamples[nextSample++];
+        viewModelService.generateViewModel($scope.pollK8sDataService.k8sdatamodel.data);
       };
 
       $scope.changeDataSet = changeDataSet;
-      changeDataSet();
+      // changeDataSet();
   }]);
 })();
