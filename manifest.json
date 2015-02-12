@@ -10,7 +10,9 @@
   {
     "name": "Graph",
     "url": "/graph",
-    "type": "link"
+    "type": "link",
+    "templateUrl": "/components/graph/pages/home.html",
+    "controller": "GraphCtrl"
   },
   {
     "name": "Graph",
@@ -20,11 +22,15 @@
         "name": "Graph",
         "type": "toggle",
         "url": "/graph",
+        "templateUrl": "/components/graph/pages/home.html",
+        "controller": "GraphCtrl",
         "pages": [
           {
             "name": "Test",
             "url": "/graph/test",
-            "type": "link"
+            "type": "link",
+            "templateUrl": "/components/graph/pages/home.html",
+            "controller": "GraphCtrl"
           }
         ]
       }
