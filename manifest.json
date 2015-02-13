@@ -11,8 +11,7 @@
     "name": "Graph",
     "url": "/graph",
     "type": "link",
-    "templateUrl": "/components/graph/pages/home.html",
-    "controller": "GraphCtrl"
+    "templateUrl": "/components/graph/pages/home.html"
   },
   {
     "name": "Graph",
@@ -23,14 +22,12 @@
         "type": "toggle",
         "url": "/graph",
         "templateUrl": "/components/graph/pages/home.html",
-        "controller": "GraphCtrl",
         "pages": [
           {
             "name": "Test",
             "url": "/graph/test",
             "type": "link",
             "templateUrl": "/components/graph/pages/home.html",
-            "controller": "GraphCtrl"
           }
         ]
       }
