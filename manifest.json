@@ -2,6 +2,7 @@
   "manifest_version": 1,
   "name": "Graph",
   "version": "1",
+  "namespace": "Graph",
 
   "default_locale": "en",
   "description": "Force Directed Graph",
