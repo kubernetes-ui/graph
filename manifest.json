@@ -5,5 +5,36 @@
 
   "default_locale": "en",
   "description": "Force Directed Graph",
-  "icons": {}
+  "icons": {},
+  "sections": [
+  {
+    "name": "Graph",
+    "url": "/graph",
+    "type": "link",
+    "templateUrl": "/components/graph/pages/home.html",
+    "controller": "GraphCtrl"
+  },
+  {
+    "name": "Graph",
+    "type": "heading",
+    "children": [
+      {
+        "name": "Graph",
+        "type": "toggle",
+        "url": "/graph",
+        "templateUrl": "/components/graph/pages/home.html",
+        "controller": "GraphCtrl",
+        "pages": [
+          {
+            "name": "Test",
+            "url": "/graph/test",
+            "type": "link",
+            "templateUrl": "/components/graph/pages/home.html",
+            "controller": "GraphCtrl"
+          }
+        ]
+      }
+    ]
+  }
+]
 }
