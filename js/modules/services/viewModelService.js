@@ -24,16 +24,20 @@
         // Keep default settings for now, so that d3 directive can find them.
         "settings" : defaultSettings,
         "nodes" : [ 
-        { 
-          "group" : 1,
-          "name" : "no data",
-          "radius" : 20
-        }
-        ]
+          {
+            "group" : 1,
+            "name" : "no data",
+            "radius" : 20
+          }
+        ],
+        "links" : []
       }, 
       'configuration' : undefined,
       'version' : 0 
     };
+
+    // TODO(duftler): Remove this once 'Samples' section is removed from canvas context menu.
+    var dataSamples;
 
     // Generate the view model from a given data model.
     var generateViewModel = function(model) {

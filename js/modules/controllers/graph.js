@@ -232,7 +232,168 @@
       "showEdgeLabels": true,
       "showNodeLabels": true
     }
-  }];
+  },
+  {
+    "nodes": [
+    {
+      "name": "svc: guestbook",
+      "group": 1,
+      "radius": 16
+    },
+    {
+      "name": "pod: guestbook-controller",
+      "group": 2,
+      "radius": 20
+    },
+    {
+      "name": "pod: guestbook-controller",
+      "group": 2,
+      "radius": 20
+    },
+    {
+      "name": "pod: guestbook-controller",
+      "group": 2,
+      "radius": 20
+    },
+    {
+      "name": "svc: redis-master",
+      "group": 1,
+      "radius": 16
+    },
+    {
+      "name": "pod: redis-master",
+      "group": 2,
+      "radius": 20
+    },
+    {
+      "name": "svc: redis-worker",
+      "group": 1,
+      "radius": 16
+    },
+    {
+      "name": "pod: redis-worker-controller",
+      "group": 2,
+      "radius": 20
+    },
+    {
+      "name": "pod: redis-worker-controller",
+      "group": 2,
+      "radius": 20
+    },
+    {
+      "name": "lb: guestbook",
+      "group": 3,
+      "radius": 16
+    }
+    ],
+    "links": [
+    {
+      "source": 0,
+      "target": 1,
+      "thickness": 2,
+      "distance": 160
+    },
+    {
+      "source": 0,
+      "target": 2,
+      "thickness": 2,
+      "distance": 160
+    },
+    {
+      "source": 0,
+      "target": 3,
+      "thickness": 2,
+      "distance": 160
+    },
+    {
+      "source": 9,
+      "target": 0,
+      "thickness": 3,
+      "distance": 80,
+      "label": "port: 3000"
+    },
+    {
+      "source": 4,
+      "target": 5,
+      "thickness": 2,
+      "distance": 160
+    },
+    {
+      "source": 6,
+      "target": 7,
+      "thickness": 2,
+      "distance": 160
+    },
+    {
+      "source": 6,
+      "target": 8,
+      "thickness": 2,
+      "distance": 160
+    },
+    {
+      "source": 7,
+      "target": 4,
+      "thickness": 4,
+      "distance": 240,
+      "dashes": true
+    },
+    {
+      "source": 8,
+      "target": 4,
+      "thickness": 4,
+      "distance": 240,
+      "dashes": true
+    },
+    {
+      "source": 1,
+      "target": 4,
+      "thickness": 4,
+      "distance": 240,
+      "dashes": true
+    },
+    {
+      "source": 2,
+      "target": 4,
+      "thickness": 4,
+      "distance": 240,
+      "dashes": true
+    },
+    {
+      "source": 3,
+      "target": 4,
+      "thickness": 4,
+      "distance": 240,
+      "dashes": true
+    },
+    {
+      "source": 1,
+      "target": 6,
+      "thickness": 4,
+      "distance": 240,
+      "dashes": true
+    },
+    {
+      "source": 2,
+      "target": 6,
+      "thickness": 4,
+      "distance": 240,
+      "dashes": true
+    },
+    {
+      "source": 3,
+      "target": 6,
+      "thickness": 4,
+      "distance": 240,
+      "dashes": true
+    }
+    ],
+    "settings": {
+      "clustered": false,
+      "showEdgeLabels": true,
+      "showNodeLabels": true
+    }
+  }
+  ];
 
   angular.module('krakenApp.Graph', ['krakenApp.services'])
   .controller('GraphCtrl', ['$scope', 'viewModelService', 'pollK8sDataService',
@@ -263,6 +424,8 @@
         // viewModelService.viewModel.data = dataSamples[nextSample++];
         viewModelService.generateViewModel($scope.pollK8sDataService.k8sdatamodel.data);
       };
+
+      viewModelService.dataSamples = dataSamples;
 
       $scope.changeDataSet = changeDataSet;
       // changeDataSet();

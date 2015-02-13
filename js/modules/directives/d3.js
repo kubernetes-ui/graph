@@ -1,5 +1,6 @@
+// TODO(duftler): Remove viewModelService dependency once 'Samples' section is removed from canvas context menu.
 angular.module('krakenApp.Graph')
-.directive('d3Visualization', ['d3Service', function (d3Service) {
+.directive('d3Visualization', ['d3Service', 'viewModelService', function (d3Service, viewModelService) {
   return {
     restrict: 'E',
     link: function (scope, element, attrs) {
@@ -7,10 +8,13 @@ angular.module('krakenApp.Graph')
         d3Service.d3().then(draw);
       });
 
-      var draw = function(d3) {
+      var draw = function() {
+        var d3 = window.d3;
+
         // TODO(duftler): Externalize these settings.
         var width = 600,
-          height = 500;
+          height = 500,
+          center = [width / 2, height / 2];
 
         var color = d3.scale.category20();
 
@@ -21,6 +25,20 @@ angular.module('krakenApp.Graph')
           .attr("width", width)
           .attr("height", height)
           .attr("class", "graph");
+
+        svg.on('contextmenu', function (data, index) {
+          if (d3.select('.d3-context-menu').style('display') !== 'block') {
+            showContextMenu(data, index, canvasContextMenu);
+          }
+        });
+
+        var zoom = d3.behavior.zoom()
+            .scaleExtent([0.5, 12])
+            .on("zoom", zoomed);
+
+        var g = svg.append("g");
+
+        svg.call(zoom).on("dblclick.zoom", null).call(zoom.event);
 
         var graph = undefined;
         if (scope.viewModelService) {
@@ -43,7 +61,7 @@ angular.module('krakenApp.Graph')
             }).links(graph.links)
 
           // Create all the line svgs but without locations yet.
-          var link = svg.selectAll(".link")
+          var link = g.selectAll(".link")
             .data(graph.links)
             .enter().append("line")
             .attr("class", "link")
@@ -80,11 +98,22 @@ angular.module('krakenApp.Graph')
         // The largest node for each cluster.
         var clusters = buildClusters(graph.nodes);
 
-        var node = svg.selectAll(".node")
+        var node = g.selectAll(".node")
           .data(graph.nodes)
           .enter().append("g")
           .attr("class", "node")
           .call(force.drag);
+
+        // create the div element that will hold the context menu
+        d3.selectAll('.d3-context-menu').data([1])
+            .enter()
+            .append('div')
+            .attr('class', 'd3-context-menu');
+
+        // close menu
+        d3.select('body').on('click.d3-context-menu', function() {
+          d3.select('.d3-context-menu').style('display', 'none');
+        });
 
         node.append("circle")
           .attr("r", function (d) {
@@ -93,7 +122,10 @@ angular.module('krakenApp.Graph')
           .style("fill", function (d) {
             return color(d.group);
           })
-          .on("dblclick", dblclick);
+          .on("dblclick", dblclick)
+          .on('contextmenu', function (data, index) {
+            showContextMenu(data, index, nodeContextMenu);
+          });
 
         if (graph.settings.showNodeLabels) {
           node.append("text")
@@ -105,7 +137,7 @@ angular.module('krakenApp.Graph')
         }
 
         if (!graph.settings.clustered && graph.settings.showEdgeLabels) {
-          var edgepaths = svg.selectAll(".edgepath")
+          var edgepaths = g.selectAll(".edgepath")
             .data(graph.links)
             .enter()
             .append('path')
@@ -124,7 +156,7 @@ angular.module('krakenApp.Graph')
             })
             .style("pointer-events", "none");
 
-          var edgelabels = svg.selectAll(".edgelabel")
+          var edgelabels = g.selectAll(".edgelabel")
             .data(graph.links)
             .enter()
             .append('text')
@@ -150,7 +182,7 @@ angular.module('krakenApp.Graph')
             });
         }
 
-        var circle = svg.selectAll("circle");
+        var circle = g.selectAll("circle");
 
         if (graph.settings.clustered) {
           circle.transition()
@@ -169,6 +201,31 @@ angular.module('krakenApp.Graph')
         function dblclick(d) {
           // TODO(duftler): This is just a place-holder for now.
           console.log("Double-clicked: d=" + JSON.stringify(d));
+        }
+
+        function showContextMenu(data, index, contextMenu) {
+          var elm = this;
+
+          d3.selectAll('.d3-context-menu').html('');
+          var list = d3.selectAll('.d3-context-menu').append('ul');
+          list.selectAll('li').data(contextMenu).enter()
+              .append('li')
+              .html(function (d) {
+                return (typeof d.title === 'string') ? d.title : d.title(data);
+              })
+              .on('click', function (d, i) {
+                //d.action(elm, data, index);
+                d.action(elm, data, index);
+                d3.select('.d3-context-menu').style('display', 'none');
+              });
+
+          // display context menu
+          d3.select('.d3-context-menu')
+              .style('left', (d3.event.pageX - 2) + 'px')
+              .style('top', (d3.event.pageY - 2) + 'px')
+              .style('display', 'block');
+
+          d3.event.preventDefault();
         }
 
         // Now we are giving the SVGs co-ordinates - the force layout is generating the co-ordinates which this code is using to update the attributes of the SVG elements.
@@ -289,6 +346,115 @@ angular.module('krakenApp.Graph')
               return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
             });
           };
+        }
+
+        // TODO(duftler): Externalize scaling interval.
+        var canvasContextMenu = [
+          {
+            title: 'Zoom:'
+          },
+          {
+            title: '&nbsp;&nbsp;In',
+            action: function(elm, d, i) {
+              adjustZoom(1.5);
+            }
+          },
+          {
+            title: '&nbsp;&nbsp;Out',
+            action: function(elm, d, i) {
+              adjustZoom(1 / 1.5);
+            }
+          },
+          {
+            title: '&nbsp;&nbsp;Reset',
+            action: function (elm, d, i) {
+              adjustZoom();
+            }
+          },
+          {
+            title: 'Samples:'
+          },
+          // TODO(duftler): If we don't get rid of this Samples section entirely, build the list dynamically.
+          {
+            title: '&nbsp;&nbsp;Show All Types',
+            action: function(elm, d, i) {
+              viewModelService.viewModel.data = viewModelService.dataSamples[1];
+              draw();
+            }
+          },
+          {
+            title: '&nbsp;&nbsp;Hide Containers',
+            action: function(elm, d, i) {
+              viewModelService.viewModel.data = viewModelService.dataSamples[2];
+              draw();
+            }
+          },
+          {
+            title: '&nbsp;&nbsp;Clustered',
+            action: function(elm, d, i) {
+              viewModelService.viewModel.data = viewModelService.dataSamples[0];
+              draw();
+            }
+          }
+        ];
+
+        var nodeContextMenu = [
+          {
+            title: 'Item #1',
+            action: function(elm, d, i) {
+              console.log('Item #1 clicked!');
+              console.log('The data for this node is: ' + JSON.stringify(d));
+            }
+          },
+          {
+            title: 'Item #2',
+            action: function(elm, d, i) {
+              console.log('Item #2 clicked!');
+              console.log('The data for this node is: ' + JSON.stringify(d));
+            }
+          }
+        ];
+
+        function zoomed() {
+          g.attr("transform", "translate(" + zoom.translate() + ")scale(" + zoom.scale() + ")");
+        }
+
+        function adjustZoom(factor) {
+          var scale = zoom.scale(),
+              extent = zoom.scaleExtent(),
+              translate = zoom.translate(),
+              x = translate[0], y = translate[1],
+              //factor = (this.id === 'zoom_in') ? 1.2 : 1/1.2,
+              target_scale = scale * factor;
+
+          if (!factor) {
+            target_scale = 1;
+            factor = target_scale / scale;
+          }
+
+          // If we're already at an extent, done
+          if (target_scale === extent[0] || target_scale === extent[1]) { return false; }
+          // If the factor is too much, scale it down to reach the extent exactly
+          var clamped_target_scale = Math.max(extent[0], Math.min(extent[1], target_scale));
+          if (clamped_target_scale != target_scale){
+            target_scale = clamped_target_scale;
+            factor = target_scale / scale;
+          }
+
+          // Center each vector, stretch, then put back
+          x = (x - center[0]) * factor + center[0];
+          y = (y - center[1]) * factor + center[1];
+
+          // Transition to the new view over 350ms
+          d3.transition().duration(350).tween("zoom", function () {
+            var interpolate_scale = d3.interpolate(scale, target_scale),
+                interpolate_trans = d3.interpolate(translate, [x,y]);
+            return function (t) {
+              zoom.scale(interpolate_scale(t))
+                  .translate(interpolate_trans(t));
+              zoomed();
+            };
+          });
         }
       };
     }
