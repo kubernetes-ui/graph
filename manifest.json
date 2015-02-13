@@ -27,7 +27,7 @@
             "name": "Test",
             "url": "/graph/test",
             "type": "link",
-            "templateUrl": "/components/graph/pages/home.html",
+            "templateUrl": "/components/graph/pages/home.html"
           }
         ]
       }
