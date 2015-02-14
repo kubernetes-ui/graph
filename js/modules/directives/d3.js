@@ -40,6 +40,12 @@ angular.module('krakenApp.Graph')
 
         svg.call(zoom).on("dblclick.zoom", null).call(zoom.event);
 
+        var drag = d3.behavior.drag()
+            .origin(function(d) { return d; })
+            .on("dragstart", dragstarted)
+            .on("drag", dragmove)
+            .on("dragend", d3_layout_forceDragend);
+
         var graph = undefined;
         if (scope.viewModelService) {
           graph = scope.viewModelService.viewModel.data;
@@ -102,7 +108,9 @@ angular.module('krakenApp.Graph')
           .data(graph.nodes)
           .enter().append("g")
           .attr("class", "node")
-          .call(force.drag);
+          .on("mouseover", d3_layout_forceMouseover)
+          .on("mouseout", d3_layout_forceMouseout)
+          .call(drag);
 
         // create the div element that will hold the context menu
         d3.selectAll('.d3-context-menu').data([1])
@@ -417,6 +425,27 @@ angular.module('krakenApp.Graph')
 
         function zoomed() {
           g.attr("transform", "translate(" + zoom.translate() + ")scale(" + zoom.scale() + ")");
+        }
+
+        function dragstarted(d) {
+          d3.event.sourceEvent.stopPropagation();
+          d.fixed |= 2;
+        }
+
+        function dragmove(d) {
+          d.px = d3.event.x, d.py = d3.event.y;
+          force.resume();
+        }
+
+        function d3_layout_forceDragend(d) {
+          d.fixed &= ~6;
+        }
+        function d3_layout_forceMouseover(d) {
+          d.fixed |= 4;
+          d.px = d.x, d.py = d.y;
+        }
+        function d3_layout_forceMouseout(d) {
+          d.fixed &= ~4;
         }
 
         function adjustZoom(factor) {
