@@ -18,10 +18,10 @@ angular.module('krakenApp.Graph')
 
         var color = d3.scale.category20();
 
-        var svg = d3.select(element[0]).select("svg");
-        svg.remove();
+        d3.select(element[0]).select("svg").remove();
 
-        svg = d3.select(element[0]).append("svg")
+        var svg = d3.select(element[0])
+          .append("svg")
           .attr("width", width)
           .attr("height", height)
           .attr("class", "graph");
@@ -40,11 +40,26 @@ angular.module('krakenApp.Graph')
 
         svg.call(zoom).on("dblclick.zoom", null).call(zoom.event);
 
+        var origWheelZoomHandler = svg.on("wheel.zoom");
+        svg.on("wheel.zoom", wheelScrollHandler);
+
+        d3.select("body")
+          .on("keydown", function() {
+            if (d3.event.ctrlKey) {
+              svg.on("wheel.zoom", origWheelZoomHandler);
+            }
+          })
+          .on("keyup", function() {
+            if (!d3.event.ctrlKey) {
+              svg.on("wheel.zoom", wheelScrollHandler);
+            }
+          });
+
         var drag = d3.behavior.drag()
-            .origin(function(d) { return d; })
-            .on("dragstart", dragstarted)
-            .on("drag", dragmove)
-            .on("dragend", d3_layout_forceDragend);
+          .origin(function(d) { return d; })
+          .on("dragstart", dragstarted)
+          .on("drag", dragmove)
+          .on("dragend", d3_layout_forceDragend);
 
         var graph = undefined;
         if (scope.viewModelService) {
@@ -58,10 +73,13 @@ angular.module('krakenApp.Graph')
           .on("tick", tick);
 
         if (graph.settings.clustered) {
+          // TODO(duftler): Externalize these values.
           force.gravity(.02)
             .charge(0);
         } else {
-          force.charge(-1250)
+          // TODO(duftler): Externalize these values.
+          force.gravity(.25)
+            .charge(-1250)
             .linkDistance(function (d) {
               return d.distance;
             }).links(graph.links)
@@ -423,6 +441,13 @@ angular.module('krakenApp.Graph')
           }
         ];
 
+        function wheelScrollHandler() {
+          var origTranslate = zoom.translate();
+
+          zoom.translate([origTranslate[0] - window.event.deltaX, origTranslate[1] - window.event.deltaY]);
+          zoomed();
+        }
+
         function zoomed() {
           g.attr("transform", "translate(" + zoom.translate() + ")scale(" + zoom.scale() + ")");
         }
@@ -453,10 +478,11 @@ angular.module('krakenApp.Graph')
               extent = zoom.scaleExtent(),
               translate = zoom.translate(),
               x = translate[0], y = translate[1],
-              //factor = (this.id === 'zoom_in') ? 1.2 : 1/1.2,
               target_scale = scale * factor;
 
-          if (!factor) {
+          var reset = !factor;
+
+          if (reset) {
             target_scale = 1;
             factor = target_scale / scale;
           }
@@ -473,6 +499,11 @@ angular.module('krakenApp.Graph')
           // Center each vector, stretch, then put back
           x = (x - center[0]) * factor + center[0];
           y = (y - center[1]) * factor + center[1];
+
+          if (reset) {
+            x = 0;
+            y = 0;
+          }
 
           // Transition to the new view over 350ms
           d3.transition().duration(350).tween("zoom", function () {
