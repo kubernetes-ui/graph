@@ -119,8 +119,20 @@
           {
             "name": "svc: redis-master",
             "group": 1,
-            "radius": 16
-          }, 
+            "radius": 16,
+            "tags": [
+              {
+                "key": "Type",
+                "value": "Service"
+              },
+              {
+                "key": "Console",
+                "value": "http://localhost:5678/some/console",
+                "type": "link",
+                "hide": false
+              }
+            ]
+          },
           {
             "name": "pod: redis-master",
             "group": 2,
@@ -130,12 +142,28 @@
             "name": "container: master",
             "group": 3,
             "radius": 24
-          }, 
+          },
           {
             "name": "lb: guestbook",
             "group": 4,
-            "radius": 16
-          }, 
+            "radius": 16,
+            "tags": [
+              {
+                "key": "Type",
+                "value": "Load Balancer"
+              },
+              {
+                "key": "Port",
+                "value": "3000"
+              },
+              {
+                "key": "Logs",
+                "value": "http://localhost:1234/some/logs",
+                "type": "link",
+                "hide": false
+              }
+            ]
+          },
           {
             "name": "svc: redis-worker",
             "group": 1,

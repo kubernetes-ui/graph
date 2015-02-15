@@ -1,7 +1,6 @@
 // TODO(duftler): Remove mockDataService dependency once 'Samples' section is removed from canvas context menu.
 angular.module('krakenApp.Graph')
-.directive('d3Visualization', ['d3Service', 'mockDataService', 
-    function (d3Service, mockDataService) {
+.directive('d3Visualization', ['d3Service', 'mockDataService', function (d3Service, mockDataService) {
   return {
     restrict: 'E',
     link: function (scope, element, attrs) {
@@ -28,6 +27,8 @@ angular.module('krakenApp.Graph')
           .attr("class", "graph");
 
         svg.on('contextmenu', function (data, index) {
+          d3.selectAll('.popup-tags-table').style("display", "none");
+
           if (d3.select('.d3-context-menu').style('display') !== 'block') {
             showContextMenu(data, index, canvasContextMenu);
           }
@@ -60,7 +61,7 @@ angular.module('krakenApp.Graph')
           .origin(function(d) { return d; })
           .on("dragstart", dragstarted)
           .on("drag", dragmove)
-          .on("dragend", d3_layout_forceDragend);
+          .on("dragend", dragended);
 
         var graph = undefined;
         if (scope.viewModelService) {
@@ -142,6 +143,16 @@ angular.module('krakenApp.Graph')
           d3.select('.d3-context-menu').style('display', 'none');
         });
 
+        d3.selectAll('.popup-tags-table').data([1])
+          .enter()
+          .append('div')
+          .attr('class', 'popup-tags-table')
+          .style('display', 'none');
+
+        d3.select('body').on('click.popup-tags-table', function() {
+          d3.selectAll('.popup-tags-table').style('display', 'none');
+        });
+
         node.append("circle")
           .attr("r", function (d) {
             return d.radius;
@@ -151,7 +162,13 @@ angular.module('krakenApp.Graph')
           })
           .on("dblclick", dblclick)
           .on('contextmenu', function (data, index) {
+            d3.selectAll('.popup-tags-table').style("display", "none");
             showContextMenu(data, index, nodeContextMenu);
+          })
+          .on("mouseover", showPopupTagsTable)
+          .on("mouseout", function () {
+            // Interrupt any pending transition on this node.
+            d3.selectAll('.popup-tags-table').transition();
           });
 
         if (graph.settings.showNodeLabels) {
@@ -241,7 +258,6 @@ angular.module('krakenApp.Graph')
                 return (typeof d.title === 'string') ? d.title : d.title(data);
               })
               .on('click', function (d, i) {
-                //d.action(elm, data, index);
                 d.action(elm, data, index);
                 d3.select('.d3-context-menu').style('display', 'none');
               });
@@ -253,6 +269,64 @@ angular.module('krakenApp.Graph')
               .style('display', 'block');
 
           d3.event.preventDefault();
+        }
+
+        function showPopupTagsTable(d) {
+          // Only start the popup transition if the context-menu is not displayed, the node is not being dragged, and
+          // the popup is not already displayed.
+          if (d3.select('.d3-context-menu').style('display') !== 'block'
+              && !d.dragging
+              && d3.select('.popup-tags-table').style('display') !== 'block') {
+            d3.selectAll('.popup-tags-table').html('');
+
+            if (d.tags && d.tags.length) {
+              var tr = d3.selectAll('.popup-tags-table').append("table")
+                .selectAll("tr")
+                .data(d.tags)
+                .enter()
+                .append("tr");
+
+              var td = tr.selectAll("td")
+                .data(function (d) {
+                  // TODO(duftler): Figure out the right way to hide tags. This doesn't quite work yet.
+                  //return !d.hide ? [d.key, {value: d.value, type: d.type}] : false;
+
+                  return [d.key, {value: d.value, type: d.type}];
+                })
+                .enter().append("td")
+                .append("a")
+                .attr("class", function (d) {
+                  if (d !== null && typeof d === 'object') {
+                    return d.type === 'link' ? "" : "not-a-link";
+                  } else {
+                    return "not-a-link";
+                  }
+                })
+                .attr("href", function (d) {
+                  if (d !== null && typeof d === 'object') {
+                    return d.type === 'link' ? d.value : "";
+                  } else {
+                    return d;
+                  }
+                })
+                .text(function (d) {
+                  if (d !== null && typeof d === 'object') {
+                    return d.value;
+                  } else {
+                    return d;
+                  }
+                });
+
+              d3.selectAll('.popup-tags-table')
+                .style('left', (d3.event.pageX - 2) + 'px')
+                .style('top', (d3.event.pageY - 2) + 'px');
+
+              d3.selectAll('.popup-tags-table')
+                .transition()
+                .delay(1500)
+                .style('display', 'block');
+            }
+          }
         }
 
         // Now we are giving the SVGs co-ordinates - the force layout is generating the co-ordinates which this code is using to update the attributes of the SVG elements.
@@ -406,35 +480,37 @@ angular.module('krakenApp.Graph')
             title: '&nbsp;&nbsp;Show All Types',
             action: function(elm, d, i) {
               scope.viewModelService.setViewModel(mockDataService.samples[1].data);
+              scope.$apply();
             }
           },
           {
             title: '&nbsp;&nbsp;Hide Containers',
             action: function(elm, d, i) {
               scope.viewModelService.setViewModel(mockDataService.samples[2].data);
+              scope.$apply();
             }
           },
           {
             title: '&nbsp;&nbsp;Clustered',
             action: function(elm, d, i) {
               scope.viewModelService.setViewModel(mockDataService.samples[0].data);
+              scope.$apply();
             }
           }
         ];
 
         var nodeContextMenu = [
           {
-            title: 'Item #1',
+            title: function(d) {
+              return d.fixed & 8 ? "Unlock" : "Lock";
+            },
             action: function(elm, d, i) {
-              console.log('Item #1 clicked!');
-              console.log('The data for this node is: ' + JSON.stringify(d));
-            }
-          },
-          {
-            title: 'Item #2',
-            action: function(elm, d, i) {
-              console.log('Item #2 clicked!');
-              console.log('The data for this node is: ' + JSON.stringify(d));
+              if (d.fixed) {
+                d.fixed &= ~8;
+                force.resume();
+              } else {
+                d.fixed |= 8;
+              }
             }
           }
         ];
@@ -452,7 +528,12 @@ angular.module('krakenApp.Graph')
 
         function dragstarted(d) {
           d3.event.sourceEvent.stopPropagation();
+
+          // Interrupt any pending transition on this node.
+          d3.selectAll('.popup-tags-table').transition();
+
           d.fixed |= 2;
+          d.dragging = true;
         }
 
         function dragmove(d) {
@@ -460,13 +541,16 @@ angular.module('krakenApp.Graph')
           force.resume();
         }
 
-        function d3_layout_forceDragend(d) {
+        function dragended(d) {
           d.fixed &= ~6;
+          d.dragging = false;
         }
+
         function d3_layout_forceMouseover(d) {
           d.fixed |= 4;
           d.px = d.x, d.py = d.y;
         }
+
         function d3_layout_forceMouseout(d) {
           d.fixed &= ~4;
         }
