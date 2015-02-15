@@ -1,6 +1,6 @@
 // TODO(duftler): Remove mockDataService dependency once 'Samples' section is removed from canvas context menu.
 angular.module('krakenApp.Graph')
-.directive('d3Visualization', ['d3Service', 'mockDataService', function (d3Service, mockDataService) {
+.directive('d3Visualization', ['lodash', 'd3Service', 'mockDataService', function (lodash, d3Service, mockDataService) {
   return {
     restrict: 'E',
     link: function (scope, element, attrs) {
@@ -280,17 +280,18 @@ angular.module('krakenApp.Graph')
             d3.selectAll('.popup-tags-table').html('');
 
             if (d.tags && d.tags.length) {
+              var tagsToDisplay = lodash.filter(d.tags, function(n) {
+                return !n.hide;
+              });
+
               var tr = d3.selectAll('.popup-tags-table').append("table")
                 .selectAll("tr")
-                .data(d.tags)
+                .data(tagsToDisplay)
                 .enter()
                 .append("tr");
 
               var td = tr.selectAll("td")
                 .data(function (d) {
-                  // TODO(duftler): Figure out the right way to hide tags. This doesn't quite work yet.
-                  //return !d.hide ? [d.key, {value: d.value, type: d.type}] : false;
-
                   return [d.key, {value: d.value, type: d.type}];
                 })
                 .enter().append("td")

@@ -161,6 +161,12 @@
                 "value": "http://localhost:1234/some/logs",
                 "type": "link",
                 "hide": false
+              },
+              {
+                "key": "More Logs",
+                "value": "http://localhost:9012/more/logs",
+                "type": "link",
+                "hide": true
               }
             ]
           },
