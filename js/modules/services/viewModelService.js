@@ -118,7 +118,7 @@
               }
             }
 
-            console.log("View model: " + JSON.stringify(viewModel.data));
+            // console.log("View model: " + JSON.stringify(viewModel.data));
             viewModel.version++;
           }
         }
