@@ -19,28 +19,34 @@
       "showNodeLabels": true
     };
 
-    var viewModel = { 
-      'data' : { 
-        // Keep default settings for now, so that d3 directive can find them.
-        "settings" : defaultSettings,
-        "nodes" : [ 
-          {
-            "group" : 1,
-            "name" : "no data",
-            "radius" : 20
-          }
-        ],
-        "links" : []
-      }, 
-      'configuration' : undefined,
-      'version' : 0 
+    var defaultModel = {
+      "settings" : defaultSettings,
+      "nodes" : [{
+          "group" : 1,
+          "name" : "no data",
+          "radius" : 20
+        }
+      ],
+      "links" : []
     };
 
-    // TODO(duftler): Remove this once 'Samples' section is removed from canvas context menu.
-    var dataSamples;
+    var viewModel = { 
+      'data' : defaultModel, 
+      'configuration' : undefined,
+      'version' : 0
+    };
+
+    var setViewModel = function(model) {
+      console.log('setViewModel called with: ' + JSON.stringify(model));
+      if (model) {
+        viewModel.data = model;
+        viewModel.version++;
+      }
+    };
 
     // Generate the view model from a given data model.
     var generateViewModel = function(model) {
+      console.log('generateViewModel called with: ' + JSON.stringify(model));
       if (model) {
         if (model["nodes"]) {
           // Convert to strings and parse to create a deep copy.
@@ -120,7 +126,8 @@
 
     return {
       'viewModel' : viewModel,
-      'generateViewModel' : generateViewModel
+      'generateViewModel' : generateViewModel,
+      'setViewModel' : setViewModel
     };
   };
 
