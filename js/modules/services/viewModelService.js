@@ -37,7 +37,7 @@
     };
 
     var setViewModel = function(model) {
-      console.log('setViewModel called with: ' + JSON.stringify(model));
+      // console.log('setViewModel called with: ' + JSON.stringify(model));
       if (model) {
         viewModel.data = model;
         viewModel.version++;
@@ -46,7 +46,7 @@
 
     // Generate the view model from a given data model.
     var generateViewModel = function(model) {
-      console.log('generateViewModel called with: ' + JSON.stringify(model));
+      // console.log('generateViewModel called with: ' + JSON.stringify(model));
       if (model) {
         if (model["nodes"]) {
           // Convert to strings and parse to create a deep copy.

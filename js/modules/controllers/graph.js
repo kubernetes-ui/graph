@@ -14,7 +14,7 @@
         }
       });
 
-      console.log('Initial view model: ' + JSON.stringify(viewModelService.viewModel));
+      // console.log('Initial view model: ' + JSON.stringify(viewModelService.viewModel));
 
       // TODO: Start polling when we go in scope and stop when we go out of scope.
       pollK8sDataService.start();
