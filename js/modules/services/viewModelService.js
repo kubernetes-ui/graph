@@ -7,7 +7,8 @@
 
   // Compute the view model based on the data model and control parameters
   // and place the result in the current scope at $scope.viewModel.
-  var viewModelService = function ViewModelService() {
+  angular.module('krakenApp.Graph')
+    .factory('viewModelService', ['lodash', function viewModelServiceFactory(lodash) {
     var defaultRadius = 20;
     this.setDefaultRadius = function(value) {
       defaultRadius = value;
@@ -129,9 +130,5 @@
       'generateViewModel' : generateViewModel,
       'setViewModel' : setViewModel
     };
-  };
-
-  angular.module('krakenApp.Graph')
-  .service('viewModelService', viewModelService);
-
+  }]);
 })();
