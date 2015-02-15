@@ -1,6 +1,7 @@
 // TODO(duftler): Remove mockDataService dependency once 'Samples' section is removed from canvas context menu.
 angular.module('krakenApp.Graph')
-.directive('d3Visualization', ['d3Service', 'mockDataService', function (d3Service, mockDataService) {
+.directive('d3Visualization', ['d3Service', 'mockDataService', 
+    function (d3Service, mockDataService) {
   return {
     restrict: 'E',
     link: function (scope, element, attrs) {
@@ -416,7 +417,7 @@ angular.module('krakenApp.Graph')
           {
             title: '&nbsp;&nbsp;Clustered',
             action: function(elm, d, i) {
-              scope.viewModelService.setViewModel(mockDataService.samples[3].data);
+              scope.viewModelService.setViewModel(mockDataService.samples[0].data);
             }
           }
         ];
