@@ -11,8 +11,8 @@ angular.module('krakenApp.Graph')
       var draw = function() {
         var d3 = window.d3;
 
-        // TODO(duftler): Externalize these settings.
-        var width = 600,
+        // TODO(duftler): Make the canvas resize to fit its container.
+        var width = 900,
           height = 500,
           center = [width / 2, height / 2];
 

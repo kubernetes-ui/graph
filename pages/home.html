@@ -2,8 +2,9 @@
   <div flex="25" layout="column" layout-align="top center">
     <div flex layout="column" layout-align="top center">
       <md-whiteframe class="md-whiteframe-z1" layout-fill layout-padding>
+        <md-button class="md-raised md-primary" flex layout-fill layout-margin ng-click="pollK8sDataService.start()">Start</md-button>
+        <md-button class="md-raised md-primary" flex layout-fill layout-margin ng-click="pollK8sDataService.stop()">Stop</md-button>
         <md-button class="md-raised md-primary" flex layout-fill layout-margin ng-click="nextSample()">Sample</md-button>
-        <md-button class="md-raised md-primary" flex layout-fill layout-margin ng-click="pollK8sDataService.start()">Live</md-button>
       </md-whiteframe>
     </div>
     <div flex layout>
