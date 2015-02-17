@@ -17,6 +17,7 @@
       $scope.pollK8sDataService = pollK8sDataService;
       // Update the view model every time the backend data model has changed.
       $scope.$watch("pollK8sDataService.k8sdatamodel.sequenceNumber", function(newValue, oldValue) {
+	console.log('sequence number changed, generating view model');
         viewModelService.generateViewModel(pollK8sDataService.k8sdatamodel.data, $scope.selectedTransformName);
       });
       // Update the view model every time the user changes the transformation approach.
@@ -35,5 +36,14 @@
       $scope.setSelectedTransformName = function(transformName) {
 	$scope.selectedTransformName = transformName;
       };
+
+      $scope.refresh = function() {
+	pollK8sDataService.refresh($scope);
+      };
+
+      $scope.start = function() {
+	pollK8sDataService.start($scope);
+      };
+
   }]);
 })();
