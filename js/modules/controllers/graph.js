@@ -15,7 +15,12 @@
       }
 
       $scope.pollK8sDataService = pollK8sDataService;
+      // Update the view model every time the backend data model has changed.
       $scope.$watch("pollK8sDataService.k8sdatamodel.sequenceNumber", function(newValue, oldValue) {
+        viewModelService.generateViewModel(pollK8sDataService.k8sdatamodel.data, $scope.selectedTransformName);
+      });
+      // Update the view model every time the user changes the transformation approach.
+      $scope.$watch("selectedTransformName", function(newValue, oldValue) {
         viewModelService.generateViewModel(pollK8sDataService.k8sdatamodel.data, $scope.selectedTransformName);
       });
 
@@ -24,6 +29,11 @@
         pollK8sDataService.stop();
         viewModelService.setViewModel(mockDataService.samples[nextSample].data);
         nextSample = (nextSample + 1) % mockDataService.samples.length;
+      };
+
+      // Sets the selected transformName based on user selection
+      $scope.setSelectedTransformName = function(transformName) {
+	$scope.selectedTransformName = transformName;
       };
   }]);
 })();
