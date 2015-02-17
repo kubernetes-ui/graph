@@ -10,10 +10,13 @@ angular.module('krakenApp.Graph')
 
       var draw = function() {
         var d3 = window.d3;
+        d3.select(window).on('resize', resize);
 
-        // TODO(duftler): Make the canvas resize to fit its container.
-        var width = 900,
-          height = 500,
+        var containerDimensions = getContainerDimensions();
+
+        // TODO(duftler): Derive the svg height from the container rather than the other way around.
+        var width = containerDimensions[0] - 16;
+          height = 700,
           center = [width / 2, height / 2];
 
         var color = d3.scale.category20();
@@ -80,7 +83,7 @@ angular.module('krakenApp.Graph')
             .charge(0);
         } else {
           // TODO(duftler): Externalize these values.
-          force.gravity(.25)
+          force.gravity(.40)
             .charge(-1250)
             .linkDistance(function (d) {
               return d.distance;
@@ -480,21 +483,21 @@ angular.module('krakenApp.Graph')
           {
             title: '&nbsp;&nbsp;Show All Types',
             action: function(elm, d, i) {
-              scope.viewModelService.setViewModel(mockDataService.samples[1].data);
+              scope.viewModelService.setViewModel(mockDataService.samples[0].data);
               scope.$apply();
             }
           },
           {
             title: '&nbsp;&nbsp;Hide Containers',
             action: function(elm, d, i) {
-              scope.viewModelService.setViewModel(mockDataService.samples[2].data);
+              scope.viewModelService.setViewModel(mockDataService.samples[1].data);
               scope.$apply();
             }
           },
           {
             title: '&nbsp;&nbsp;Clustered',
             action: function(elm, d, i) {
-              scope.viewModelService.setViewModel(mockDataService.samples[0].data);
+              scope.viewModelService.setViewModel(mockDataService.samples[2].data);
               scope.$apply();
             }
           }
@@ -598,6 +601,26 @@ angular.module('krakenApp.Graph')
               zoomed();
             };
           });
+        }
+
+        function getContainerDimensions() {
+          var parentNode = d3.select(element[0].parentNode);
+          var width = parseInt(parentNode.style("width"));
+          var height = parseInt(parentNode.style("height"));
+
+          return [width, height];
+        }
+
+        function resize() {
+          var containerDimensions = getContainerDimensions();
+          var width = containerDimensions[0] - 16;
+          var height = containerDimensions[1] - 19;
+          var svg = d3.select(element[0]).select("svg");
+
+          svg.attr('width', width);
+          svg.attr('height', height);
+
+          force.size([width, height]).resume();
         }
       };
     }
