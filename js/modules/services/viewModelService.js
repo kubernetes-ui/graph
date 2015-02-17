@@ -264,10 +264,13 @@
           }
 
           if (map.tags) {
-            lodash.forEach(map.tags, function(tagPath) {
-              var result = JSONPath(null, fromNode, map.name);
-              if (result && result.length > 0) {
-                toNode.tags.push({ 'key': map.name, 'value': result[0] });
+            toNode.tags = [];
+            lodash.forEach(map.tags, function(tag) {
+              if (tag.path) {
+                var result = JSONPath(null, fromNode, tag.path);
+                if (result && result.length > 0) {
+                  toNode.tags.push({ 'key': tag.label, 'value': result[0] });
+                }
               }
             });
           }
@@ -447,9 +450,30 @@
 
     // TODO: Move this template into a file.
     var defaultTemplate = {
-      'maps' : [
-          { 'type' : 'Container', 'name' : '$.metadata.Config.Image' }
-        ]
+      'maps' : [{ 
+          'type' : 'Container', 
+          'name' : '$.metadata.Config.Image', 
+          'tags' : [{
+            'path' : '$.metadata.Config.Hostname', 
+            'label': 'Hostname' 
+          }, {
+            'path' : '$.metadata.Config.Memory', 
+            'label': 'Memory' 
+          }, {
+            'path' : '$.metadata.Config.MemorySwap', 
+            'label': 'MemorySwap' 
+          }, {
+            'path' : '$.metadata.Config.NetworkDisabled', 
+            'label': 'NetworkDisabled' 
+          }, {
+            'path' : '$.metadata.HostConfig.Dns', 
+            'label': 'Dns' 
+          }, {
+            'path' : '$.metadata.HostConfig.DnsSearch', 
+            'label': 'DnsSearch' 
+          }]
+        }
+      ]
     };
 
     var defaultTransform = templateTransform(lodash, defaultTemplate);
