@@ -37,7 +37,7 @@ function identityTransform(lodash) {
       newNode.type = newType;
     }
 
-    if (node.metadata && node.metadata.length > 0) {
+    if (node.metadata) {
       newNode.tags = lodash.map(node.metadata, function(value, key) {
         return {
           "key": key,
@@ -71,7 +71,7 @@ function identityTransform(lodash) {
           newEdge.type = edge.relation;
         }
 
-        if (edge.metadata && edge.metadata.length > 0) {
+        if (edge.metadata) {
           newEdge.tags = lodash.map(edge.metadata, function(value, key) {
             return {
               "key": key,
