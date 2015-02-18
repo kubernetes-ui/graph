@@ -249,9 +249,9 @@
     var defaultModel = {
       "settings" : defaultSettings,
       "nodes" : [{
-          "group" : 1,
           "name" : "no data",
-          "radius" : 20
+          "radius" : 20,
+          "fill": "cornflowerblue"
         }
       ],
       "links" : []

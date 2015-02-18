@@ -13,43 +13,43 @@
           "nodes": [
           {
             "name": "service: guestbook",
-            "group": 1,
-            "radius": 16
+            "radius": 16,
+            "fill": "olivedrab"
           }, 
           {
             "name": "pod: guestbook-controller",
-            "group": 2,
-            "radius": 20
+            "radius": 20,
+            "fill": "palegoldenrod"
           }, 
           {
             "name": "pod: guestbook-controller",
-            "group": 2,
-            "radius": 20
-          }, 
+            "radius": 20,
+            "fill": "palegoldenrod"
+          },
           {
             "name": "pod: guestbook-controller",
-            "group": 2,
-            "radius": 20
+            "radius": 20,
+            "fill": "palegoldenrod"
+          },
+          {
+            "name": "container: php-redis",
+            "radius": 24,
+            "fill": "cornflowerblue"
           }, 
           {
             "name": "container: php-redis",
-            "group": 3,
-            "radius": 24
-          }, 
+            "radius": 24,
+            "fill": "cornflowerblue"
+          },
           {
             "name": "container: php-redis",
-            "group": 3,
-            "radius": 24
-          }, 
-          {
-            "name": "container: php-redis",
-            "group": 3,
-            "radius": 24
+            "radius": 24,
+            "fill": "cornflowerblue"
           }, 
           {
             "name": "service: redis-master",
-            "group": 1,
             "radius": 16,
+            "fill": "olivedrab",
             "tags": [
               {
                 "key": "Type",
@@ -65,18 +65,18 @@
           },
           {
             "name": "pod: redis-master",
-            "group": 2,
-            "radius": 20
-          }, 
-          {
-            "name": "container: master",
-            "group": 3,
-            "radius": 24
+            "radius": 20,
+            "fill": "palegoldenrod"
           },
           {
-            "name": "lb: guestbook",
-            "group": 4,
+            "name": "container: master",
+            "radius": 24,
+            "fill": "cornflowerblue"
+          },
+          {
+            "name": "load balancer: guestbook",
             "radius": 16,
+            "fill": "yellowgreen",
             "tags": [
               {
                 "key": "Type",
@@ -102,23 +102,23 @@
           },
           {
             "name": "service: redis-worker",
-            "group": 1,
-            "radius": 16
-          }, 
+            "radius": 16,
+            "fill": "olivedrab"
+          },
           {
             "name": "pod: redis-worker-controller",
-            "group": 2,
-            "radius": 20
+            "radius": 20,
+            "fill": "palegoldenrod"
           }, 
           {
             "name": "container: slave",
-            "group": 3,
-            "radius": 24
+            "radius": 24,
+            "fill": "cornflowerblue"
           }, 
           {
             "name": "container: slave",
-            "group": 3,
-            "radius": 24
+            "radius": 24,
+            "fill": "cornflowerblue"
           }
           ],
           "links": [
@@ -209,53 +209,53 @@
           "nodes": [
           {
             "name": "service: guestbook",
-            "group": 1,
-            "radius": 16
+            "radius": 16,
+            "fill": "olivedrab"
           },
           {
             "name": "pod: guestbook-controller",
-            "group": 2,
-            "radius": 20
+            "radius": 20,
+            "fill": "palegoldenrod"
           },
           {
             "name": "pod: guestbook-controller",
-            "group": 2,
-            "radius": 20
+            "radius": 20,
+            "fill": "palegoldenrod"
           },
           {
             "name": "pod: guestbook-controller",
-            "group": 2,
-            "radius": 20
+            "radius": 20,
+            "fill": "palegoldenrod"
           },
           {
             "name": "service: redis-master",
-            "group": 1,
-            "radius": 16
+            "radius": 16,
+            "fill": "olivedrab"
           },
           {
             "name": "pod: redis-master",
-            "group": 2,
-            "radius": 20
+            "radius": 20,
+            "fill": "palegoldenrod"
           },
           {
             "name": "service: redis-worker",
-            "group": 1,
-            "radius": 16
+            "radius": 16,
+            "fill": "olivedrab"
           },
           {
             "name": "pod: redis-worker-controller",
-            "group": 2,
-            "radius": 20
+            "radius": 20,
+            "fill": "palegoldenrod"
           },
           {
             "name": "pod: redis-worker-controller",
-            "group": 2,
-            "radius": 20
+            "radius": 20,
+            "fill": "palegoldenrod"
           },
           {
             "name": "load balancer: guestbook",
-            "group": 3,
-            "radius": 16
+            "radius": 16,
+            "fill": "yellowgreen"
           }
           ],
           "links": [
@@ -371,59 +371,70 @@
       'data' : {
         "nodes" : [ 
         {
-          "group" : 1,
+          "cluster" : 1,
           "name" : "pod: guestbook-controller",
-          "radius" : 24
+          "radius" : 24,
+          "fill": "red"
         },
         { 
-          "group" : 2,
+          "cluster" : 2,
           "name" : "pod: guestbook-controller",
-          "radius" : 24
+          "radius" : 24,
+          "fill": "green"
         },
         { 
-          "group" : 3,
+          "cluster" : 3,
           "name" : "pod: guestbook-controller",
-          "radius" : 24
+          "radius" : 24,
+          "fill": "blue"
         },
         { 
-          "group" : 1,
+          "cluster" : 1,
           "name" : "container: php-redis",
-          "radius" : 20
+          "radius" : 20,
+          "fill": "red"
         },
         { 
-          "group" : 2,
+          "cluster" : 2,
           "name" : "container: php-redis",
-          "radius" : 20
+          "radius" : 20,
+          "fill": "green"
         },
         { 
-          "group" : 3,
+          "cluster" : 3,
           "name" : "container: php-redis",
-          "radius" : 20
+          "radius" : 20,
+          "fill": "blue"
         },
         { 
-          "group" : 4,
+          "cluster" : 4,
           "name" : "pod: redis-master",
-          "radius" : 24
+          "radius" : 24,
+          "fill": "orange"
         },
         { 
-          "group" : 4,
+          "cluster" : 4,
           "name" : "container: master",
-          "radius" : 20
+          "radius" : 20,
+          "fill": "orange"
         },
         { 
-          "group" : 5,
+          "cluster" : 5,
           "name" : "pod: redis-worker-controller",
-          "radius" : 24
+          "radius" : 24,
+          "fill" : "goldenrod"
         },
         { 
-          "group" : 5,
+          "cluster" : 5,
           "name" : "container: slave",
-          "radius" : 20
+          "radius" : 20,
+          "fill" : "goldenrod"
         },
         { 
-          "group" : 5,
+          "cluster" : 5,
           "name" : "container: slave",
-          "radius" : 20
+          "radius" : 20,
+          "fill" : "goldenrod"
         }
         ],
         "settings" : { 

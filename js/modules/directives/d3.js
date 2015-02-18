@@ -104,6 +104,10 @@ angular.module('krakenApp.Graph')
 
         if (!graph.settings.clustered) {
           graph.nodes.forEach(function (n) {
+            if (n.fixed) {
+              n.fixed = 8;
+            }
+
             var radius = graph.nodes.length * 3;
             var startingPosition = getRandomStartingPosition(radius);
 
@@ -127,21 +131,25 @@ angular.module('krakenApp.Graph')
           var maxCluster = -1;
 
           nodes.forEach(function (d) {
-            maxCluster = Math.max(maxCluster, d.group);
+            maxCluster = Math.max(maxCluster, d.cluster);
             maxRadius = Math.max(maxRadius, d.radius);
           });
 
           var clusters = new Array(maxCluster + 1);
 
           nodes.forEach(function (d) {
-            if (!clusters[d.group] || (d.radius > clusters[d.group].radius)) clusters[d.group] = d;
+            if (!clusters[d.cluster] || (d.radius > clusters[d.cluster].radius)) clusters[d.cluster] = d;
           });
 
           return clusters;
         }
 
         // The largest node for each cluster.
-        var clusters = buildClusters(graph.nodes);
+        var clusters;
+
+        if (graph.settings.clustered) {
+          clusters = buildClusters(graph.nodes);
+        }
 
         var node = g.selectAll(".node")
           .data(graph.nodes)
@@ -176,8 +184,11 @@ angular.module('krakenApp.Graph')
           .attr("r", function (d) {
             return d.radius;
           })
+          .style("stroke", function (d) {
+            return d.stroke;
+          })
           .style("fill", function (d) {
-            return color(d.group);
+            return d.fill;
           })
           .on("dblclick", dblclick)
           .on('contextmenu', function (data, index) {
@@ -422,7 +433,7 @@ angular.module('krakenApp.Graph')
         // Move d to be adjacent to the cluster node.
         function cluster(alpha) {
           return function (d) {
-            var cluster = clusters[d.group];
+            var cluster = clusters[d.cluster];
             if (cluster === d) return;
             if (d.x == cluster.x && d.y == cluster.y) {
               d.x += 0.1;
@@ -455,7 +466,7 @@ angular.module('krakenApp.Graph')
                 var x = d.x - quad.point.x,
                   y = d.y - quad.point.y,
                   l = Math.sqrt(x * x + y * y),
-                  r = d.radius + quad.point.radius + (d.group === quad.point.group ? graph.settings.clusterSettings.padding : graph.settings.clusterSettings.clusterPadding);
+                  r = d.radius + quad.point.radius + (d.cluster === quad.point.cluster ? graph.settings.clusterSettings.padding : graph.settings.clusterSettings.clusterPadding);
                 if (l < r) {
                   l = (l - r) / l * alpha;
                   d.x -= x *= l;
