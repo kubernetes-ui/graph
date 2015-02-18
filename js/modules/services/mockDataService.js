@@ -8,7 +8,7 @@
     var mockDataService = function MockDataService() {
       var MOCK_SAMPLE_DATA = [
       {
-        'name' : 'Show All Types', 
+        'name' : 'All Types', 
         'data' : {
           "nodes": [
           {

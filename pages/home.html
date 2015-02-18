@@ -1,25 +1,37 @@
 <div ng-controller="GraphCtrl" flex layout="row" layout-fill>
-  <div flex="25" layout="column" layout-fill>
-    <div layout="row">
-      <md-whiteframe flex class="md-whiteframe-z1" layout="column"
-                     layout-fill layout-padding>
-        <md-button class="md-raised md-primary" flex layout-fill ng-click="refresh()">Refresh</md-button>
-        <md-button class="md-raised md-primary" flex layout-fill ng-click="start()">Start</md-button>
-        <md-button class="md-raised md-primary" flex layout-fill ng-click="pollK8sDataService.stop()">Stop</md-button>
-        <md-button class="md-raised md-primary" flex layout-fill ng-click="nextSample()">Sample</md-button>
-      </md-whiteframe>
-      <md-whiteframe flex class="md-whiteframe-z1" layout="column" layout-fill layout-padding>
-        <md-button ng-repeat="transformName in viewModelService.viewModel.transformNames"
-                   class="md-raised md-primary"
-                   flex layout-fill ng-click="setSelectedTransformName(transformName)">{{transformName}}</md-button>
-      </md-whiteframe>
+  <div flex="20" layout="column" layout-fill>
+    <div layout="column">
+      <div layout="row">
+        <md-whiteframe flex class="md-whiteframe-z1" layout="column"
+                       layout-fill layout-padding>
+          <md-button class="md-raised md-primary" flex layout-fill ng-click="refresh()">Refresh</md-button>
+          <md-button class="md-raised md-primary" flex layout-fill ng-click="start()">Start</md-button>
+          <md-button class="md-raised md-primary" flex layout-fill ng-click="stop()">Stop</md-button>
+        </md-whiteframe>
+      </div>
+      <div layout="row">
+        <md-whiteframe flex class="md-whiteframe-z1" layout="column"
+                       layout-fill layout-padding>
+          <md-button ng-repeat="transformName in viewModelService.viewModel.transformNames"
+                     class="md-raised md-primary"
+                     flex layout-fill ng-click="setSelectedTransformName(transformName)">{{transformName}}</md-button>
+        </md-whiteframe>
+      </div>
+      <div layout="row">
+        <md-whiteframe flex class="md-whiteframe-z1" layout="column"
+                       layout-fill layout-padding>
+          <md-button ng-repeat="sampleName in mockDataSampleNames"
+                     class="md-raised md-primary"
+                     flex layout-fill ng-click="showMockDataSample(sampleName)">{{sampleName}}</md-button>
+        </md-whiteframe>
+      </div>
     </div>
     <div flex layout="row">
       <md-card layout-fill>
       </md-card>
     </div>
   </div>
-  <div flex="75" layout="column" layout-fill>
+  <div flex="80" layout="column" layout-fill>
     <md-whiteframe class="md-whiteframe-z1" flex layout layout-fill layout-padding>
       <d3-visualization></d3-visualization>
     </md-whiteframe>

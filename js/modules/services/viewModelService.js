@@ -3,17 +3,214 @@
  * Visualizer for force directed graph
  =========================================================*/
 
-// TODO: Remove this embedded copy of JSONPath when it loads correctly.
+// TODO: Remove these embedded library modules when they vendor correctly.
 
-  /*global module, exports, require*/
-  /*jslint vars:true, evil:true*/
-  /* JSONPath 0.8.0 - XPath for JSON
-   *
-   * Copyright (c) 2007 Stefan Goessner (goessner.net)
-   * Licensed under the MIT (MIT-LICENSE.txt) licence.
-   */
+// bower_components/sprintf/dist/sprintf.js
+(function(window) {
+    var re = {
+        not_string: /[^s]/,
+        number: /[dief]/,
+        text: /^[^\x25]+/,
+        modulo: /^\x25{2}/,
+        placeholder: /^\x25(?:([1-9]\d*)\$|\(([^\)]+)\))?(\+)?(0|'[^$])?(-)?(\d+)?(?:\.(\d+))?([b-fiosuxX])/,
+        key: /^([a-z_][a-z_\d]*)/i,
+        key_access: /^\.([a-z_][a-z_\d]*)/i,
+        index_access: /^\[(\d+)\]/,
+        sign: /^[\+\-]/
+    };
 
- (function() {
+    function sprintf() {
+        var key = arguments[0], cache = sprintf.cache;
+        if (!(cache[key] && cache.hasOwnProperty(key))) {
+            cache[key] = sprintf.parse(key)
+        }
+        return sprintf.format.call(null, cache[key], arguments);
+    }
+
+    sprintf.format = function(parse_tree, argv) {
+        var cursor = 1, tree_length = parse_tree.length, node_type = "", arg, output = [], i, k, match, pad, pad_character, pad_length, is_positive = true, sign = ""
+        for (i = 0; i < tree_length; i++) {
+            node_type = get_type(parse_tree[i])
+            if (node_type === "string") {
+                output[output.length] = parse_tree[i]
+            }
+            else if (node_type === "array") {
+                match = parse_tree[i] // convenience purposes only
+                if (match[2]) { // keyword argument
+                    arg = argv[cursor]
+                    for (k = 0; k < match[2].length; k++) {
+                        if (!arg.hasOwnProperty(match[2][k])) {
+                            throw new Error(sprintf("[sprintf] property '%s' does not exist", match[2][k]))
+                        }
+                        arg = arg[match[2][k]]
+                    }
+                }
+                else if (match[1]) { // positional argument (explicit)
+                    arg = argv[match[1]]
+                }
+                else { // positional argument (implicit)
+                    arg = argv[cursor++]
+                }
+
+                if (get_type(arg) == "function") {
+                    arg = arg()
+                }
+
+                if (re.not_string.test(match[8]) && (get_type(arg) != "number" && isNaN(arg))) {
+                    throw new TypeError(sprintf("[sprintf] expecting number but found %s", get_type(arg)))
+                }
+
+                if (re.number.test(match[8])) {
+                    is_positive = arg >= 0
+                }
+
+                switch (match[8]) {
+                    case "b":
+                        arg = arg.toString(2)
+                    break
+                    case "c":
+                        arg = String.fromCharCode(arg)
+                    break
+                    case "d":
+                    case "i":
+                        arg = parseInt(arg, 10)
+                    break
+                    case "e":
+                        arg = match[7] ? arg.toExponential(match[7]) : arg.toExponential()
+                    break
+                    case "f":
+                        arg = match[7] ? parseFloat(arg).toFixed(match[7]) : parseFloat(arg)
+                    break
+                    case "o":
+                        arg = arg.toString(8)
+                    break
+                    case "s":
+                        arg = ((arg = String(arg)) && match[7] ? arg.substring(0, match[7]) : arg)
+                    break
+                    case "u":
+                        arg = arg >>> 0
+                    break
+                    case "x":
+                        arg = arg.toString(16)
+                    break
+                    case "X":
+                        arg = arg.toString(16).toUpperCase()
+                    break
+                }
+                if (re.number.test(match[8]) && (!is_positive || match[3])) {
+                    sign = is_positive ? "+" : "-"
+                    arg = arg.toString().replace(re.sign, "")
+                }
+                else {
+                    sign = ""
+                }
+                pad_character = match[4] ? match[4] === "0" ? "0" : match[4].charAt(1) : " "
+                pad_length = match[6] - (sign + arg).length
+                pad = match[6] ? (pad_length > 0 ? str_repeat(pad_character, pad_length) : "") : ""
+                output[output.length] = match[5] ? sign + arg + pad : (pad_character === "0" ? sign + pad + arg : pad + sign + arg)
+            }
+        }
+        return output.join("");
+    }
+
+    sprintf.cache = {};
+
+    sprintf.parse = function(fmt) {
+        var _fmt = fmt, match = [], parse_tree = [], arg_names = 0
+        while (_fmt) {
+            if ((match = re.text.exec(_fmt)) !== null) {
+                parse_tree[parse_tree.length] = match[0]
+            }
+            else if ((match = re.modulo.exec(_fmt)) !== null) {
+                parse_tree[parse_tree.length] = "%"
+            }
+            else if ((match = re.placeholder.exec(_fmt)) !== null) {
+                if (match[2]) {
+                    arg_names |= 1
+                    var field_list = [], replacement_field = match[2], field_match = []
+                    if ((field_match = re.key.exec(replacement_field)) !== null) {
+                        field_list[field_list.length] = field_match[1]
+                        while ((replacement_field = replacement_field.substring(field_match[0].length)) !== "") {
+                            if ((field_match = re.key_access.exec(replacement_field)) !== null) {
+                                field_list[field_list.length] = field_match[1]
+                            }
+                            else if ((field_match = re.index_access.exec(replacement_field)) !== null) {
+                                field_list[field_list.length] = field_match[1]
+                            }
+                            else {
+                                throw new SyntaxError("[sprintf] failed to parse named argument key")
+                            }
+                        }
+                    }
+                    else {
+                        throw new SyntaxError("[sprintf] failed to parse named argument key")
+                    }
+                    match[2] = field_list
+                }
+                else {
+                    arg_names |= 2
+                }
+                if (arg_names === 3) {
+                    throw new Error("[sprintf] mixing positional and named placeholders is not (yet) supported")
+                }
+                parse_tree[parse_tree.length] = match
+            }
+            else {
+                throw new SyntaxError("[sprintf] unexpected placeholder")
+            }
+            _fmt = _fmt.substring(match[0].length)
+        }
+        return parse_tree
+    }
+
+    var vsprintf = function(fmt, argv, _argv) {
+        _argv = (argv || []).slice(0)
+        _argv.splice(0, 0, fmt)
+        return sprintf.apply(null, _argv)
+    };
+
+    /**
+     * helpers
+     */
+    function get_type(variable) {
+        return Object.prototype.toString.call(variable).slice(8, -1).toLowerCase()
+    };
+
+    function str_repeat(input, multiplier) {
+        return Array(multiplier + 1).join(input)
+    };
+
+    /**
+     * export to either browser or node.js
+     */
+    if (typeof exports !== "undefined") {
+        exports.sprintf = sprintf
+        exports.vsprintf = vsprintf
+    }
+    else {
+        window.sprintf = sprintf
+        window.vsprintf = vsprintf
+
+        if (typeof define === "function" && define.amd) {
+            define(function() {
+                return {
+                    sprintf: sprintf,
+                    vsprintf: vsprintf
+                }
+            })
+        }
+    }
+})(typeof window === "undefined" ? this : window);
+
+/*global module, exports, require*/
+/*jslint vars:true, evil:true*/
+ JSONPath 0.8.0 - XPath for JSON
+ *
+ * Copyright (c) 2007 Stefan Goessner (goessner.net)
+ * Licensed under the MIT (MIT-LICENSE.txt) licence.
+ 
+
+(function() {
   'use strict';
 
   // Keep compatibility with old browsers
@@ -250,30 +447,73 @@
       return str;
     };
 
-    var applyMaps = function(fromNode, toNode) {
-      if (template.maps) {
-        var map = lodash.find(template.maps, function(map) {
-          return map.type === toNode.type;
+    var allTags = function(fromItem, toItem) {
+      if (!toItem.tags && fromItem.metadata) {
+        toItem.tags = lodash.map(fromItem.metadata, function(value, key) {
+          return { "key": key, "value": value };
         });
+      }
+    };
+
+    var mapItem = function(fromItem, toItem, maps, apply) {
+      if (maps) {
+        var map = lodash.find(maps, function(map) {
+          return apply(fromItem, map.scope);
+        });
+
         if (map) {
-          if (map.name) {
-            var result = JSONPath(null, fromNode, map.name);
-            if (result && result.length > 0) {
-              toNode.name = result[0];
+          var properties = map.properties;
+          if (properties) {
+            if (properties.name) {
+              var result = JSONPath(null, fromItem, properties.name);
+              if (result && result.length > 0) {
+                toItem.name = result[0];
+              }
+            }
+
+            if (properties.type) {
+              var result = JSONPath(null, fromItem, properties.type);
+              if (result && result.length > 0) {
+                toItem.type = result[0];
+              }
+            }
+
+            if (properties.tags) {
+              toItem.tags = [];
+              lodash.forOwn(properties.tags, function(path, label) {
+                var result = JSONPath(null, fromItem, path);
+                if (result && result.length > 0) {
+                  toItem.tags.push({ 'key': label, 'value': result[0] });
+                }
+              });
             }
           }
+        }
+      }
 
-          if (map.tags) {
-            toNode.tags = [];
-            lodash.forEach(map.tags, function(tag) {
-              if (tag.path) {
-                var result = JSONPath(null, fromNode, tag.path);
-                if (result && result.length > 0) {
-                  toNode.tags.push({ 'key': tag.label, 'value': result[0] });
-                }
-              }
-            });
-          }
+      allTags(fromItem, toItem);
+    };
+
+    var setIndex = function(toNode) {
+      if (!nameToIndex[toNode.id]) {
+        nameToIndex[toNode.id] = Object.keys(nameToIndex).length;
+      }
+    };
+
+    var getIndex = function(fromEdge, toEdge) {
+      if (fromEdge.source && fromEdge.target) {
+        toEdge.source = nameToIndex[fromEdge.source];
+        toEdge.target = nameToIndex[fromEdge.target];
+      }
+    };
+
+    var setGroup = function(toNode) {
+      toNode.group = 0;
+      if (toNode.type) {
+        toNode.group = typeToGroup[toNode.type];
+        if (!toNode.group) {
+          toNode.group = Object.keys(typeToGroup).length;
+          typeToGroup[toNode.type] = toNode.group;
         }
       }
     };
@@ -282,30 +522,14 @@
       var toNode = {};
 
       toNode.id = fromNode.id || random();
-      if (!nameToIndex[toNode.id]) {
-        nameToIndex[toNode.id] = Object.keys(nameToIndex).length;
-      }
-
-      toNode.group = 0;
       toNode.name = fromNode.label || toNode.id;
       toNode.type = fromNode.type;
-      if (toNode.type) {
-        applyMaps(fromNode, toNode);
-        toNode.group = typeToGroup[toNode.type];
-        if (!toNode.group) {
-          toNode.group = Object.keys(typeToGroup).length;
-          typeToGroup[toNode.type] = toNode.group;
-        }
-      }
 
-      if (!toNode.tags && fromNode.metadata) {
-        toNode.tags = lodash.map(fromNode.metadata, function(value, key) {
-          return {
-            "key": key,
-            "value": value
-          };
-        });
-      }
+      mapItem(fromNode, toNode, template.nodeMaps, 
+        function(fromNode, scope) { return fromNode.type === scope; });
+
+      setIndex(toNode);
+      setGroup(toNode);
 
       if (this.radius) {
         toNode.radius = this.radius;
@@ -314,77 +538,83 @@
       return toNode;
     };
 
-    var mapEdge = function(edge) {
-      var newEdge = {};
+    var mapEdge = function(fromEdge) {
+      var toEdge = {};
 
-      if (edge.source && edge.target) {
-        newEdge.source = nameToIndex[edge.source];
-        newEdge.target = nameToIndex[edge.target];
-        if (newEdge.source && newEdge.target) {
-          newEdge.id = edge.id || random();
-          if (edge.relation) {
-            newEdge.label = edge.relation;
-            newEdge.type = edge.relation;
-          }
+      toEdge.id = fromEdge.id || random();
+      toEdge.label = toEdge.name || fromEdge.relation;
+      toEdge.type = fromEdge.relation;
 
-          if (edge.metadata) {
-            newEdge.tags = lodash.map(edge.metadata, function(value, key) {
-              return {
-                "key": key,
-                "value": value
-              };
+      mapItem(fromEdge, toEdge, template.edgeMaps, 
+        function(fromEdge, scope) { return fromEdge.relation === scope; });
+
+      getIndex(fromEdge, toEdge);
+
+      if (this.thickness) {
+        toEdge.thickness = this.thickness;
+      }
+
+      if (this.distance) {
+        toEdge.distance = this.distance;
+      }
+
+      return toEdge;
+    };
+
+    var sortNode = function(fromNode) {
+      return fromNode.id;
+    };
+
+    var sortEdge = function(fromEdge) {
+      return fromEdge.source + fromEdge.target;
+    };
+
+    var filterItem = function(filters) {
+      return function(fromItem) {
+        return lodash.every(filters, function(filter) {
+          var args = [];
+          if (filter.args) {
+            lodash.forEach(filter.args, function(arg) {
+              var result = JSONPath(null, fromItem, arg);
+              if (result && result.length > 0) {
+                args.push(result);
+              }
             });
           }
 
-          if (this.thickness) {
-            newEdge.thickness = this.thickness;
-          }
-
-          if (this.distance) {
-            newEdge.distance = this.distance;
-          }
-        }
-      }
-
-      return newEdge;
+          var expr = vsprintf(filter.expr, args);
+          return eval(expr);
+        });
+      };
     };
 
-    var sortNode = function(node) {
-      return node.id;
-    };
+    return function(fromModel, configuration) {
+      var toModel = {};
 
-    var sortEdge = function(edge) {
-      return edge.source + edge.target;
-    };
-
-    var filterNode = function(node) {
-      return node.type != this.nodeFilter;
-    };
-
-    var filterEdge = function(edge) {
-      return edge.source && edge.target 
-        && edge.type != this.edgeFilter;
-    };
-
-    return function(fromModel, toModel, configuration) {
-      if (fromModel && toModel && configuration) {
+      if (fromModel && configuration) {
         nameToIndex = {};
         typeToGroup = {};
 
-        var fromNodes = fromModel.nodes;
-        if (fromNodes) {
-          toModel.nodes = lodash.chain(fromNodes)
-            .map(mapNode, configuration)
-            .filter(filterNode, configuration)
+        if (fromModel.nodes) {
+          var chain = lodash.chain(fromModel.nodes)
+            .map(mapNode, configuration);
+          if (template.nodeFilters) {
+            chain = chain.filter(filterItem(template.nodeFilters), configuration);
+          }
+
+          toModel.nodes = chain
             .sortBy(sortNode, configuration)
             .value();
         }
 
-        var fromEdges = fromModel.edges;
-        if (fromEdges && Object.keys(nameToIndex).length > 1) {
-          toModel.links = lodash.chain(fromEdges)
-            .map(mapEdge, configuration)
-            .filter(filterEdge, configuration)
+        if (fromModel.edges) {
+          var chain = lodash.chain(fromModel.edges)
+            .map(mapEdge, configuration);
+          if (template.edgeFilters) {
+            chain = chain.filter(filterItem(template.edgeFilters), configuration);
+          }
+
+          toModel.links = chain
             .sortBy(sortEdge, configuration)
             .value();
         }
@@ -409,7 +639,7 @@
 
     var defaultDistance = 45;
     this.setDefaultDistance = function (value) {
-      defaultDistance - value;
+      defaultDistance = value;
     };
 
     var defaultSettings = {
@@ -438,8 +668,6 @@
       'data' : defaultModel, 
       'default' : defaultModel,
       'configuration' : {
-        'nodeFilter' : undefined,
-        'edgeFilter' : undefined,
         'radius' : defaultRadius,
         'thickness' : defaultThickness,
         'distance' : defaultDistance
@@ -450,30 +678,46 @@
 
     // TODO: Move this template into a file.
     var defaultTemplate = {
-      'maps' : [{ 
-          'type' : 'Container', 
+      "settings" : defaultSettings,
+      'nodeMaps' : [{
+        'scope' : 'Container', 
+        'properties' : {
+          'type' : 'type', 
           'name' : '$.metadata.Config.Image', 
-          'tags' : [{
-            'path' : '$.metadata.Config.Hostname', 
-            'label': 'Hostname' 
-          }, {
-            'path' : '$.metadata.Config.Memory', 
-            'label': 'Memory' 
-          }, {
-            'path' : '$.metadata.Config.MemorySwap', 
-            'label': 'MemorySwap' 
-          }, {
-            'path' : '$.metadata.Config.NetworkDisabled', 
-            'label': 'NetworkDisabled' 
-          }, {
-            'path' : '$.metadata.HostConfig.Dns', 
-            'label': 'Dns' 
-          }, {
-            'path' : '$.metadata.HostConfig.DnsSearch', 
-            'label': 'DnsSearch' 
-          }]
+          'tags' : {
+            'Hostname' : '$.metadata.Config.Hostname', 
+            'Memory' : '$.metadata.Config.Memory', 
+            'MemorySwap' : '$.metadata.Config.MemorySwap', 
+            'NetworkDisabled' : '$.metadata.Config.NetworkDisabled', 
+            'Dns' : '$.metadata.HostConfig.Dns', 
+            'DnsSearch' : '$.metadata.HostConfig.DnsSearch'
+          }
         }
-      ]
+      },{
+        'scope' : 'Pod', 
+        'properties' : {
+          'type' : 'type', 
+          'tags' : {
+            'containerID' : '$.metadata.currentState.info.POD.containerID', 
+            'image' : '$.metadata.currentState.info.POD.image', 
+            'podIP' : '$.metadata.currentState.info.POD.podIP', 
+            'startedAt' : '$.metadata.currentState.info.POD.state.running.startedAt'
+          }
+        }
+      }],
+      'nodeFilters' : [{
+        'expr' : '("%s" == "Pod") || ("%s" == "Container")',
+        'args' : [ '$.type', '$.type' ]
+      }],
+      'edgeMaps' : [{ 
+        'relation' : 'contains', 
+        'name' : '$.metadata.Config.Image',
+        'type' : 'contains'
+      }],
+      'edgeFilters' : [{
+        'expr' : '("%s" === "contains")',
+        'args' : [ '$.type' ]
+      }]
     };
 
     var defaultTransform = templateTransform(lodash, defaultTemplate);
@@ -563,7 +807,7 @@
         return;
       }
 
-      if (!dataModel["nodes"] || dataModel["nodes"].length < 1) {
+      if (!dataModel.nodes || dataModel.nodes.length < 1) {
         // console.log('DEBUG: No nodes in data model.');
         return;
       }
@@ -578,7 +822,7 @@
       var fromModel = JSON.parse(JSON.stringify(dataModel));
 
       // TODO: Removed hard wired call to defaultTransform.
-      toModel = defaultTransform(fromModel, toModel, viewModel.configuration);
+      toModel = defaultTransform(fromModel, viewModel.configuration);
       setViewModel(toModel);
     };
 
