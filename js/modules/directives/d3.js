@@ -111,11 +111,16 @@ angular.module('krakenApp.Graph')
               n.fixed = 8;
             }
 
-            var radius = graph.nodes.length * 3;
-            var startingPosition = getRandomStartingPosition(radius);
+            if (n.position) {
+              n.x = n.position[0];
+              n.y = n.position[1];
+            } else {
+              var radius = graph.nodes.length * 3;
+              var startingPosition = getRandomStartingPosition(radius);
 
-            n.x = center[0] + startingPosition[0];
-            n.y = center[1] + startingPosition[1];
+              n.x = center[0] + startingPosition[0];
+              n.y = center[1] + startingPosition[1];
+            }
           });
         }
 
