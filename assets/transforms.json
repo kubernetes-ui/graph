@@ -1,6 +1,52 @@
 {
   "directory" : [{
-    "name" : "Identity Transform",
+    "name" : "All Data",
     "script" : "identityTransform.js"
+  },{
+    "name" : "Pods",
+    "script" : "templateTransform.js",
+    "data" : {
+      "nodeMaps" : [{
+        "scope" : "Container", 
+        "properties" : {
+          "type" : "type", 
+          "name" : "$.metadata.Config.Image", 
+          "tags" : {
+            "Hostname" : "$.metadata.Config.Hostname", 
+            "Memory" : "$.metadata.Config.Memory", 
+            "MemorySwap" : "$.metadata.Config.MemorySwap", 
+            "NetworkDisabled" : "$.metadata.Config.NetworkDisabled", 
+            "Dns" : "$.metadata.HostConfig.Dns", 
+            "DnsSearch" : "$.metadata.HostConfig.DnsSearch"
+          }
+        }
+      },{
+        "scope" : "Pod", 
+        "properties" : {
+          "type" : "type", 
+          "tags" : {
+            "containerID" : "$.metadata.currentState.info.POD.containerID", 
+            "image" : "$.metadata.currentState.info.POD.image", 
+            "podIP" : "$.metadata.currentState.info.POD.podIP", 
+            "startedAt" : "$.metadata.currentState.info.POD.state.running.startedAt"
+          }
+        }
+      }],
+      "nodeFilters" : [{
+        "expr" : "('%s' == 'Pod') || ('%s' == 'Container')",
+        "args" : [ "$.type", "$.type" ]
+      }],
+      "edgeMaps" : [{
+        "scope" : "contains", 
+        "properties" : {
+          "label" : "$.relation", 
+          "type" : "$.relation"
+        }
+      }],
+      "edgeFilters" : [{
+        "expr" : "('%s' === 'contains')",
+        "args" : [ "$.relation" ]
+      }]
+    }
   }]
 }
