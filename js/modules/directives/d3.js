@@ -94,11 +94,14 @@ angular.module('krakenApp.Graph')
             .data(graph.links)
             .enter().append("line")
             .attr("class", "link")
+            .style("stroke", function (d) {
+              return d.stroke;
+            })
             .style("stroke-dasharray", function (d) {
-              return d.dashes ? ("3, 3") : ("1, 0");
+              return d.dash ? (d.dash + ", " + d.dash) : ("1, 0");
             })
             .style("stroke-width", function (d) {
-              return d.thickness;
+              return d.width;
             });
         }
 

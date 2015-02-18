@@ -125,74 +125,86 @@
           {
             "source": 0,
             "target": 1,
-            "thickness": 2,
+            "width": 2,
+            "stroke": "black",
             "distance": 80
           }, 
           {
             "source": 0,
             "target": 2,
-            "thickness": 2,
+            "width": 2,
+            "stroke": "black",
             "distance": 80
           }, 
           {
             "source": 0,
             "target": 3,
-            "thickness": 2,
+            "width": 2,
+            "stroke": "black",
             "distance": 80
           }, 
           {
             "source": 1,
             "target": 4,
-            "thickness": 1,
+            "width": 1,
+            "stroke": "black",
             "distance": 80
           }, 
           {
             "source": 2,
             "target": 5,
-            "thickness": 1,
+            "width": 1,
+            "stroke": "black",
             "distance": 80
           }, 
           {
             "source": 3,
             "target": 6,
-            "thickness": 1,
+            "width": 1,
+            "stroke": "black",
             "distance": 80
           }, 
           {
             "source": 7,
             "target": 8,
-            "thickness": 2,
+            "width": 2,
+            "stroke": "black",
             "distance": 80
           }, 
           {
             "source": 8,
             "target": 9,
-            "thickness": 1,
+            "width": 1,
+            "stroke": "black",
             "distance": 80
           }, 
           {
             "source": 10,
             "target": 0,
-            "thickness": 3,
+            "width": 3,
+            "stroke": "black",
             "distance": 80,
             "label": "port: 3000"
           }, 
           {
             "source": 11,
             "target": 12,
-            "thickness": 2,
+            "width": 2,
+            "stroke": "black",
             "distance": 80
           }, 
           {
             "source": 12,
             "target": 13,
-            "thickness": 1,
+            "width": 1,
+            "stroke": "black",
             "distance": 80
           }, 
           {
             "source": 12,
             "target": 14,
-            "thickness": 1,
+            "width": 1,
+            "stroke": "black",
             "distance": 80
           },
           ],
@@ -262,101 +274,116 @@
           {
             "source": 0,
             "target": 1,
-            "thickness": 2,
+            "width": 2,
+            "stroke": "black",
             "distance": 80
           },
           {
             "source": 0,
             "target": 2,
-            "thickness": 2,
+            "width": 2,
+            "stroke": "black",
             "distance": 80
           },
           {
             "source": 0,
             "target": 3,
-            "thickness": 2,
+            "width": 2,
+            "stroke": "black",
             "distance": 80
           },
           {
             "source": 9,
             "target": 0,
-            "thickness": 3,
+            "width": 3,
+            "stroke": "black",
             "distance": 80,
             "label": "port: 3000"
           },
           {
             "source": 4,
             "target": 5,
-            "thickness": 2,
+            "width": 2,
+            "stroke": "black",
             "distance": 80
           },
           {
             "source": 6,
             "target": 7,
-            "thickness": 2,
+            "width": 2,
+            "stroke": "black",
             "distance": 80
           },
           {
             "source": 6,
             "target": 8,
-            "thickness": 2,
+            "width": 2,
+            "stroke": "black",
             "distance": 80
           },
           {
             "source": 7,
             "target": 4,
-            "thickness": 4,
+            "width": 4,
+            "stroke": "black",
             "distance": 80,
-            "dashes": true
+            "dash": 3
           },
           {
             "source": 8,
             "target": 4,
-            "thickness": 4,
+            "width": 4,
+            "stroke": "black",
             "distance": 80,
-            "dashes": true
+            "dash": 3
           },
           {
             "source": 1,
             "target": 4,
-            "thickness": 4,
+            "width": 4,
+            "stroke": "black",
             "distance": 80,
-            "dashes": true
+            "dash": 3
           },
           {
             "source": 2,
             "target": 4,
-            "thickness": 4,
+            "width": 4,
+            "stroke": "black",
             "distance": 80,
-            "dashes": true
+            "dash": 3
           },
           {
             "source": 3,
             "target": 4,
-            "thickness": 4,
+            "width": 4,
+            "stroke": "black",
             "distance": 80,
-            "dashes": true
+            "dash": 3
           },
           {
             "source": 1,
             "target": 6,
-            "thickness": 4,
+            "width": 4,
+            "stroke": "black",
             "distance": 80,
-            "dashes": true
+            "dash": 3
           },
           {
             "source": 2,
             "target": 6,
-            "thickness": 4,
+            "width": 4,
+            "stroke": "black",
             "distance": 80,
-            "dashes": true
+            "dash": 3
           },
           {
             "source": 3,
             "target": 6,
-            "thickness": 4,
+            "width": 4,
+            "stroke": "black",
             "distance": 80,
-            "dashes": true
+            "dash": 3
           }
           ],
           "settings": {
