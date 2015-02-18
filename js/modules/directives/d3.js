@@ -84,7 +84,7 @@ angular.module('krakenApp.Graph')
         } else {
           // TODO(duftler): Externalize these values.
           force.gravity(.40)
-            .charge(-1250)
+            .charge(-625)
             .linkDistance(function (d) {
               return d.distance;
             }).links(graph.links)
@@ -102,8 +102,24 @@ angular.module('krakenApp.Graph')
             });
         }
 
+        if (!graph.settings.clustered) {
+          graph.nodes.forEach(function (n) {
+            var radius = graph.nodes.length * 3;
+            var startingPosition = getRandomStartingPosition(radius);
+
+            n.x = center[0] + startingPosition[0];
+            n.y = center[1] + startingPosition[1];
+          });
+        }
+
         force.nodes(graph.nodes)
           .start();
+
+        if (!graph.settings.clustered) {
+          setTimeout(function () {
+            force.charge(-1250).start();
+          }, 200);
+        }
 
         var maxRadius = -1;
 
@@ -621,6 +637,14 @@ angular.module('krakenApp.Graph')
           svg.attr('height', height);
 
           force.size([width, height]).resume();
+        }
+
+        function getRandomStartingPosition(radius) {
+          var t = 2 * Math.PI * Math.random();
+          var u = Math.random() + Math.random();
+          var r = u > 1 ? 2 - u : u;
+
+          return [r * Math.cos(t) * radius, r * Math.sin(t) * radius];
         }
       };
     }
