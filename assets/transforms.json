@@ -48,5 +48,48 @@
         "args" : [ "$.relation" ]
       }]
     }
+  },{
+    "name" : "Services",
+    "script" : "templateTransform.js",
+    "data" : {
+      "nodeMaps" : [{
+        "scope" : "Project", 
+        "properties" : {
+          "type" : "type", 
+          "tags" : {
+	    "ID": "$.id",
+	    "Label": "$.label",
+	    "internalID": "$.metadata.internalID",
+	    "name" : "$.metadata.name"
+          }
+        }
+      },{
+        "scope" : "Service", 
+        "properties" : {
+          "type" : "type", 
+          "tags" : {
+	    "ID": "$.id",
+	    "Label": "$.label",
+	    "internalID": "$.metadata.internalID",
+	    "name" : "$.metadata.name"
+          }
+        }
+      }],
+      "nodeFilters" : [{
+        "expr" : "('%s' == 'Project') || ('%s' == 'Service')",
+        "args" : [ "$.type", "$.type" ]
+      }],
+      "edgeMaps" : [{
+        "scope" : "contains", 
+        "properties" : {
+          "label" : "$.relation", 
+          "type" : "$.relation"
+        }
+      }],
+      "edgeFilters" : [{
+        "expr" : "('%s' === 'contains')",
+        "args" : [ "$.relation" ]
+      }]
+    }
   }]
 }
