@@ -402,8 +402,8 @@ angular.module('krakenApp.Graph')
               if (this.parentNode.childNodes.length == 2 && this.parentNode.lastChild.localName == 'text') {
                 var siblingText = this.parentNode.lastChild;
 
-                siblingText.setAttribute("dx", d.x);
-                siblingText.setAttribute("dy", d.y);
+                siblingText.setAttribute("x", d.x);
+                siblingText.setAttribute("y", d.y);
               }
             });
 
