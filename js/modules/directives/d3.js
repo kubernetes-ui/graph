@@ -414,6 +414,10 @@ angular.module('krakenApp.Graph')
               return d.x;
             })
               .attr("y", function (d) {
+                if (isNaN(d.y)) {
+                  console.log("NaN: " + JSON.stringify(d));
+                }
+
                 return d.y;
               });
 

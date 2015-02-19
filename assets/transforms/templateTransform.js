@@ -99,7 +99,7 @@ function templateTransform(lodash, template) {
     toNode.type = fromNode.type;
 
     mapItem(fromNode, toNode, template.nodeMaps,
-        function(fromNode, scope) { return fromNode.type === scope; });
+        function(fromNode, scope) { return scope.test(fromNode.type); });
 
     setIndex(toNode);
     setGroup(toNode);
@@ -119,7 +119,7 @@ function templateTransform(lodash, template) {
     toEdge.type = fromEdge.relation;
 
     mapItem(fromEdge, toEdge, template.edgeMaps,
-        function(fromEdge, scope) { return fromEdge.relation === scope; });
+        function(fromEdge, scope) { return scope.test(fromEdge.relation); });
 
     getIndex(fromEdge, toEdge);
 

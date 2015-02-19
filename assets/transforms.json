@@ -1,13 +1,38 @@
 {
   "directory" : [{
     "name" : "All Data",
-    "script" : "identityTransform.js"
+    "script" : "templateTransform.js",
+    "data" : {
+      "nodeMaps" : [{
+        "filter" : {
+          "expr" : "true",
+          "args" : []
+        }, 
+        "properties" : {
+          "type" : "type", 
+          "name" : "$.label"
+        }
+      }],
+      "edgeMaps" : [{
+        "filter" : {
+          "expr" : "true",
+          "args" : []
+        }, 
+        "properties" : {
+          "type" : "$.relation",
+          "label" : "$.relation"
+        }
+      }]
+    }
   },{
     "name" : "Pods",
     "script" : "templateTransform.js",
     "data" : {
       "nodeMaps" : [{
-        "scope" : "Container", 
+        "filter" : {
+          "expr" : "('%s' == 'Container')",
+          "args" : [ "$.type" ]
+        }, 
         "properties" : {
           "type" : "type", 
           "name" : "$.metadata.Config.Image", 
@@ -21,9 +46,13 @@
           }
         }
       },{
-        "scope" : "Pod", 
+        "filter" : {
+          "expr" : "('%s' == 'Pod')",
+          "args" : [ "$.type" ]
+        }, 
         "properties" : {
           "type" : "type", 
+          "name" : "$.label",
           "tags" : {
             "containerID" : "$.metadata.currentState.info.POD.containerID", 
             "image" : "$.metadata.currentState.info.POD.image", 
@@ -37,10 +66,13 @@
         "args" : [ "$.type", "$.type" ]
       }],
       "edgeMaps" : [{
-        "scope" : "contains", 
+        "filter" : {
+          "expr" : "('%s' == 'contains')",
+          "args" : [ "$.relation" ]
+        }, 
         "properties" : {
-          "label" : "$.relation", 
-          "type" : "$.relation"
+          "type" : "$.relation",
+          "label" : "$.relation"
         }
       }],
       "edgeFilters" : [{
@@ -53,25 +85,33 @@
     "script" : "templateTransform.js",
     "data" : {
       "nodeMaps" : [{
-        "scope" : "Project", 
+        "filter" : {
+          "expr" : "('%s' == 'Project')",
+          "args" : [ "$.type" ]
+        }, 
         "properties" : {
           "type" : "type", 
+          "name" : "$.label",
           "tags" : {
-	    "ID": "$.id",
-	    "Label": "$.label",
-	    "internalID": "$.metadata.internalID",
-	    "name" : "$.metadata.name"
+      	    "ID": "$.id",
+      	    "Label": "$.label",
+      	    "internalID": "$.metadata.internalID",
+      	    "name" : "$.metadata.name"
           }
         }
       },{
-        "scope" : "Service", 
+        "filter" : {
+          "expr" : "('%s' == 'Service')",
+          "args" : [ "$.type" ]
+        }, 
         "properties" : {
           "type" : "type", 
+          "name" : "$.label",
           "tags" : {
-	    "ID": "$.id",
-	    "Label": "$.label",
-	    "internalID": "$.metadata.internalID",
-	    "name" : "$.metadata.name"
+      	    "ID": "$.id",
+      	    "Label": "$.label",
+      	    "internalID": "$.metadata.internalID",
+      	    "name" : "$.metadata.name"
           }
         }
       }],
@@ -80,10 +120,13 @@
         "args" : [ "$.type", "$.type" ]
       }],
       "edgeMaps" : [{
-        "scope" : "contains", 
+        "filter" : {
+          "expr" : "('%s' == 'contains')",
+          "args" : [ "$.relation" ]
+        }, 
         "properties" : {
-          "label" : "$.relation", 
-          "type" : "$.relation"
+          "type" : "$.relation",
+          "label" : "$.relation"
         }
       }],
       "edgeFilters" : [{

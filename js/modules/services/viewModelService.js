@@ -7,9 +7,22 @@
   'use strict';
 
   function templateTransform(lodash, template) {
-    var nameToIndex = {};
-    var typeToGroup = {};
+    var idToIndex = {};
+    var typeToCluster = {};
 
+    var nodeStyles = undefined;
+    var linkStyles = undefined;
+    if (template.legend) {
+      if (template.legend.node) {
+        nodeStyles = template.legend.node;
+      }
+
+      if (template.legend.edge) {
+        linkStyles = template.legend.edge;
+      }
+    }
+
+    // iterat through nodeMaps and edgeMaps and for each member, compile scope as regex.
     var random = function() {
       var str = JSON.stringify(Math.random());
       var idx = str.indexOf('.') + 1;
@@ -28,16 +41,19 @@
       }
     };
 
-    var mapItem = function(fromItem, toItem, maps, apply) {
+    var mapItem = function(fromItem, toItem, maps, styles) {
+      toItem.id = fromItem.id || random();
+
       if (maps) {
         var map = lodash.find(maps, function(map) {
-          return apply(fromItem, map.scope);
+          return map.filter ? applyFilter(map.filter, fromItem) : false;
         });
 
         if (map) {
           var properties = map.properties;
           if (properties) {
             // TODO: Make the property list dynamic.
+            // TODO: Add support for property value expressions.
             if (properties.name) {
               var result = JSONPath(null, fromItem, properties.name);
               if (result && result.length > 0) {
@@ -72,29 +88,43 @@
         }
       }
 
+      // TODO: Implement as property value expressions.
+      if (fromItem.relation) {
+        if (toItem.type == 'loadBalances') {
+          toItem.type = 'balances';
+        } else if (toItem.type == 'createdFrom') {
+          toItem.type = 'uses';
+        }
+      }
+
       allTags(fromItem, toItem);
+      var style = styles[toItem.type] || styles[0];
+      lodash.assign(toItem, style);
     };
 
     var setIndex = function(toNode) {
-      if (!nameToIndex[toNode.id]) {
-        nameToIndex[toNode.id] = Object.keys(nameToIndex).length;
+      if (!idToIndex[toNode.id]) {
+        idToIndex[toNode.id] = Object.keys(idToIndex).length;
       }
     };
 
     var getIndex = function(fromEdge, toEdge) {
       if (fromEdge.source && fromEdge.target) {
-        toEdge.source = nameToIndex[fromEdge.source];
-        toEdge.target = nameToIndex[fromEdge.target];
+        toEdge.source = idToIndex[fromEdge.source];
+        toEdge.target = idToIndex[fromEdge.target];
       }
     };
 
-    var setGroup = function(toNode) {
-      toNode.group = 0;
-      if (toNode.type) {
-        toNode.group = typeToGroup[toNode.type];
-        if (!toNode.group) {
-          toNode.group = Object.keys(typeToGroup).length;
-          typeToGroup[toNode.type] = toNode.group;
+    var setCluster = function(toNode) {
+      if (template.settings && template.settings.clustered) {
+        if (toNode.type) {
+          toNode.cluster = typeToCluster[toNode.type];
+          if (!toNode.cluster) {
+            toNode.cluster = Object.keys(typeToCluster).length;
+            typeToCluster[toNode.type] = toNode.cluster;
+          }
+        } else {
+          toNode.cluster = 0;
         }
       }
     };
@@ -102,19 +132,9 @@
     var mapNode = function(fromNode) {
       var toNode = {};
 
-      toNode.id = fromNode.id || random();
-      toNode.name = fromNode.label || toNode.id;
-      toNode.type = fromNode.type;
-
-      mapItem(fromNode, toNode, template.nodeMaps, 
-        function(fromNode, scope) { return fromNode.type === scope; });
-
+      mapItem(fromNode, toNode, template.nodeMaps, nodeStyles || this.legend.node);
+      setCluster(toNode);
       setIndex(toNode);
-      setGroup(toNode);
-
-      if (this.radius) {
-        toNode.radius = this.radius;
-      }
 
       return toNode;
     };
@@ -122,22 +142,8 @@
     var mapEdge = function(fromEdge) {
       var toEdge = {};
 
-      toEdge.id = fromEdge.id || random();
-      toEdge.label = toEdge.name || fromEdge.relation;
-      toEdge.type = fromEdge.relation;
-
-      mapItem(fromEdge, toEdge, template.edgeMaps, 
-        function(fromEdge, scope) { return fromEdge.relation === scope; });
-
+      mapItem(fromEdge, toEdge, template.edgeMaps, linkStyles || this.legend.link);
       getIndex(fromEdge, toEdge);
-
-      if (this.thickness) {
-        toEdge.thickness = this.thickness;
-      }
-
-      if (this.distance) {
-        toEdge.distance = this.distance;
-      }
 
       return toEdge;
     };
@@ -147,56 +153,69 @@
     };
 
     var sortEdge = function(fromEdge) {
-      return fromEdge.source + fromEdge.target;
+      return fromEdge.source + ':' + fromEdge.target;
     };
 
-    var filterItem = function(filters) {
+    var filterItem = function(filter, item) {
+      var result = false;
+      if (filter.expr) {
+        var args = [];
+        if (filter.args) {
+          lodash.forEach(filter.args, function(arg) {
+            var results = JSONPath(null, item, arg);
+            if (results && results.length > 0) {
+              results = lodash.map(results, function(result) {
+                if (typeof result === 'undefined') {
+                  return 'undefined';
+                }
+
+                return result;
+              });
+              args.push(results);
+            }
+          });
+        }
+
+        var expr = vsprintf(filter.expr, args);
+        var result = eval(expr);
+      }
+
+      return result;
+    };
+
+    var applyFilter = function(filters) {
       return function(fromItem) {
-        return lodash.every(filters, function(filter) {
-          var args = [];
-          if (filter.args) {
-            lodash.forEach(filter.args, function(arg) {
-              var results = JSONPath(null, fromItem, arg);
-              if (results && results.length > 0) {
-                results = lodash.map(results, function(result) {
-                  if (typeof result === 'undefined') {
-                    return 'undefined';
-                  }
-
-                  return result;
-                });
-                args.push(results);
-              }
-            });
-          }
-
-          var expr = vsprintf(filter.expr, args);
-          return eval(expr);
+        return lodash.every(filters, function(filter) { 
+          return filterItem(filter, fromItem); 
         });
       };
     };
 
     return function(fromModel, toModel, configuration) {
       if (fromModel && toModel && configuration) {
-        nameToIndex = {};
-        typeToGroup = {};
+        idToIndex = {};
+        typeToCluster = {};
 
         if (fromModel.nodes) {
+          if (template.settings) {
+            toModel.settings = template.settings;
+          }
+          
           var chain = lodash.chain(fromModel.nodes);
           if (template.nodeFilters) {
-            chain = chain.filter(filterItem(template.nodeFilters), configuration);
+            chain = chain.filter(applyFilter(template.nodeFilters), configuration);
           }
 
           toModel.nodes = chain
-            .map(mapNode, configuration)
             .sortBy(sortNode, configuration)
+            .map(mapNode, configuration)
             .value();
         }
 
         if (fromModel.edges) {
           var chain = lodash.chain(fromModel.edges);
           if (template.edgeFilters) {
-            chain = chain.filter(filterItem(template.edgeFilters), configuration);
+            chain = chain.filter(applyFilter(template.edgeFilters), configuration);
           }
 
           // Remove links to dropped nodes.
@@ -207,7 +226,7 @@
 
           toModel.links = chain
             .map(mapEdge, configuration)
-            .filter(filterItem(linkFilters), configuration)
+            .filter(applyFilter(linkFilters), configuration)
             .sortBy(sortEdge, configuration)
             .value();
         }
@@ -220,19 +239,60 @@
   // Compute the view model based on the data model and control parameters
   // and place the result in the current scope at $scope.viewModel.
   var viewModelService = function ViewModelService(lodash) {
-    var defaultRadius = 15;
+    var defaultWidth = 1;
+    this.setDefaultWidth = function (value) {
+      defaultWidth = value;
+    };
+
+    var defaultStroke = 'gray';
+    this.setDefaultStroke = function (value) {
+      defaultStroke = value;
+    };
+
+    var defaultDash = undefined;
+    this.setDefaultDash = function (value) {
+      defaultDash = value;
+    };
+
+    var defaultDistance = 40;
+    this.setDefaultDistance = function (value) {
+      defaultDistance = value;
+    };
+
+    var defaultLink = {
+      'width' : defaultWidth,
+      'stroke' : defaultStroke,
+      // 'dash' : defaultDash,
+      'distance' : defaultDistance
+    };
+
+    this.setDefaultLink = function(value) {
+      defaultLink = value;
+    };
+
+    var defaultRadius = 10;
     this.setDefaultRadius = function(value) {
       defaultRadius = value;
     };
 
-    var defaultThickness = 1;
-    this.setDefaultThickness = function (value) {
-      defaultThickness = value;
+    var defaultFill = 'cornflowerblue';
+    this.setDefaultFill = function(value) {
+      defaultFill = value;
     };
 
-    var defaultDistance = 45;
-    this.setDefaultDistance = function (value) {
-      defaultDistance = value;
+    var defaultIcon = undefined;
+    this.setDefaultIcon = function(value) {
+      defaultIcon = value;
+    };
+
+    var defaultNode = {
+      'radius' : defaultRadius,
+      'fill' : defaultFill,
+      'icon' : defaultIcon
+    };
+
+    this.setDefaultNode = function(value) {
+      defaultNode = value;
     };
 
     var defaultSettings = {
@@ -250,8 +310,8 @@
       "settings" : defaultSettings,
       "nodes" : [{
           "name" : "no data",
-          "radius" : 20,
-          "fill": "cornflowerblue"
+          "radius" : defaultRadius,
+          "fill": defaultFill
         }
       ],
       "links" : []
@@ -261,9 +321,65 @@
       'data' : defaultModel, 
       'default' : defaultModel,
       'configuration' : {
-        'radius' : defaultRadius,
-        'thickness' : defaultThickness,
-        'distance' : defaultDistance
+        // TODO: Read the legend from an external file.
+        'legend' : {
+          'node' : {
+            'Project' : {
+              'radius' : 35,
+              'fill' : 'salmon'
+            },
+            'Cluster' : {
+              'radius' : 30,
+              'fill' : 'lightcoral'
+            },
+            'Node' : {
+              'radius' : 25,
+              'fill' : 'indianred'
+            },
+            'Process' : {
+              'radius' : 15,
+              'fill' : 'coral'
+            },
+            'Service' : {
+              'radius' : 20,
+              'fill' : 'lightblue'
+            },
+            'ReplicationController' : {
+              'radius' : 15,
+              'fill' : 'lightcyan'
+            },
+            'Pod' : {
+              'radius' : 15,
+              'fill' : 'darkblue'
+            },
+            'Container' : defaultNode,
+            'Image' : {
+              'radius' : 15,
+              'fill' : 'green'
+            }
+          },
+          'link' : {
+            'contains' : defaultLink,
+            'balances' : {
+              'width' : 1,
+              'stroke' : 'gray',
+              'dash' : '5, 5, 1, 5',
+              'distance' : 60
+            },
+            'uses' : {
+              'width' : 2,
+              'stroke' : 'gray',
+              'dash' : '1, 5',
+              'distance' : 60
+            },
+            'monitors' : {
+              'width' : 1,
+              'stroke' : 'gray',
+              'dash' : '5, 10',
+              'distance' : 60
+            }
+          }
+        }
       },
       'version' : 0,
       'transformNames' : []
@@ -304,14 +420,14 @@
 
       var constructorName = stripSuffix(directoryEntry.script);
 
-      if (window[constructorName]) {
-        bindTransform(window[constructorName], directoryEntry);
-        return;
-      }
-
       // TODO: Remove the following when finished debugging.
       if (constructorName === "templateTransform") {
         bindTransform(templateTransform, directoryEntry);
+        return;
+      }
+
+      if (window[constructorName]) {
+        bindTransform(window[constructorName], directoryEntry);
         return;
       }
 
