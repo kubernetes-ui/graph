@@ -188,26 +188,53 @@ angular.module('krakenApp.Graph')
           d3.selectAll('.popup-tags-table').style('display', 'none');
         });
 
-        node.append("circle")
-          .attr("r", function (d) {
-            return d.radius;
-          })
-          .style("stroke", function (d) {
-            return d.stroke;
-          })
-          .style("fill", function (d) {
-            return d.fill;
-          })
-          .on("dblclick", dblclick)
-          .on('contextmenu', function (data, index) {
-            d3.selectAll('.popup-tags-table').style("display", "none");
-            showContextMenu(data, index, nodeContextMenu);
-          })
-          .on("mouseover", showPopupTagsTable)
-          .on("mouseout", function () {
-            // Interrupt any pending transition on this node.
-            d3.selectAll('.popup-tags-table').transition();
-          });
+        node.each(function (n) {
+          var singleNode = d3.select(this);
+
+          if (n.icon) {
+            singleNode.append("image")
+              .attr("xlink:href", function (d) {
+                return d.icon;
+              })
+              .attr("width", function (d) {
+                return d.size[0];
+              })
+              .attr("height", function (d) {
+                return d.size[1];
+              })
+              .on("dblclick", dblclick)
+              .on('contextmenu', function (data, index) {
+                d3.selectAll('.popup-tags-table').style("display", "none");
+                showContextMenu(data, index, nodeContextMenu);
+              })
+              .on("mouseover", showPopupTagsTable)
+              .on("mouseout", function () {
+                // Interrupt any pending transition on this node.
+                d3.selectAll('.popup-tags-table').transition();
+              });
+          } else {
+            singleNode.append("circle")
+              .attr("r", function (d) {
+                return d.radius;
+              })
+              .style("stroke", function (d) {
+                return d.stroke;
+              })
+              .style("fill", function (d) {
+                return d.fill;
+              })
+              .on("dblclick", dblclick)
+              .on('contextmenu', function (data, index) {
+                d3.selectAll('.popup-tags-table').style("display", "none");
+                showContextMenu(data, index, nodeContextMenu);
+              })
+              .on("mouseover", showPopupTagsTable)
+              .on("mouseout", function () {
+                // Interrupt any pending transition on this node.
+                d3.selectAll('.popup-tags-table').transition();
+              });
+          }
+        });
 
         if (graph.settings.showNodeLabels) {
           node.append("text")
@@ -391,28 +418,46 @@ angular.module('krakenApp.Graph')
               });
           } else {
             link.attr("x1", function (d) {
-              return d.source.x;
+              var offsetX = d.source.icon ? d.source.size[0] / 2 : 0;
+
+              return d.source.x + offsetX;
             })
               .attr("y1", function (d) {
-                return d.source.y;
+                var offsetY = d.source.icon ? d.source.size[1] / 2 : 0;
+
+                return d.source.y + offsetY;
               })
               .attr("x2", function (d) {
-                return d.target.x;
+                var offsetX = d.target.icon ? d.target.size[0] / 2 : 0;
+
+                return d.target.x + offsetX;
               })
               .attr("y2", function (d) {
-                return d.target.y;
+                var offsetY = d.target.icon ? d.target.size[1] / 2 : 0;
+
+                return d.target.y + offsetY;
               });
 
-            d3.selectAll("circle").attr("cx", function (d) {
-              return d.x;
-            })
+            d3.selectAll("circle")
+              .attr("cx", function (d) {
+                return d.x;
+              })
               .attr("cy", function (d) {
                 return d.y;
               });
 
-            d3.selectAll("text").attr("x", function (d) {
-              return d.x;
-            })
+            d3.selectAll("image")
+              .attr("x", function (d) {
+                return d.x;
+              })
+              .attr("y", function (d) {
+                return d.y;
+              });
+
+            d3.selectAll("text")
+              .attr("x", function (d) {
+                return d.x;
+              })
               .attr("y", function (d) {
                 return d.y;
               });
@@ -488,52 +533,11 @@ angular.module('krakenApp.Graph')
           };
         }
 
-        // TODO(duftler): Externalize scaling interval.
         var canvasContextMenu = [
           {
-            title: 'Zoom:'
-          },
-          {
-            title: '&nbsp;&nbsp;In',
-            action: function(elm, d, i) {
-              adjustZoom(1.5);
-            }
-          },
-          {
-            title: '&nbsp;&nbsp;Out',
-            action: function(elm, d, i) {
-              adjustZoom(1 / 1.5);
-            }
-          },
-          {
-            title: '&nbsp;&nbsp;Reset',
+            title: 'Reset Zoom/Pan',
             action: function (elm, d, i) {
               adjustZoom();
-            }
-          },
-          {
-            title: 'Samples:'
-          },
-          // TODO(duftler): If we don't get rid of this Samples section entirely, build the list dynamically.
-          {
-            title: '&nbsp;&nbsp;Show All Types',
-            action: function(elm, d, i) {
-              scope.viewModelService.setViewModel(mockDataService.samples[0].data);
-              scope.$apply();
-            }
-          },
-          {
-            title: '&nbsp;&nbsp;Hide Containers',
-            action: function(elm, d, i) {
-              scope.viewModelService.setViewModel(mockDataService.samples[1].data);
-              scope.$apply();
-            }
-          },
-          {
-            title: '&nbsp;&nbsp;Clustered',
-            action: function(elm, d, i) {
-              scope.viewModelService.setViewModel(mockDataService.samples[2].data);
-              scope.$apply();
             }
           }
         ];
