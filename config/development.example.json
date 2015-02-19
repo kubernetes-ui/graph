@@ -1,1 +1,1 @@
-{"Kraken": true,"ENV": {    "k8sApiServer": "http://54.148.19.99:8080/api/v1beta2",    "k8sDataServer" : "http://104.154.53.219:5555/graph",    "k8sDataPollMinIntervalSec" : 10,    "k8sDataPollMaxIntervalSec" : 120,    "k8sDataPollErrorThreshold" : 5  }}
+{}
