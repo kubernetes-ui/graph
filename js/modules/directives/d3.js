@@ -438,7 +438,7 @@ angular.module('krakenApp.Graph')
                 return d.target.y + offsetY;
               });
 
-            d3.selectAll("circle")
+            g.selectAll("circle")
               .attr("cx", function (d) {
                 return d.x;
               })

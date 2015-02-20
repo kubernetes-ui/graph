@@ -200,10 +200,16 @@
           if (template.settings) {
             toModel.settings = template.settings;
           }
-          
+
           var chain = lodash.chain(fromModel.nodes);
           if (template.nodeFilters) {
             chain = chain.filter(applyFilter(template.nodeFilters), configuration);
+          }
+
+          if (configuration.filter) {
+            chain = chain.filter(function(fromItem) {
+              return configuration.filter[fromItem.type];
+            });
           }
 
           toModel.nodes = chain
@@ -321,7 +327,8 @@
       'data' : defaultModel, 
       'default' : defaultModel,
       'configuration' : {
-        // TODO: Read the legend from an external file.
+        // TODO: Read the legend from an external file, though it needs to be
+        // exported for dependencies like GraphCtrl.
         'legend' : {
           'node' : {
             'Project' : {
@@ -379,6 +386,17 @@
               'distance' : 60
             }
           }
+        },
+        'filter': {
+          'Cluster': true,
+          'Container': true,
+          'Image': false,
+          'Node': true,
+          'Pod': true,
+          'Process': false,
+          'Project': false,
+          'ReplicationController': true,
+          'Service': true
         }
       },
       'version' : 0,
