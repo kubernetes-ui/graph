@@ -8,6 +8,9 @@ angular.module('krakenApp.Graph')
         d3Service.d3().then(draw);
       });
 
+      var viewSettingsCache = {};
+      var nodeSettingsCache = {};
+
       var draw = function() {
         var d3 = window.d3;
         d3.select(window).on('resize', resize);
@@ -57,6 +60,10 @@ angular.module('krakenApp.Graph')
             .scaleExtent([0.5, 12])
             .on("zoom", zoomed);
 
+        if (viewSettingsCache.translate && viewSettingsCache.scale) {
+          zoom.translate(viewSettingsCache.translate).scale(viewSettingsCache.scale);
+        }
+
         var g = svg.append("g");
 
         svg.call(zoom).on("dblclick.zoom", null).call(zoom.event);
@@ -100,7 +107,7 @@ angular.module('krakenApp.Graph')
         } else {
           // TODO(duftler): Externalize these values.
           force.gravity(.40)
-            .charge(-625)
+            .charge(-1250)
             .linkDistance(function (d) {
               return d.distance;
             }).links(graph.links)
@@ -128,32 +135,55 @@ angular.module('krakenApp.Graph')
             });
         }
 
-        if (!graph.settings.clustered) {
-          graph.nodes.forEach(function (n) {
-            if (n.fixed) {
-              n.fixed = 8;
+        var newPositionCount = 0;
+
+        graph.nodes.forEach(function (n) {
+          var cachedSettings;
+
+          if (n.id) {
+            cachedSettings = nodeSettingsCache[n.id];
+          }
+
+          if (n.fixed) {
+            n.fixed = 8;
+          } else if (cachedSettings && cachedSettings.fixed) {
+            n.fixed = 8;
+          }
+
+          if (n.position) {
+            n.x = n.position[0];
+            n.y = n.position[1];
+
+            ++newPositionCount;
+          } else if (cachedSettings) {
+            var cachedPosition = cachedSettings.position;
+
+            if (cachedPosition) {
+              n.x = cachedPosition[0];
+              n.y = cachedPosition[1];
             }
+          }
 
-            if (n.position) {
-              n.x = n.position[0];
-              n.y = n.position[1];
-            } else {
-              var radius = graph.nodes.length * 3;
-              var startingPosition = getRandomStartingPosition(radius);
+          if (!n.x && !n.y) {
+            var radius = graph.nodes.length * 3;
+            var startingPosition = getRandomStartingPosition(radius);
 
-              n.x = center[0] + startingPosition[0];
-              n.y = center[1] + startingPosition[1];
-            }
-          });
-        }
+            n.x = center[0] + startingPosition[0];
+            n.y = center[1] + startingPosition[1];
 
-        force.nodes(graph.nodes)
-          .start();
+            ++newPositionCount;
+          }
+        });
 
-        if (!graph.settings.clustered) {
-          setTimeout(function () {
-            force.charge(-1250).start();
-          }, 200);
+        force.nodes(graph.nodes);
+
+        // TODO(duftler): Remove this after we investigate why so many new id's are returned on 'Refresh'.
+        console.log("graph.nodes.length=" + graph.nodes.length + " newPositionCount=" + newPositionCount);
+
+        if (newPositionCount < (0.25 * graph.nodes.length)) {
+          force.start().alpha(0.01);
+        } else {
+          force.start();
         }
 
         var maxRadius = -1;
@@ -316,7 +346,7 @@ angular.module('krakenApp.Graph')
 
         var circle = g.selectAll("circle");
 
-        if (graph.settings.clustered) {
+        if (graph.settings.clustered && newPositionCount) {
           circle.transition()
             .duration(750)
             .delay(function (d, i) {
@@ -440,11 +470,12 @@ angular.module('krakenApp.Graph')
                 return d.y;
               });
           } else {
-            link.attr("x1", function (d) {
-              var offsetX = d.source.icon ? d.source.size[0] / 2 : 0;
+            link
+              .attr("x1", function (d) {
+                var offsetX = d.source.icon ? d.source.size[0] / 2 : 0;
 
-              return d.source.x + offsetX;
-            })
+                return d.source.x + offsetX;
+              })
               .attr("y1", function (d) {
                 var offsetY = d.source.icon ? d.source.size[1] / 2 : 0;
 
@@ -468,6 +499,18 @@ angular.module('krakenApp.Graph')
               .attr("cy", function (d) {
                 return d.y;
               });
+
+            if (force.alpha() < 0.04) {
+              graph.nodes.forEach(function (n) {
+                if (n.id) {
+                  if (!nodeSettingsCache[n.id]) {
+                    nodeSettingsCache[n.id] = {};
+                  }
+
+                  nodeSettingsCache[n.id].position = [n.x, n.y];
+                }
+              });
+            }
 
             d3.selectAll("image")
               .attr("x", function (d) {
@@ -571,11 +614,19 @@ angular.module('krakenApp.Graph')
               return d.fixed & 8 ? "Unlock" : "Lock";
             },
             action: function(elm, d, i) {
+              if (!nodeSettingsCache[d.id]) {
+                nodeSettingsCache[d.id] = {};
+              }
+
               if (d.fixed) {
                 d.fixed &= ~8;
                 force.resume();
+
+                nodeSettingsCache[d.id].fixed = false;
               } else {
                 d.fixed |= 8;
+
+                nodeSettingsCache[d.id].fixed = true;
               }
             }
           }
@@ -589,7 +640,13 @@ angular.module('krakenApp.Graph')
         }
 
         function zoomed() {
-          g.attr("transform", "translate(" + zoom.translate() + ")scale(" + zoom.scale() + ")");
+          var translate = zoom.translate();
+          var scale = zoom.scale();
+
+          g.attr("transform", "translate(" + translate + ")scale(" + scale + ")");
+
+          viewSettingsCache.translate = translate;
+          viewSettingsCache.scale = scale;
         }
 
         function dragstarted(d) {
