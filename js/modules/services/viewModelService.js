@@ -206,11 +206,9 @@
             chain = chain.filter(applyFilter(template.nodeFilters), configuration);
           }
 
-          if (configuration.filter) {
-            chain = chain.filter(function(fromItem) {
-              return configuration.filter[fromItem.type];
-            });
-          }
+          chain = chain.filter(function(fromItem) {
+            return configuration.legend.node[fromItem.type].selected;
+          });
 
           toModel.nodes = chain
             .sortBy(sortNode, configuration)
@@ -294,7 +292,8 @@
     var defaultNode = {
       'radius' : defaultRadius,
       'fill' : defaultFill,
-      'icon' : defaultIcon
+      'icon' : defaultIcon,
+      'selected' : true
     };
 
     this.setDefaultNode = function(value) {
@@ -333,36 +332,44 @@
           'node' : {
             'Project' : {
               'radius' : 35,
-              'fill' : 'salmon'
+              'fill' : 'salmon',
+              'selected' : false
             },
             'Cluster' : {
               'radius' : 30,
-              'fill' : 'lightcoral'
+              'fill' : 'lightcoral',
+              'selected' : true
             },
             'Node' : {
               'radius' : 25,
-              'fill' : 'indianred'
+              'fill' : 'indianred',
+              'selected' : true
             },
             'Process' : {
               'radius' : 15,
-              'fill' : 'coral'
+              'fill' : 'coral',
+              'selected' : false
             },
             'Service' : {
               'radius' : 20,
-              'fill' : 'lightblue'
+              'fill' : 'lightblue',
+              'selected' : true
             },
             'ReplicationController' : {
               'radius' : 15,
-              'fill' : 'lightcyan'
+              'fill' : 'lightcyan',
+              'selected' : true
             },
             'Pod' : {
               'radius' : 15,
-              'fill' : 'darkblue'
+              'fill' : 'darkblue',
+              'selected' : true
             },
             'Container' : defaultNode,
             'Image' : {
               'radius' : 15,
-              'fill' : 'green'
+              'fill' : 'green',
+              'selected' : false
             }
           },
           'link' : {
@@ -387,17 +394,6 @@
             }
           }
         },
-        'filter': {
-          'Cluster': true,
-          'Container': true,
-          'Image': false,
-          'Node': true,
-          'Pod': true,
-          'Process': false,
-          'Project': false,
-          'ReplicationController': true,
-          'Service': true
-        }
       },
       'version' : 0,
       'transformNames' : []

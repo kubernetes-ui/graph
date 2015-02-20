@@ -10,7 +10,7 @@
         <h3 flex>Nodes</h3>
         <div flex>
           <div layout layout-align="space-between center" flex ng-repeat="(type, config) in viewModelService.viewModel.configuration.legend.node">
-            <md-checkbox ng-model="viewModelService.viewModel.configuration.filter[type]" ng-change="updateModel()">{{type}}</md-checkbox>
+            <md-checkbox ng-model="viewModelService.viewModel.configuration.legend.node[type].selected" ng-change="updateModel()">{{type}}</md-checkbox>
             <svg width="30px" height="30px"><circle r="15" cx="15" cy="15" fill="{{config.fill}}"></circle></svg>
           </div>
         </div>
