@@ -29,6 +29,22 @@ angular.module('krakenApp.Graph')
           .attr("height", height)
           .attr("class", "graph");
 
+        svg.append("defs").selectAll("marker")
+          .data(["suit", "licensing", "resolved"])
+          .enter().append("marker")
+          .attr("id", function(d) { return d; })
+          .attr("viewBox", "0 -5 10 10")
+          .attr("refX", 60)
+          .attr("refY", 0)
+          .attr("markerWidth", 6)
+          .attr("markerHeight", 6)
+          .attr("orient", "auto")
+          .attr("markerUnits", "userSpaceOnUse")
+          .append("path")
+          .attr("d", "M0,-5L10,0L0,5 L10,0 L0, -5")
+          .style("stroke", "black")
+          .style("opacity", "1");
+
         svg.on('contextmenu', function (data, index) {
           d3.selectAll('.popup-tags-table').style("display", "none");
 
@@ -94,6 +110,13 @@ angular.module('krakenApp.Graph')
             .data(graph.links)
             .enter().append("line")
             .attr("class", "link")
+            .style("marker-end", function (d) {
+              if (d.directed) {
+                return "url(#suit)";
+              } else {
+                return "none";
+              }
+            })
             .style("stroke", function (d) {
               return d.stroke;
             })
