@@ -25,7 +25,7 @@
         }, 
         "properties" : {
           "type" : "balances",
-          "label" : "balances",
+          "label" : "balances"
         }
       },{
         "filter" : {
@@ -34,7 +34,7 @@
         }, 
         "properties" : {
           "type" : "uses",
-          "label" : "uses",
+          "label" : "uses"
         }
       }]
     }
