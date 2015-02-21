@@ -1,3 +1,30 @@
-<div ng-controller="InspectNodeCtrl">
-  The node details are: {{nodeDetail}}
+<div>
+
+<div ng-controller="InspectNodeCtrl" layout="column" style="padding:25px;" class="pod">
+  
+  <div class="md-whiteframe-z2">
+    <md-toolbar>
+      <h1 class="md-toolbar-tools">
+        <span>Inspecting: {{nodeDetail.id}}</span>
+      </h1>
+    </md-toolbar>
+    
+    <md-content>
+      <md-list>
+        <md-item>
+          <md-item-content>
+              <div class="md-tile-content">
+              <p ng-repeat="tag in nodeDetail.tags">
+                <div ng-repeat="tag in nodeDetail.tags">
+                  {{tag.key}}: {{tag.value}}</span>
+                </div>
+              </p>
+            </div>
+          </md-item-content>
+        </md-item>
+      </md-list>
+    </md-content>
+  </div>
+</div>
+    
 </div>

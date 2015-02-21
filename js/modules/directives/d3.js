@@ -651,8 +651,7 @@ angular.module('krakenApp.Graph')
               // Add the node details into the service, to be consumed by the
               // next controller.
               inspectNodeService.setDetailData(d);
-              console.log('xinzh set node details ' + JSON.stringify(d));
-              
+
               // Redirect to the detail view page.
               $location.path('/graph/inspect');
               scope.$apply();
