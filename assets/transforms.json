@@ -7,7 +7,8 @@
         "properties" : {
           "type" : "$.type", 
           "name" : "$.label",
-          "tags" : "$.metadata"
+          "tags" : "$.metadata",
+          "metadata" : "$.metadata"
         }
       }],
       "edgeMaps" : [{
@@ -16,7 +17,8 @@
           "label" : "$.relation",
           "tags" : "$.metadata",
           "source" : "$.source",
-          "target" : "$.target"
+          "target" : "$.target",
+          "metadata" : "$.metadata"
         }
       },{
         "filter" : {
@@ -55,7 +57,8 @@
               "NetworkSettings" : "$.metadata.NetworkSettings", 
               "State" : "$.metadata.State"
             }
-          }
+          },
+          "metadata" : "$.metadata"
         }
       },{
         "filter" : {
@@ -70,7 +73,8 @@
               "podIP" : "$.metadata.currentState.podIP", 
               "startedAt" : "$.metadata.currentState.status"
             }
-          }
+          },
+          "metadata" : "$.metadata"
         }
       }, {
         "filter" : {
@@ -88,7 +92,8 @@
               "portalIP": "$.metadata.portalIP", 
               "selector": "$.metadata.selector"
             }
-          }
+          },
+          "metadata" : "$.metadata"
         }
       }],
       "nodeFilters" : [{
@@ -96,14 +101,22 @@
         "args" : [ "$.type", "$.type" , "$.type"]
       }],
       "edgeMaps" : [{
+        "properties" : {
+          "type" : "$.relation",
+          "label" : "$.relation",
+          "tags" : "$.metadata",
+          "source" : "$.source",
+          "target" : "$.target",
+          "metadata" : "$.metadata"
+        }
+      },{
         "filter" : {
           "eval" : "('%s' == 'loadBalances')",
           "args" : [ "$.relation" ]
         }, 
         "properties" : {
           "type" : "balances",
-          "label" : "balances",
-          "tags" : "$.metadata"
+          "label" : "balances"
         }
       },{
         "filter" : {
@@ -112,18 +125,7 @@
         }, 
         "properties" : {
           "type" : "uses",
-          "label" : "uses",
-          "tags" : "$.metadata"
-        }
-      },{
-        "filter" : {
-          "eval" : "('%s' != 'loadBalances') && ('%s' != 'createdFrom')",
-          "args" : [ "$.relation", "$.relation" ]
-        }, 
-        "properties" : {
-          "type" : "$.relation",
-          "label" : "$.relation",
-          "tags" : "$.metadata"
+          "label" : "uses"
         }
       }]
     }

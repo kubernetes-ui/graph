@@ -25,26 +25,19 @@
 
       // Update the view model every time the user changes the transformation approach.
       $scope.$watch('selectedTransformName', function(newValue, oldValue) {
-        $scope.updateModel();
+        if (newValue != oldValue) {
+          $scope.updateModel();
+        }
       });
 
       $scope.pollK8sDataService = pollK8sDataService;
       // Update the view model every time the backend data model has changed.
       $scope.$watch('pollK8sDataService.k8sdatamodel.sequenceNumber', function(newValue, oldValue) {
-        console.log('sequence number changed, generating view model');
-        $scope.updateModel();
-      });
-
-      $scope.mockDataSampleNames = lodash.pluck(mockDataService.samples, 'name');
-      $scope.showMockDataSample = function(sampleName) {
-        pollK8sDataService.stop($scope);
-        var sample = lodash.find(mockDataService.samples, function(sample) {
-          return sample.name === sampleName;
-        });
-        if (sample) {
-          viewModelService.setViewModel(sample.data);
+        if (newValue != oldValue) {
+          console.log('sequence number changed, generating view model');
+          $scope.updateModel();
         }
-      };
+      });
 
       if (pollK8sDataService.isPolling()) {
         $scope.isPolling = true;
@@ -63,6 +56,17 @@
           $scope.isPolling = true;
           $scope.toggleIcon = "components/graph/img/Pause.svg";
           pollK8sDataService.start($scope);
+        }
+      };
+
+      $scope.mockDataSampleNames = lodash.pluck(mockDataService.samples, 'name');
+      $scope.showMockDataSample = function(sampleName) {
+        pollK8sDataService.stop($scope);
+        var sample = lodash.find(mockDataService.samples, function(sample) {
+          return sample.name === sampleName;
+        });
+        if (sample) {
+          viewModelService.setViewModel(sample.data);
         }
       };
 

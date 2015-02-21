@@ -12,9 +12,25 @@
         </md-button>
       </md-card>
       <md-card flex layout="column" layout-padding>
+        <div flex layout>
+          <h3>Queries</h3>
+        </div>
+        <div flex layout ng-repeat="transformName in viewModelService.viewModel.transformNames">
+          <md-button layout-fill class="md-raised md-primary" ng-click="setSelectedTransformName(transformName)">{{transformName}}</md-button>
+        </div>
+      </md-card>
+      <md-card flex layout="column" layout-padding>
+        <div flex layout>
+          <h3>Samples</h3>
+        </div>
+        <div flex layout ng-repeat="sampleName in mockDataSampleNames">
+          <md-button layout-fill class="md-raised md-primary" ng-click="showMockDataSample(sampleName)">{{sampleName}}</md-button>
+        </div>
+      </md-card>
+      <md-card flex layout="column" layout-padding>
         <div flex>
-          <div flex layout layout-align="space-between center" ng-repeat="(type, config) in viewModelService.viewModel.configuration.legend.node">
-            <md-checkbox ng-model="viewModelService.viewModel.configuration.legend.node[type].selected" ng-change="updateModel()">{{type}}</md-checkbox>
+          <div flex layout layout-align="space-between center" ng-repeat="(type, config) in viewModelService.viewModel.configuration.legend.nodes">
+            <md-checkbox ng-model="viewModelService.viewModel.configuration.legend.nodes[type].enabled" ng-change="updateModel()">{{type}}</md-checkbox>
             <svg width="30px" height="30px">
               <circle r="15" cx="15" cy="15" fill="{{config.fill}}"></circle>
             </svg>
@@ -23,7 +39,7 @@
       </md-card>
       <md-card flex layout="column" layout-padding>
         <div flex>
-          <div flex layout layout-align="space-between center" ng-repeat="(type, config) in viewModelService.viewModel.configuration.legend.link">
+          <div flex layout layout-align="space-between center" ng-repeat="(type, config) in viewModelService.viewModel.configuration.legend.links">
             <span>{{type}}</span>
             <svg width="30px" height="30px">
               <line x1="0" y1="15" x2="30" y2="15" stroke="{{config.stroke}}" stroke-dasharray="{{config.dash}}" fill="{{config.fill}}" width="{{config.width}}"></line>
@@ -31,16 +47,6 @@
           </div>
         </div>
       </md-card>
-      <!--
-      <md-card flex layout="column" layout-fill layout-padding>
-        <div flex layout>
-          <h3>Samples</h3>
-        </div>
-        <div flex layout ng-repeat="sampleName in mockDataSampleNames">
-          <md-button layout-fill class="md-raised md-primary" ng-click="showMockDataSample(sampleName)">{{sampleName}}</md-button>
-        </div>
-      </md-card>
-      -->
     </div>
   </div>
   <div flex="80" layout="column">

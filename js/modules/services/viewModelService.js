@@ -13,27 +13,44 @@
     var nodeStyles = undefined;
     var linkStyles = undefined;
     if (template.legend) {
-      if (template.legend.node) {
-        nodeStyles = template.legend.node;
+      if (template.legend.nodes) {
+        nodeStyles = template.legend.nodes;
       }
 
-      if (template.legend.edge) {
-        linkStyles = template.legend.edge;
+      if (template.legend.links) {
+        linkStyles = template.legend.links;
       }
     }
+
+    var stringifyNoQuotes = function(result) {
+      if (typeof result !== 'string') {
+        if (typeof result !== 'undefined') {
+          result = JSON.stringify(result);
+          result = result.replace(/\"([^(\")"]+)\":/g,"$1:");
+        } else {
+          result = 'undefined';   
+        }
+      }
+
+      return result;
+    };
 
     var evalExpression = function(item, expression) {
       var result = undefined;
       if (typeof expression.eval === 'string') {
         var args = [];
         if (Array.isArray(expression.args)) {
-          lodash.forEach(expression.args, function(arg) {
-            var results = JSONPath(null, item, arg);
-            if (results && results.length > 0) {
-              results = lodash.map(results, function(result) {
-                return JSON.stringify(result);
-              });
-              args.push(results);
+          lodash.forEach(expression.args, function(results) {
+            if (typeof results === 'string') {
+              if (results.charAt(0) == '$') {
+                results = JSONPath(null, item, results);
+              }
+              if (results && results.length > 0) {
+                results = lodash.map(results, function(result) {
+                  return stringifyNoQuotes(result);
+                });
+                args.push(results);
+              }
             }
           });
           var expr = vsprintf(expression.eval, args);
@@ -51,17 +68,6 @@
         });
       };
     };
-
-    var filterNode = function(filters) {
-      return function(fromItem) {
-        return this.legend.node[fromItem.type].selected && 
-          lodash.every(filters, function(filter) { 
-            return evalExpression(fromItem, filter); 
-          });
-      };
-    };
-
-    var filterEdge = filterItem;
 
     var random = function() {
       var str = JSON.stringify(Math.random());
@@ -110,10 +116,7 @@
           if (mapping) {
             property = evalMapping(fromItem, property);
             if (property) {
-              if (typeof property !== 'string') {
-                property = JSON.stringify(property);
-              }
-
+              property = stringifyNoQuotes(property);
               toItem[property] = mapping;
             }
           }
@@ -127,13 +130,14 @@
       if (maps) {
         // TODO: Apply maps progressively not sequentially.
         lodash.forEach(maps, function(map) {
-          if (!map.filter || filterItem(map.filter, fromItem)) {
+          if (!map.filter || evalExpression(fromItem, map.filter)) {
             mapProperties(fromItem, toItem, map.properties);
           }
         });
       }
 
-      var style = styles[toItem.type] || Object.keys(styles)[0];
+      var style = styles.hasOwnProperty(toItem.type) ? 
+        styles[toItem.type] : styles[lodash.first(Object.keys(styles))];
       lodash.assign(toItem, style);
     };
 
@@ -167,7 +171,7 @@
     var mapNode = function(fromNode) {
       var toNode = {};
 
-      mapItem(fromNode, toNode, template.nodeMaps, nodeStyles || this.legend.node);
+      mapItem(fromNode, toNode, template.nodeMaps, nodeStyles || this.legend.nodes);
       setCluster(toNode);
       setIndex(toNode);
 
@@ -177,7 +181,7 @@
     var mapEdge = function(fromEdge) {
       var toEdge = {};
 
-      mapItem(fromEdge, toEdge, template.edgeMaps, linkStyles || this.legend.link);
+      mapItem(fromEdge, toEdge, template.edgeMaps, linkStyles || this.legend.links);
       getIndex(fromEdge, toEdge);
 
       return toEdge;
@@ -201,9 +205,13 @@
             toModel.settings = template.settings;
           }
 
-          var chain = lodash.chain(fromModel.nodes);
+          var chain = lodash.chain(fromModel.nodes)
+            .filter(function(fromItem) {
+              return configuration.legend.nodes[fromItem.type].enabled;
+            });
           if (template.nodeFilters) {
-            chain = chain.filter(filterNode(template.nodeFilters), configuration);
+            chain = chain
+              .filter(filterItem(template.nodeFilters), configuration);
           }
 
           toModel.nodes = chain
@@ -215,18 +223,18 @@
         if (fromModel.edges) {
           var chain = lodash.chain(fromModel.edges);
           if (template.edgeFilters) {
-            chain = chain.filter(filterEdge(template.edgeFilters), configuration);
+            chain = chain.filter(filterItem(template.edgeFilters), configuration);
           }
 
           // Remove links to dropped nodes.
           var linkFilters = [{
-            "expr" : "('%s' !== 'undefined') && ('%s' !== 'undefined')",
+            "eval" : "('%s' !== 'undefined') && ('%s' !== 'undefined')",
             "args" : [ "$.source", "$.target" ]
           }];
 
           toModel.links = chain
             .map(mapEdge, configuration)
-            .filter(filterEdge(linkFilters), configuration)
+            .filter(filterItem(linkFilters), configuration)
             .sortBy(sortEdge, configuration)
             .value();
         }
@@ -289,7 +297,7 @@
       'radius' : defaultRadius,
       'fill' : defaultFill,
       'icon' : defaultIcon,
-      'selected' : true
+      'enabled' : true
     };
 
     this.setDefaultNode = function(value) {
@@ -319,83 +327,77 @@
     };
 
     var viewModel = { 
-      'data' : defaultModel, 
-      'default' : defaultModel,
-      'configuration' : {
+      "data" : defaultModel, 
+      "default" : defaultModel,
+      "configuration" : {
         // TODO: Read the legend from an external file, though it needs to be
         // exported for dependencies like GraphCtrl.
-        'legend' : {
-          'node' : {
-            'Project' : {
-              'radius' : 35,
-              'fill' : 'salmon',
-              'selected' : false
+        "legend" : {
+          "nodes" : {
+            "Container" : defaultNode,
+            "Cluster" : {
+              "radius" : 30,
+              "fill" : "lightcoral",
+              "enabled" : false
             },
-            'Cluster' : {
-              'radius' : 30,
-              'fill' : 'lightcoral',
-              'selected' : false
+            "Node" : {
+              "radius" : 25,
+              "fill" : "indianred",
+              "enabled" : false
             },
-            'Node' : {
-              'radius' : 25,
-              'fill' : 'indianred',
-              'selected' : false
+            "Process" : {
+              "radius" : 15,
+              "fill" : "coral",
+              "enabled" : true
             },
-            'Process' : {
-              'radius' : 15,
-              'fill' : 'coral',
-              'selected' : true
+            "Service" : {
+              "radius" : 20,
+              "fill" : "lightblue",
+              "enabled" : true
             },
-            'Service' : {
-              'radius' : 20,
-              'fill' : 'lightblue',
-              'selected' : true
+            "ReplicationController" : {
+              "radius" : 15,
+              "fill" : "lightcyan",
+              "enabled" : true
             },
-            'ReplicationController' : {
-              'radius' : 15,
-              'fill' : 'lightcyan',
-              'selected' : true
+            "Pod" : {
+              "radius" : 15,
+              "fill" : "darkblue",
+              "enabled" : true
             },
-            'Pod' : {
-              'radius' : 15,
-              'fill' : 'darkblue',
-              'selected' : true
-            },
-            'Container' : defaultNode,
-            'Image' : {
-              'radius' : 15,
-              'fill' : 'green',
-              'selected' : true
+            "Image" : {
+              "radius" : 15,
+              "fill" : "green",
+              "enabled" : true
             }
           },
-          'link' : {
-            'contains' : defaultLink,
-            'balances' : {
-              'width' : 1,
-              'stroke' : 'gray',
-              'dash' : '5, 5, 1, 5',
-              'distance' : 60
+          "links" : {
+            "contains" : defaultLink,
+            "balances" : {
+              "width" : 1,
+              "stroke" : "gray",
+              "dash" : "5, 5, 1, 5",
+              "distance" : 60
             },
-            'uses' : {
-              'width' : 2,
-              'stroke' : 'gray',
-              'dash' : '1, 5',
-              'distance' : 60
+            "uses" : {
+              "width" : 2,
+              "stroke" : "gray",
+              "dash" : "1, 5",
+              "distance" : 60
             },
-            'monitors' : {
-              'width' : 1,
-              'stroke' : 'gray',
-              'dash' : '5, 10',
-              'distance' : 60
+            "monitors" : {
+              "width" : 1,
+              "stroke" : "gray",
+              "dash" : "5, 10",
+              "distance" : 60
             }
           }
         }
       },
-      'version' : 0,
-      'transformNames' : []
+      "version" : 0,
+      "transformNames" : []
     };
 
-    // var defaultTransform = templateTransform(lodash, defaultTemplate);
     var transformsByName = {}; // Loaded transforms by name.
 
     var stripSuffix = function(fileName) {
