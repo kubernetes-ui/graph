@@ -416,21 +416,33 @@ angular.module('krakenApp.Graph')
                 .append("a")
                 .attr("class", function (d) {
                   if (d !== null && typeof d === 'object') {
-                    return d.type === 'link' ? "" : "not-a-link";
+                    return d.type === 'link' || typeof d.value === 'object' ? "" : "not-a-link";
                   } else {
                     return "not-a-link";
                   }
                 })
-                .attr("href", function (d) {
+                .attr("href", function (d, i, j) {
                   if (d !== null && typeof d === 'object') {
-                    return d.type === 'link' ? d.value : "";
+                    if (typeof d.value === 'object') {
+                      var parentNode = this.parentNode.parentNode;
+                      var keyNode = parentNode.firstChild.firstChild;
+
+                      // TODO(duftler): Update this to reflect new route/pattern defined by Xin.
+                      return "/graph/inspect.html?key=" + tagsToDisplay[j].key;
+                    } else {
+                      return d.type === 'link' ? d.value : "";
+                    }
                   } else {
-                    return d;
+                    return "";
                   }
                 })
                 .text(function (d) {
                   if (d !== null && typeof d === 'object') {
-                    return d.value;
+                    if (typeof d.value === 'object') {
+                      return "Inspect...";
+                    } else {
+                      return d.value;
+                    }
                   } else {
                     return d;
                   }

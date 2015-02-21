@@ -56,6 +56,10 @@
                 "value": "Service"
               },
               {
+                "key": "ContainerConfig",
+                "value": { "anotherKey": "anotherValue" }
+              },
+              {
                 "key": "Console",
                 "value": "http://localhost:5678/some/console",
                 "type": "link",
