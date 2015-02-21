@@ -30,7 +30,7 @@
 
       $scope.pollK8sDataService = pollK8sDataService;
       // Update the view model every time the backend data model has changed.
-      $scope.$watch('pollK8sDataService.k8sDataModel.sequenceNumber', function(newValue, oldValue) {
+      $scope.$watch('pollK8sDataService.k8sdatamodel.sequenceNumber', function(newValue, oldValue) {
         console.log('sequence number changed, generating view model');
         $scope.updateModel();
       });
