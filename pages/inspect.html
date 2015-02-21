@@ -14,11 +14,9 @@
         <md-item>
           <md-item-content>
               <div class="md-tile-content">
-              <p ng-repeat="tag in nodeDetail.tags">
                 <div ng-repeat="tag in nodeDetail.tags">
-                  {{tag.key}}: {{tag.value}}</span>
+                  <p> {{tag.key}} : <span>{{tag.value}}</span> </p>
                 </div>
-              </p>
             </div>
           </md-item-content>
         </md-item>
