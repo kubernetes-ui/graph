@@ -391,64 +391,66 @@ angular.module('krakenApp.Graph')
           d3.event.preventDefault();
         }
 
-        function showPopupTagsTable(d) {
+        function showPopupTagsTable(n) {
           // Only start the popup transition if the context-menu is not displayed, the node is not being dragged, and
           // the popup is not already displayed.
           if (d3.select('.d3-context-menu').style('display') !== 'block'
-              && !d.dragging
+              && !n.dragging
               && d3.select('.popup-tags-table').style('display') !== 'block') {
             d3.selectAll('.popup-tags-table').html('');
 
-            if (d.tags && d.tags.length) {
-              var tagsToDisplay = lodash.filter(d.tags, function(n) {
-                return !n.hide;
-              });
-
-              var tr = d3.selectAll('.popup-tags-table').append("table")
-                .selectAll("tr")
-                .data(tagsToDisplay)
+            if (n.tags && Object.keys(n.tags)) {
+              var mdItem = d3
+                .selectAll('.popup-tags-table')
+                .append("md-content")
+                .append("md-list")
+                .selectAll("md-item")
+                .data(Object.keys(n.tags))
                 .enter()
-                .append("tr");
+                .append("md-item");
 
-              var td = tr.selectAll("td")
-                .data(function (d) {
-                  return [d.key, {value: d.value, type: d.type}];
-                })
-                .enter().append("td")
+              var div = mdItem
+                .append("md-item-content")
+                .append("div");
+
+              div.append("h4")
+                .text(function (d) {
+                  return d;
+                });
+
+              div
                 .append("a")
                 .attr("class", function (d) {
-                  if (d !== null && typeof d === 'object') {
-                    return d.type === 'link' || typeof d.value === 'object' ? "" : "not-a-link";
+                  if (d !== null
+                      && (typeof n.tags[d] === 'object' || n.tags[d].indexOf("http://") === 0)) {
+                    return "";
                   } else {
                     return "not-a-link";
                   }
                 })
-                .attr("href", function (d, i, j) {
-                  if (d !== null && typeof d === 'object') {
-                    if (typeof d.value === 'object') {
-                      var parentNode = this.parentNode.parentNode;
-                      var keyNode = parentNode.firstChild.firstChild;
-
-                      // TODO(duftler): Update this to reflect new route/pattern defined by Xin.
-                      return "/graph/inspect.html?key=" + tagsToDisplay[j].key;
-                    } else {
-                      return d.type === 'link' ? d.value : "";
-                    }
+                .attr("href", function (d) {
+                  if (d !== null && typeof n.tags[d] === 'object') {
+                    // TODO(duftler): Update this to reflect new route/pattern defined by Xin.
+                    return "/graph/inspect.html?key=" + d;
+                  } else if (d != null && n.tags[d].indexOf("http://") === 0) {
+                    return n.tags[d];
                   } else {
                     return "";
                   }
                 })
+                .append("p")
                 .text(function (d) {
-                  if (d !== null && typeof d === 'object') {
-                    if (typeof d.value === 'object') {
-                      return "Inspect...";
-                    } else {
-                      return d.value;
-                    }
+                  if (d !== null && typeof n.tags[d] === 'object') {
+                    return "Inspect...";
                   } else {
-                    return d;
+                    return n.tags[d];
                   }
                 });
+
+              var i = 0;
+              for (i = 0; i < mdItem.size() - 1; ++i) {
+                d3.select(mdItem[0][i]).append("md-divider");
+              }
 
               d3.selectAll('.popup-tags-table')
                 .style('left', (d3.event.pageX - 2) + 'px')

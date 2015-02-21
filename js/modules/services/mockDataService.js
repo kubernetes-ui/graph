@@ -50,22 +50,11 @@
             "name": "service: redis-master",
             "radius": 16,
             "fill": "olivedrab",
-            "tags": [
-              {
-                "key": "Type",
-                "value": "Service"
-              },
-              {
-                "key": "ContainerConfig",
-                "value": { "anotherKey": "anotherValue" }
-              },
-              {
-                "key": "Console",
-                "value": "http://localhost:5678/some/console",
-                "type": "link",
-                "hide": false
-              }
-            ]
+            "tags": {
+              "Type": "Service",
+              "ContainerConfig": {"anotherKey": "anotherValue"},
+              "Console": "http://localhost:5678/some/console"
+            }
           },
           {
             "name": "pod: redis-master",
@@ -81,28 +70,11 @@
             "name": "load balancer: guestbook",
             "radius": 16,
             "fill": "yellowgreen",
-            "tags": [
-              {
-                "key": "Type",
-                "value": "Load Balancer"
-              },
-              {
-                "key": "Port",
-                "value": "3000"
-              },
-              {
-                "key": "Logs",
-                "value": "http://localhost:1234/some/logs",
-                "type": "link",
-                "hide": false
-              },
-              {
-                "key": "More Logs",
-                "value": "http://localhost:9012/more/logs",
-                "type": "link",
-                "hide": true
-              }
-            ]
+            "tags": {
+              "Type": "Load Balancer",
+              "Port": "3000",
+              "Logs": "http://localhost:1234/some/logs"
+            }
           },
           {
             "name": "service: redis-worker",
