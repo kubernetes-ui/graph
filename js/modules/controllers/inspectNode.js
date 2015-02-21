@@ -9,6 +9,7 @@
       'InspectNodeCtrl',
       ['$scope', 'inspectNodeService', function($scope, inspectNodeService) {
         $scope.nodeDetail = inspectNodeService.getDetailData();
+        console.log('The node detail is ' + $scope.nodeDetail);
   }]);
 
 
