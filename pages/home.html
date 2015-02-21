@@ -1,40 +1,51 @@
 <div ng-controller="GraphCtrl" flex layout="row" layout-fill>
-  <div flex="20" layout-fill>
-    <md-content layout-margin layout="column">
-      <md-card flex layout layout-margin layout="column">
-        <h3 flex>Data source</h3>
-        <md-switch flex ng-model="polling">Poll master</md-switch>
-        <md-button flex class="md-raised md-primary" ng-disabled="polling" ng-click="refresh()">Refresh</md-button>
+  <div flex="20">
+    <div layout="column">
+      <md-card flex layout="row" layout-padding layout-align="space-between center">
+        <md-button flex class="icon-button" aria-label="PlayPause" ng-click="toggle()">
+          <md-icon md-svg-src="{{toggleIcon}}"></md-icon>
+          <paper-ripple class="circle recenteringTouch" fit></paper-ripple>
+        </md-button>
+        <md-button flex class="icon-button" aria-label="Refresh" ng-click="refresh()" ng-disabled="isPolling">
+          <md-icon md-svg-src="components/graph/img/Refresh.svg"></md-icon>
+          <paper-ripple class="circle recenteringTouch" fit></paper-ripple>
+        </md-button>
       </md-card>
-      <md-card flex layout layout-margin layout="column">
-        <h3 flex>Nodes</h3>
+      <md-card flex layout="column" layout-padding>
         <div flex>
-          <div layout layout-align="space-between center" flex ng-repeat="(type, config) in viewModelService.viewModel.configuration.legend.node">
+          <div flex layout layout-align="space-between center" ng-repeat="(type, config) in viewModelService.viewModel.configuration.legend.node">
             <md-checkbox ng-model="viewModelService.viewModel.configuration.legend.node[type].selected" ng-change="updateModel()">{{type}}</md-checkbox>
-            <svg width="30px" height="30px"><circle r="15" cx="15" cy="15" fill="{{config.fill}}"></circle></svg>
+            <svg width="30px" height="30px">
+              <circle r="15" cx="15" cy="15" fill="{{config.fill}}"></circle>
+            </svg>
           </div>
         </div>
       </md-card>
-      <md-card flex layout layout-margin layout="column">
-        <h3 flex>Links</h3>
+      <md-card flex layout="column" layout-padding>
         <div flex>
-          <div layout layout-align="space-between center" flex ng-repeat="(type, config) in viewModelService.viewModel.configuration.legend.link">
+          <div flex layout layout-align="space-between center" ng-repeat="(type, config) in viewModelService.viewModel.configuration.legend.link">
             <span>{{type}}</span>
-            <svg width="30px" height="30px"><line x1="0" y1="15" x2="30" y2="15" stroke="{{config.stroke}}" stroke-dasharray="{{config.dash}}" fill="{{config.fill}}" width="{{config.width}}"></line></svg>
+            <svg width="30px" height="30px">
+              <line x1="0" y1="15" x2="30" y2="15" stroke="{{config.stroke}}" stroke-dasharray="{{config.dash}}" fill="{{config.fill}}" width="{{config.width}}"></line>
+            </svg>
           </div>
         </div>
       </md-card>
-      <md-card flex layout-margin layout="column">
-        <h3 flex>Mock data</h3>
+      <!--
+      <md-card flex layout="column" layout-fill layout-padding>
+        <div flex layout>
+          <h3>Samples</h3>
+        </div>
         <div flex layout ng-repeat="sampleName in mockDataSampleNames">
           <md-button layout-fill class="md-raised md-primary" ng-click="showMockDataSample(sampleName)">{{sampleName}}</md-button>
         </div>
       </md-card>
-    </md-content>
+      -->
+    </div>
   </div>
-  <div flex="80" layout="column" layout-fill>
-    <md-whiteframe class="md-whiteframe-z1" flex layout layout-fill layout-padding>
-      <d3-visualization></d3-visualization>
-    </md-whiteframe>
+  <div flex="80" layout="column">
+      <md-card flex layout layout-padding>
+        <d3-visualization></d3-visualization>
+      </md-card>
   </div>
 </div>

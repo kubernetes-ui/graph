@@ -4,80 +4,38 @@
     "script" : "templateTransform.js",
     "data" : {
       "nodeMaps" : [{
-        "filter" : {
-          "expr" : "true",
-          "args" : []
-        }, 
         "properties" : {
-          "type" : "type", 
-          "name" : "$.label"
+          "type" : "$.type", 
+          "name" : "$.label",
+          "tags" : "$.metadata"
         }
       }],
       "edgeMaps" : [{
-        "filter" : {
-          "expr" : "true",
-          "args" : []
-        }, 
         "properties" : {
           "type" : "$.relation",
-          "label" : "$.relation"
-        }
-      }]
-    }
-  },{
-    "name" : "Pods",
-    "script" : "templateTransform.js",
-    "data" : {
-      "nodeMaps" : [{
-        "filter" : {
-          "expr" : "('%s' == 'Container')",
-          "args" : [ "$.type" ]
-        }, 
-        "properties" : {
-          "type" : "type", 
-          "name" : "$.metadata.Config.Image", 
-          "tags" : {
-            "Hostname" : "$.metadata.Config.Hostname", 
-            "Memory" : "$.metadata.Config.Memory", 
-            "MemorySwap" : "$.metadata.Config.MemorySwap", 
-            "NetworkDisabled" : "$.metadata.Config.NetworkDisabled", 
-            "Dns" : "$.metadata.HostConfig.Dns", 
-            "DnsSearch" : "$.metadata.HostConfig.DnsSearch"
-          }
+          "label" : "$.relation",
+          "tags" : "$.metadata",
+          "source" : "$.source",
+          "target" : "$.target"
         }
       },{
         "filter" : {
-          "expr" : "('%s' == 'Pod')",
-          "args" : [ "$.type" ]
-        }, 
-        "properties" : {
-          "type" : "type", 
-          "name" : "$.label",
-          "tags" : {
-            "containerID" : "$.metadata.currentState.info.POD.containerID", 
-            "image" : "$.metadata.currentState.info.POD.image", 
-            "podIP" : "$.metadata.currentState.info.POD.podIP", 
-            "startedAt" : "$.metadata.currentState.info.POD.state.running.startedAt"
-          }
-        }
-      }],
-      "nodeFilters" : [{
-        "expr" : "('%s' == 'Pod') || ('%s' == 'Container')",
-        "args" : [ "$.type", "$.type" ]
-      }],
-      "edgeMaps" : [{
-        "filter" : {
-          "expr" : "('%s' == 'contains')",
+          "eval" : "('%s' == 'loadBalances')",
           "args" : [ "$.relation" ]
         }, 
         "properties" : {
-          "type" : "$.relation",
-          "label" : "$.relation"
+          "type" : "balances",
+          "label" : "balances",
         }
-      }],
-      "edgeFilters" : [{
-        "expr" : "('%s' === 'contains')",
-        "args" : [ "$.relation" ]
+      },{
+        "filter" : {
+          "eval" : "('%s' == 'createdFrom')",
+          "args" : [ "$.relation" ]
+        }, 
+        "properties" : {
+          "type" : "uses",
+          "label" : "uses",
+        }
       }]
     }
   },{
@@ -86,52 +44,87 @@
     "data" : {
       "nodeMaps" : [{
         "filter" : {
-          "expr" : "('%s' == 'Project')",
+          "eval" : "('%s' == 'Container')",
           "args" : [ "$.type" ]
         }, 
         "properties" : {
-          "type" : "type", 
-          "name" : "$.label",
+          "type" : "$.type", 
+          "name" : "$.metadata.Config.Image", 
           "tags" : {
-      	    "ID": "$.id",
-      	    "Label": "$.label",
-      	    "internalID": "$.metadata.internalID",
-      	    "name" : "$.metadata.name"
+            "properties" : {
+              "NetworkSettings" : "$.metadata.NetworkSettings", 
+              "State" : "$.metadata.State"
+            }
           }
         }
       },{
         "filter" : {
-          "expr" : "('%s' == 'Service')",
+          "eval" : "('%s' == 'Pod')",
           "args" : [ "$.type" ]
         }, 
         "properties" : {
-          "type" : "type", 
+          "type" : "$.type", 
           "name" : "$.label",
           "tags" : {
-      	    "ID": "$.id",
-      	    "Label": "$.label",
-      	    "internalID": "$.metadata.internalID",
-      	    "name" : "$.metadata.name"
+            "properties" : {
+              "podIP" : "$.metadata.currentState.podIP", 
+              "startedAt" : "$.metadata.currentState.status"
+            }
+          }
+        }
+      }, {
+        "filter" : {
+          "eval" : "('%s' == 'Service')",
+          "args" : [ "$.type" ]
+        }, 
+        "properties" : {
+          "type" : "$.type", 
+          "name" : "$.label",
+          "tags" : {
+            "properties" : {
+              "labels": "$.metadata.labels", 
+              "namespace": "$.metadata.namespace", 
+              "port": "$.metadata.port", 
+              "portalIP": "$.metadata.portalIP", 
+              "selector": "$.metadata.selector"
+            }
           }
         }
       }],
       "nodeFilters" : [{
-        "expr" : "('%s' == 'Project') || ('%s' == 'Service')",
-        "args" : [ "$.type", "$.type" ]
+        "eval" : "('%s' == 'Container') || ('%s' == 'Pod') || ('%s' == 'Service')",
+        "args" : [ "$.type", "$.type" , "$.type"]
       }],
       "edgeMaps" : [{
         "filter" : {
-          "expr" : "('%s' == 'contains')",
+          "eval" : "('%s' == 'loadBalances')",
           "args" : [ "$.relation" ]
         }, 
         "properties" : {
-          "type" : "$.relation",
-          "label" : "$.relation"
+          "type" : "balances",
+          "label" : "balances",
+          "tags" : "$.metadata"
         }
-      }],
-      "edgeFilters" : [{
-        "expr" : "('%s' === 'contains')",
-        "args" : [ "$.relation" ]
+      },{
+        "filter" : {
+          "eval" : "('%s' == 'createdFrom')",
+          "args" : [ "$.relation" ]
+        }, 
+        "properties" : {
+          "type" : "uses",
+          "label" : "uses",
+          "tags" : "$.metadata"
+        }
+      },{
+        "filter" : {
+          "eval" : "('%s' != 'loadBalances') && ('%s' != 'createdFrom')",
+          "args" : [ "$.relation", "$.relation" ]
+        }, 
+        "properties" : {
+          "type" : "$.relation",
+          "label" : "$.relation",
+          "tags" : "$.metadata"
+        }
       }]
     }
   }]

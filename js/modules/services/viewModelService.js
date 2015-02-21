@@ -22,7 +22,47 @@
       }
     }
 
-    // iterat through nodeMaps and edgeMaps and for each member, compile scope as regex.
+    var evalExpression = function(item, expression) {
+      var result = undefined;
+      if (typeof expression.eval === 'string') {
+        var args = [];
+        if (Array.isArray(expression.args)) {
+          lodash.forEach(expression.args, function(arg) {
+            var results = JSONPath(null, item, arg);
+            if (results && results.length > 0) {
+              results = lodash.map(results, function(result) {
+                return JSON.stringify(result);
+              });
+              args.push(results);
+            }
+          });
+          var expr = vsprintf(expression.eval, args);
+        }
+        result = eval(expr);
+      }
+
+      return result;
+    };
+
+    var filterItem = function(filters) {
+      return function(fromItem) {
+        return lodash.every(filters, function(filter) { 
+          return evalExpression(fromItem, filter); 
+        });
+      };
+    };
+
+    var filterNode = function(filters) {
+      return function(fromItem) {
+        return this.legend.node[fromItem.type].selected && 
+          lodash.every(filters, function(filter) { 
+            return evalExpression(fromItem, filter); 
+          });
+      };
+    };
+
+    var filterEdge = filterItem;
+
     var random = function() {
       var str = JSON.stringify(Math.random());
       var idx = str.indexOf('.') + 1;
@@ -33,10 +73,50 @@
       return str;
     };
 
-    var allTags = function(fromItem, toItem) {
-      if (!toItem.tags && fromItem.metadata) {
-        toItem.tags = lodash.map(fromItem.metadata, function(value, key) {
-          return { "key": key, "value": value };
+    var evalMapping = function(item, mapping) {
+      var result = undefined;
+      if (mapping) {
+        if (typeof mapping === 'string') {
+          result = mapping;
+          if (result.charAt(0) == '$') {
+            result = JSONPath(null, item, mapping);
+            if (result && result.length == 1) {
+              result = result[0];
+            }
+          }
+        } else
+        if (typeof mapping === 'object') {
+          if (mapping.expression) {
+          result = evalExpression(item, mapping);
+          } else
+          if (mapping.properties) {
+            result = mapProperties(item, {}, mapping);
+          }
+        } else
+        if (Array.isArray(mapping)) {
+          result = lodash.map(mapping, function(member) {
+              return evalMapping(item, member);
+          });
+        }
+      }
+
+      return result;
+    };
+
+    var mapProperties = function(fromItem, toItem, properties) {
+      if (properties) {
+        lodash.forOwn(properties, function(mapping, property) {
+          mapping = evalMapping(fromItem, mapping);
+          if (mapping) {
+            property = evalMapping(fromItem, property);
+            if (property) {
+              if (typeof property !== 'string') {
+                property = JSON.stringify(property);
+              }
+
+              toItem[property] = mapping;
+            }
+          }
         });
       }
     };
@@ -45,60 +125,15 @@
       toItem.id = fromItem.id || random();
 
       if (maps) {
-        var map = lodash.find(maps, function(map) {
-          return map.filter ? applyFilter(map.filter, fromItem) : false;
-        });
-
-        if (map) {
-          var properties = map.properties;
-          if (properties) {
-            // TODO: Make the property list dynamic.
-            // TODO: Add support for property value expressions.
-            if (properties.name) {
-              var result = JSONPath(null, fromItem, properties.name);
-              if (result && result.length > 0) {
-                toItem.name = result[0];
-              }
-            }
-
-            if (properties.label) {
-              var result = JSONPath(null, fromItem, properties.label);
-              if (result && result.length > 0) {
-                toItem.label = result[0];
-              }
-            }
-
-            if (properties.type) {
-              var result = JSONPath(null, fromItem, properties.type);
-              if (result && result.length > 0) {
-                toItem.type = result[0];
-              }
-            }
-
-            if (properties.tags) {
-              toItem.tags = [];
-              lodash.forOwn(properties.tags, function(path, label) {
-                var result = JSONPath(null, fromItem, path);
-                if (result && result.length > 0) {
-                  toItem.tags.push({ 'key': label, 'value': result[0] });
-                }
-              });
-            }
+        // TODO: Apply maps progressively not sequentially.
+        lodash.forEach(maps, function(map) {
+          if (!map.filter || filterItem(map.filter, fromItem)) {
+            mapProperties(fromItem, toItem, map.properties);
           }
-        }
+        });
       }
 
-      // TODO: Implement as property value expressions.
-      if (fromItem.relation) {
-        if (toItem.type == 'loadBalances') {
-          toItem.type = 'balances';
-        } else if (toItem.type == 'createdFrom') {
-          toItem.type = 'uses';
-        }
-      }
-
-      allTags(fromItem, toItem);
-      var style = styles[toItem.type] || styles[0];
+      var style = styles[toItem.type] || Object.keys(styles)[0];
       lodash.assign(toItem, style);
     };
 
@@ -156,41 +191,6 @@
       return fromEdge.source + ':' + fromEdge.target;
     };
 
-    var filterItem = function(filter, item) {
-      var result = false;
-      if (filter.expr) {
-        var args = [];
-        if (filter.args) {
-          lodash.forEach(filter.args, function(arg) {
-            var results = JSONPath(null, item, arg);
-            if (results && results.length > 0) {
-              results = lodash.map(results, function(result) {
-                if (typeof result === 'undefined') {
-                  return 'undefined';
-                }
-
-                return result;
-              });
-              args.push(results);
-            }
-          });
-        }
-
-        var expr = vsprintf(filter.expr, args);
-        var result = eval(expr);
-      }
-
-      return result;
-    };
-
-    var applyFilter = function(filters) {
-      return function(fromItem) {
-        return lodash.every(filters, function(filter) { 
-          return filterItem(filter, fromItem); 
-        });
-      };
-    };
-
     return function(fromModel, toModel, configuration) {
       if (fromModel && toModel && configuration) {
         idToIndex = {};
@@ -203,12 +203,8 @@
 
           var chain = lodash.chain(fromModel.nodes);
           if (template.nodeFilters) {
-            chain = chain.filter(applyFilter(template.nodeFilters), configuration);
+            chain = chain.filter(filterNode(template.nodeFilters), configuration);
           }
-
-          chain = chain.filter(function(fromItem) {
-            return configuration.legend.node[fromItem.type].selected;
-          });
 
           toModel.nodes = chain
             .sortBy(sortNode, configuration)
@@ -219,7 +215,7 @@
         if (fromModel.edges) {
           var chain = lodash.chain(fromModel.edges);
           if (template.edgeFilters) {
-            chain = chain.filter(applyFilter(template.edgeFilters), configuration);
+            chain = chain.filter(filterEdge(template.edgeFilters), configuration);
           }
 
           // Remove links to dropped nodes.
@@ -230,7 +226,7 @@
 
           toModel.links = chain
             .map(mapEdge, configuration)
-            .filter(applyFilter(linkFilters), configuration)
+            .filter(filterEdge(linkFilters), configuration)
             .sortBy(sortEdge, configuration)
             .value();
         }
@@ -338,17 +334,17 @@
             'Cluster' : {
               'radius' : 30,
               'fill' : 'lightcoral',
-              'selected' : true
+              'selected' : false
             },
             'Node' : {
               'radius' : 25,
               'fill' : 'indianred',
-              'selected' : true
+              'selected' : false
             },
             'Process' : {
               'radius' : 15,
               'fill' : 'coral',
-              'selected' : false
+              'selected' : true
             },
             'Service' : {
               'radius' : 20,
@@ -369,7 +365,7 @@
             'Image' : {
               'radius' : 15,
               'fill' : 'green',
-              'selected' : false
+              'selected' : true
             }
           },
           'link' : {
@@ -393,7 +389,7 @@
               'distance' : 60
             }
           }
-        },
+        }
       },
       'version' : 0,
       'transformNames' : []
@@ -515,7 +511,6 @@
       var toModel = JSON.parse(JSON.stringify(defaultModel));
       var fromModel = JSON.parse(JSON.stringify(dataModel));
 
-      // TODO: Removed hard wired call to defaultTransform.
       toModel = transform(fromModel, toModel, viewModel.configuration);
       setViewModel(toModel);
     };
