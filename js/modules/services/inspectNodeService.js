@@ -18,8 +18,8 @@
     };
 
     return {
-      'setDetailData': setDetailData;
-      'getDetailData': getDetailData;
+      'setDetailData': setDetailData,
+      'getDetailData': getDetailData
     };
   };
 
