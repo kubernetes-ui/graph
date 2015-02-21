@@ -11,6 +11,7 @@
     var nodeDetails = null;
     var setDetailData = function(data) {
       nodeDetails = data;
+      console.log('set nodeDetails to ' + JSON.stringify(nodeDetails));
     };
 
     var getDetailData = function() {
@@ -24,6 +25,6 @@
   };
 
   angular.module('krakenApp.Graph')
-      .provider('inspectNodeService', inspectNodeService);
+      .factory('inspectNodeService', inspectNodeService);
 
 })();

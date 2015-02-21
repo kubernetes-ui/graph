@@ -8,7 +8,8 @@
   angular.module('krakenApp.Graph').controller(
       'InspectNodeCtrl',
       ['$scope', 'inspectNodeService', function($scope, inspectNodeService) {
-        $scope.nodeDetail = JSON.stringify(inspectNodeService.getDetailData);
+        console.log('In inspect node controller: ' + $scope.nodeDetail);
+        $scope.nodeDetail = JSON.stringify(inspectNodeService.getDetailData());
   }]);
 
 
