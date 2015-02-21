@@ -13,8 +13,12 @@
     "url": "/graph",
     "type": "link",
     "templateUrl": "/components/graph/pages/home.html"
-  },
-  {
+  }, {
+    "name": "Graph",
+    "url": "/graph/inspect",
+    "type": "link",
+    "templateUrl": "/components/graph/pages/inspect.html"
+  }, {
     "name": "Graph",
     "type": "heading",
     "children": [

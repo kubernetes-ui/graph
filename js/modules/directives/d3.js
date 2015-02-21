@@ -1,6 +1,6 @@
 // TODO(duftler): Remove mockDataService dependency once 'Samples' section is removed from canvas context menu.
 angular.module('krakenApp.Graph')
-.directive('d3Visualization', ['lodash', 'd3Service', 'mockDataService', function (lodash, d3Service, mockDataService) {
+  .directive('d3Visualization', ['lodash', 'd3Service', 'mockDataService', '$location', function (lodash, d3Service, mockDataService, $location) {
   return {
     restrict: 'E',
     link: function (scope, element, attrs) {
@@ -390,6 +390,8 @@ angular.module('krakenApp.Graph')
         }
 
         function showPopupTagsTable(d) {
+          console.log('xinzh in showPopupTagsTable. The data is ' + JSON.stringify(d));
+            
           // Only start the popup transition if the context-menu is not displayed, the node is not being dragged, and
           // the popup is not already displayed.
           if (d3.select('.d3-context-menu').style('display') !== 'block'
@@ -641,7 +643,16 @@ angular.module('krakenApp.Graph')
                 nodeSettingsCache[d.id].fixed = true;
               }
             }
-          }
+          }, {
+	    title: function(d) {
+              return "Inspect Node";
+            },
+            action: function(elm, d, i) {
+              // Redirect to the detail view page.
+              $location.path('/graph/inspect');
+              scope.$apply();
+            }
+	  }
         ];
 
         function wheelScrollHandler() {
