@@ -89,6 +89,16 @@ angular.module('krakenApp.Graph')
             return setHas(selection.edgelabels, e) ? 1 : notSelectedOpacity;
           });
         }
+
+        var selectionIdList = [];
+
+        selection.nodes.forEach(function (e) {
+          if (e.id !== undefined) {
+            selectionIdList.push(e.id);
+          }
+        });
+
+        scope.viewModelService.viewModel.configuration.selectionIdList = selectionIdList;
       }
 
       // Match on Set.has() or id.
