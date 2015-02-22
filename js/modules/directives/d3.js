@@ -13,6 +13,11 @@ angular.module('krakenApp.Graph')
       var viewSettingsCache = {};
       var nodeSettingsCache = {};
 
+      var selection = {};
+      selection.nodes = new Set();
+      selection.edges = new Set();
+      selection.edgelabels = new Set();
+
       var draw = function() {
         var d3 = window.d3;
         d3.select(window).on('resize', resize);
@@ -278,7 +283,7 @@ angular.module('krakenApp.Graph')
               .style("fill", function (d) {
                 return d.fill;
               })
-              .on("dblclick", dblclick)
+              .on("dblclick", connectedNodes)
               .on('contextmenu', function (data, index) {
                 d3.selectAll('.popup-tags-table').style("display", "none");
                 showContextMenu(data, index, nodeContextMenu);
@@ -362,9 +367,64 @@ angular.module('krakenApp.Graph')
             });
         }
 
-        function dblclick(d) {
-          // TODO(duftler): This is just a place-holder for now.
-          console.log("Double-clicked: d=" + JSON.stringify(d));
+        // If zero nodes are in the current selection, reset the selection.
+        var nodeMatches = new Set();
+
+        node.each(function (e) {
+          if (setHas(selection.nodes, e)) {
+            nodeMatches.add(e);
+          }
+        });
+
+        if (!nodeMatches.size) {
+          resetSelection();
+        } else {
+          selection.nodes = nodeMatches;
+
+          selectEdgesInScope();
+
+          applySelectionToOpacity();
+        }
+
+        function selectEdgesInScope() {
+          selection.edges.clear();
+          selection.edgelabels.clear();
+
+          // Add each edge where both the source and target nodes are selected.
+          if (link) {
+            link.each(function (e) {
+              if (setHas(selection.nodes, e.source) && setHas(selection.nodes, e.target)) {
+                selection.edges.add(e);
+              }
+            });
+          }
+
+          // Add each edge label where both the source and target nodes are selected.
+          if (edgelabels) {
+            edgelabels.each(function (e) {
+              if (setHas(selection.nodes, e.source) && setHas(selection.nodes, e.target)) {
+                selection.edgelabels.add(e);
+              }
+            });
+          }
+        }
+
+        // Match on Set.has() or id.
+        function setHas(searchSet, item) {
+          if (searchSet.has(item)) {
+            return true;
+          }
+
+          var found = false;
+
+          searchSet.forEach(function (e) {
+            if (typeof e.id != 'undefined' && e.id === item.id) {
+              found = true;
+              return;
+            }
+          });
+
+          return found;
         }
 
         function showContextMenu(data, index, contextMenu) {
@@ -473,6 +533,93 @@ angular.module('krakenApp.Graph')
                 .style('display', 'block');
             }
           }
+        }
+
+        // Create an array logging what is connected to what.
+        var linkedByIndex = {};
+        for (i = 0; i < graph.nodes.length; i++) {
+          linkedByIndex[i + "," + i] = 1;
+        };
+
+        if (graph.links) {
+          graph.links.forEach(function (d) {
+            linkedByIndex[d.source.index + "," + d.target.index] = 1;
+          });
+        }
+
+        // This function looks up whether a pair are neighbours.
+        function neighboring(a, b) {
+          return linkedByIndex[a.index + "," + b.index];
+        }
+
+        function connectedNodes(d) {
+          // Operation is to select nodes if either no nodes are currently selected or this node is not selected.
+          var selectOperation = !selection.nodes.size || !setHas(selection.nodes, d);
+
+          if (selectOperation) {
+            // Add the double-clicked node.
+            selection.nodes.add(d);
+
+            // Add each node within 1 hop from the double-clicked node.
+            node.each(function (e) {
+              if (neighboring(d, e) | neighboring(e, d)) {
+                selection.nodes.add(e);
+              }
+            });
+
+            selectEdgesInScope();
+          } else {
+            // De-select the double-clicked node.
+            selection.nodes.delete(d);
+
+            // Remove each node within 1 hop from the double-clicked node.
+            node.each(function (e) {
+              if (neighboring(d, e) | neighboring(e, d)) {
+                selection.nodes.delete(e);
+              }
+            });
+
+            selectEdgesInScope();
+          }
+
+          applySelectionToOpacity();
+        }
+
+        function applySelectionToOpacity() {
+          var notSelectedOpacity = 0.2;
+
+          // If nothing is selected, show everything.
+          if (!selection.nodes.size && !selection.edges.size && !selection.edgelabels.size) {
+            notSelectedOpacity = 1;
+          }
+
+          // Reduce the opacity of all but the selected nodes.
+          node.style("opacity", function (e) {
+            return setHas(selection.nodes, e) ? 1 : notSelectedOpacity;
+          });
+
+          // Reduce the opacity of all but the selected edges.
+          if (link) {
+            link.style("opacity", function (e) {
+              return setHas(selection.edges, e) ? 1 : notSelectedOpacity;
+            });
+          }
+
+          // Reduce the opacity of all but the selected edge labels.
+          if (edgelabels) {
+            edgelabels.style("opacity", function (e) {
+              return setHas(selection.edgelabels, e) ? 1 : notSelectedOpacity;
+            });
+          }
+        }
+
+        function resetSelection() {
+          // Show everything.
+          selection.nodes.clear();
+          selection.edges.clear();
+          selection.edgelabels.clear();
+
+          applySelectionToOpacity();
         }
 
         // Now we are giving the SVGs co-ordinates - the force layout is generating the co-ordinates which this code is using to update the attributes of the SVG elements.
@@ -631,6 +778,12 @@ angular.module('krakenApp.Graph')
             title: 'Reset Zoom/Pan',
             action: function (elm, d, i) {
               adjustZoom();
+            }
+          },
+          {
+            title: 'Reset Selection',
+            action: function (elm, d, i) {
+              resetSelection();
             }
           }
         ];
