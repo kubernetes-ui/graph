@@ -572,7 +572,7 @@ angular.module('krakenApp.Graph')
 
               p.text(function (d) {
                 if (d !== null && typeof n.tags[d] === 'object') {
-                  return "Inspect...";
+                  return "Inspect";
                 } else {
                   return n.tags[d];
                 }
