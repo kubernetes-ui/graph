@@ -19,6 +19,13 @@
         $scope.selectedTransformName = transformName;
       };
 
+      $scope.showHide = function(id) {
+       var element = document.getElementById(id);
+       if (element) {
+          element.style.display = (element.style.display == "none") ? "block" : "none";
+        }
+      };
+
       $scope.getLegendNodeTypes = function() {
         var legendNodes = viewModelService.viewModel.configuration.legend.nodes;
         return lodash.keys(legendNodes)
@@ -46,16 +53,14 @@
 
       // Update the view model every time the user changes the transformation approach.
       $scope.$watch('selectedTransformName', function(newValue, oldValue) {
-        if (newValue != oldValue) {
-          $scope.updateModel();
-        }
+        $scope.updateModel();
       });
 
       $scope.pollK8sDataService = pollK8sDataService;
-      // Update the view model every time the backend data model has changed.
+      // Update the view model when the data model changes.
       $scope.$watch('pollK8sDataService.k8sdatamodel.sequenceNumber', function(newValue, oldValue) {
         if (newValue != oldValue) {
-          console.log('sequence number changed, generating view model');
+          console.log('INFO: Sequence number changed, generating view model');
           $scope.updateModel();
         }
       });

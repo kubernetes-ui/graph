@@ -10,6 +10,14 @@
           "tags" : "$.metadata",
           "metadata" : "$.metadata"
         }
+      },{
+        "filter" : {
+          "eval" : "('%s' == 'ReplicationController')",
+          "args" : [ "$.type" ]
+        },
+        "properties" : {
+          "type" : "Controller"
+        }
       }],
       "edgeMaps" : [{
         "properties" : {

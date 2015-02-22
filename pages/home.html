@@ -1,7 +1,7 @@
 <div ng-controller="GraphCtrl" flex layout="row" layout-fill>
   <div flex="20">
     <div layout="column">
-      <md-card flex layout="row" layout-padding layout-align="space-between center">
+      <md-card flex layout="row" layout-align="space-between center">
         <md-button flex class="icon-button" aria-label="PlayPause" ng-click="toggle()">
           <md-icon md-svg-src="{{toggleIcon}}"></md-icon>
           <paper-ripple class="circle recenteringTouch" fit></paper-ripple>
@@ -12,40 +12,49 @@
         </md-button>
       </md-card>
       <md-card flex layout="column" layout-padding>
-        <div flex layout>
-          <h3>Queries</h3>
-        </div>
-        <div flex layout ng-repeat="transformName in viewModelService.viewModel.transformNames">
-          <md-button layout-fill class="md-raised md-primary" ng-click="setSelectedTransformName(transformName)">{{transformName}}</md-button>
-        </div>
-      </md-card>
-      <md-card flex layout="column" layout-padding>
-        <div flex layout>
-          <h3>Samples</h3>
-        </div>
-        <div flex layout ng-repeat="sampleName in mockDataSampleNames">
-          <md-button layout-fill class="md-raised md-primary" ng-click="showMockDataSample(sampleName)">{{sampleName}}</md-button>
-        </div>
-      </md-card>
-      <md-card flex layout="column" layout-padding>
-        <div flex>
-          <div flex layout layout-align="space-between center" ng-repeat="type in getLegendNodeTypes()">
-            <md-checkbox ng-model="viewModelService.viewModel.configuration.legend.nodes[type].selected" 
-              ng-change="updateModel()">{{type}}</md-checkbox>
-            <svg width="30px" height="30px">
-              <circle r="15" cx="15" cy="15" fill="{{getLegendNodeStyle(type).fill}}"></circle>
-            </svg>
+        <md-button flex class="md-primary" ng-click="showHide('queries')">Queries</md-button>
+        <div flex id="queries" layout-align="space-between center" style="display:none">
+          <div flex ng-repeat="transformName in viewModelService.viewModel.transformNames">
+            <md-button flex layout-fill class="md-raised md-primary" ng-click="setSelectedTransformName(transformName)">
+              {{transformName}}
+            </md-button>
           </div>
         </div>
       </md-card>
       <md-card flex layout="column" layout-padding>
-        <div flex>
-          <div flex layout layout-align="space-between center" ng-repeat="type in getLegendLinkTypes()">
-            <span>{{type}}</span>
-            <svg width="30px" height="30px">
-              <line x1="0" y1="15" x2="30" y2="15" stroke="{{getLegendLinkStyle(type).stroke}}" stroke-dasharray="{{getLegendLinkStyle(type).dash}}" fill="{{getLegendLinkStyle(type).fill}}" width="{{getLegendLinkStyle(type).width}}"></line>
-            </svg>
+        <md-button flex class="md-primary" ng-click="showHide('samples')">Samples</md-button>
+        <div flex id="samples" layout-align="space-between center" style="display:none">
+          <div flex layout ng-repeat="sampleName in mockDataSampleNames">
+            <md-button layout-fill class="md-raised md-primary" ng-click="showMockDataSample(sampleName)">
+              {{sampleName}}
+            </md-button>
           </div>
+        </div>
+      </md-card>
+      <md-card flex layout="column" layout-padding>
+        <md-button flex class="md-primary" ng-click="showHide('legend')">Legend</md-button>
+        <div flex id="legend" layout-align="center" style="display:none; padding:0; margin:0">
+          <md-card flex>
+            <div flex layout="row" layout-align="space-between center" layout-padding 
+                ng-repeat="type in getLegendNodeTypes()">
+              <md-checkbox ng-model="viewModelService.viewModel.configuration.legend.nodes[type].selected" 
+                ng-change="updateModel()">{{type}}</md-checkbox>
+              <svg width="20px" height="20px">
+                <circle r="9" cx="10" cy="10" fill="{{getLegendNodeStyle(type).fill}}"></circle>
+              </svg>
+            </div>
+          </md-card>
+          <md-card flex>
+            <div flex>
+              <div flex layout="row" layout-align="space-between center" layout-padding 
+                  ng-repeat="type in getLegendLinkTypes()">
+                <span>{{type}}</span>
+                <svg width="20px" height="20px">
+                  <line x1="0" y1="10" x2="20" y2="10" stroke="{{getLegendLinkStyle(type).stroke}}" stroke-dasharray="{{getLegendLinkStyle(type).dash}}" fill="{{getLegendLinkStyle(type).fill}}" width="{{getLegendLinkStyle(type).width}}"></line>
+                </svg>
+              </div>
+            </div>
+          </md-card>
         </div>
       </md-card>
     </div>

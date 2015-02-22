@@ -134,7 +134,7 @@
               "selected" : true,
               "included" : true
             },
-            "ReplicationController" : {
+            "Controller" : {
               "style" : {
                 "radius" : 20,
                 "fill" : "#DE2AFB"
@@ -256,25 +256,26 @@
         });
     };
 
-    // Load the transforms directory.
-    $.getJSON("components/graph/assets/transforms.json")
-      .done(function(transforms) {
-        // Defer to give the load opportunity to complete.
-        lodash.defer(function() {
-          // console.log('INFO: Loaded transform directory: ' + JSON.stringify(transforms));
-          if (transforms.directory) {
-            lodash.forEach(transforms.directory, function(directoryEntry) {
-              loadTransform(directoryEntry);
-            });
-            return;
-          }
+    var loadTransformDirectory = function() {
+      $.getJSON("components/graph/assets/transforms.json")
+        .done(function(transforms) {
+          // Defer to give the load opportunity to complete.
+          lodash.defer(function() {
+            // console.log('INFO: Loaded transform directory: ' + JSON.stringify(transforms));
+            if (transforms.directory) {
+              lodash.forEach(transforms.directory, function(directoryEntry) {
+                loadTransform(directoryEntry);
+              });
+              return;
+            }
 
-          console.log('ERROR: Could not load transform directory.');
+            console.log('ERROR: Could not load transform directory.');
+          });
+        })
+        .fail(function(jqxhr, settings, exception) {
+          console.log('ERROR: Could not load transform directory: ' + exception);
         });
-      })
-      .fail(function(jqxhr, settings, exception) {
-        console.log('ERROR: Could not load transform directory: ' + exception);
-      });
+    };
 
     var setViewModel = function(data) {
       if (data && data.nodes && data.settings) {
@@ -396,6 +397,7 @@
       setViewModel(toModel);
     };
 
+    loadTransformDirectory();
     this.$get = function() {
       return {
         "viewModel" : viewModel,
