@@ -4,260 +4,22 @@
  =========================================================*/
 
 (function() {
-  'use strict';
-
-  function templateTransform(lodash, template) {
-    var idToIndex = {};
-    var typeToCluster = {};
-
-    var nodeStyles = undefined;
-    var linkStyles = undefined;
-    if (template.legend) {
-      if (template.legend.nodes) {
-        nodeStyles = template.legend.nodes;
-      }
-
-      if (template.legend.links) {
-        linkStyles = template.legend.links;
-      }
-    }
-
-    var stringifyNoQuotes = function(result) {
-      if (typeof result !== 'string') {
-        if (typeof result !== 'undefined') {
-          result = JSON.stringify(result);
-          result = result.replace(/\"([^(\")"]+)\":/g,"$1:");
-        } else {
-          result = 'undefined';   
-        }
-      }
-
-      return result;
-    };
-
-    var evalExpression = function(item, expression) {
-      var result = undefined;
-      if (typeof expression.eval === 'string') {
-        var args = [];
-        if (Array.isArray(expression.args)) {
-          lodash.forEach(expression.args, function(results) {
-            if (typeof results === 'string') {
-              if (results.charAt(0) == '$') {
-                results = JSONPath(null, item, results);
-              }
-              if (results && results.length > 0) {
-                results = lodash.map(results, function(result) {
-                  return stringifyNoQuotes(result);
-                });
-                args.push(results);
-              }
-            }
-          });
-          var expr = vsprintf(expression.eval, args);
-        }
-        result = eval(expr);
-      }
-
-      return result;
-    };
-
-    var filterItem = function(filters) {
-      return function(fromItem) {
-        return lodash.every(filters, function(filter) { 
-          return evalExpression(fromItem, filter); 
-        });
-      };
-    };
-
-    var random = function() {
-      var str = JSON.stringify(Math.random());
-      var idx = str.indexOf('.') + 1;
-      if (idx > 0 && idx < str.length) {
-        str = str.substring(idx);
-      }
-
-      return str;
-    };
-
-    var evalMapping = function(item, mapping) {
-      var result = undefined;
-      if (mapping) {
-        if (typeof mapping === 'string') {
-          result = mapping;
-          if (result.charAt(0) == '$') {
-            result = JSONPath(null, item, mapping);
-            if (result && result.length == 1) {
-              result = result[0];
-            }
-          }
-        } else
-        if (typeof mapping === 'object') {
-          if (mapping.expression) {
-          result = evalExpression(item, mapping);
-          } else
-          if (mapping.properties) {
-            result = mapProperties(item, {}, mapping);
-          }
-        } else
-        if (Array.isArray(mapping)) {
-          result = lodash.map(mapping, function(member) {
-              return evalMapping(item, member);
-          });
-        }
-      }
-
-      return result;
-    };
-
-    var mapProperties = function(fromItem, toItem, properties) {
-      if (properties) {
-        lodash.forOwn(properties, function(mapping, property) {
-          mapping = evalMapping(fromItem, mapping);
-          if (mapping) {
-            property = evalMapping(fromItem, property);
-            if (property) {
-              property = stringifyNoQuotes(property);
-              toItem[property] = mapping;
-            }
-          }
-        });
-      }
-    };
-
-    var mapItem = function(fromItem, toItem, maps, styles) {
-      toItem.id = fromItem.id || random();
-
-      if (maps) {
-        // TODO: Apply maps progressively not sequentially.
-        lodash.forEach(maps, function(map) {
-          if (!map.filter || evalExpression(fromItem, map.filter)) {
-            mapProperties(fromItem, toItem, map.properties);
-          }
-        });
-      }
-
-      var style = styles.hasOwnProperty(toItem.type) ? 
-        styles[toItem.type] : styles[lodash.first(Object.keys(styles))];
-      lodash.assign(toItem, style);
-    };
-
-    var setIndex = function(toNode) {
-      if (!idToIndex[toNode.id]) {
-        idToIndex[toNode.id] = Object.keys(idToIndex).length;
-      }
-    };
-
-    var getIndex = function(fromEdge, toEdge) {
-      if (fromEdge.source && fromEdge.target) {
-        toEdge.source = idToIndex[fromEdge.source];
-        toEdge.target = idToIndex[fromEdge.target];
-      }
-    };
-
-    var setCluster = function(toNode) {
-      if (template.settings && template.settings.clustered) {
-        if (toNode.type) {
-          toNode.cluster = typeToCluster[toNode.type];
-          if (!toNode.cluster) {
-            toNode.cluster = Object.keys(typeToCluster).length;
-            typeToCluster[toNode.type] = toNode.cluster;
-          }
-        } else {
-          toNode.cluster = 0;
-        }
-      }
-    };
-
-    var mapNode = function(fromNode) {
-      var toNode = {};
-
-      mapItem(fromNode, toNode, template.nodeMaps, nodeStyles || this.legend.nodes);
-      setCluster(toNode);
-      setIndex(toNode);
-
-      return toNode;
-    };
-
-    var mapEdge = function(fromEdge) {
-      var toEdge = {};
-
-      mapItem(fromEdge, toEdge, template.edgeMaps, linkStyles || this.legend.links);
-      getIndex(fromEdge, toEdge);
-
-      return toEdge;
-    };
-
-    var sortNode = function(fromNode) {
-      return fromNode.id;
-    };
-
-    var sortEdge = function(fromEdge) {
-      return fromEdge.source + ':' + fromEdge.target;
-    };
-
-    return function(fromModel, toModel, configuration) {
-      if (fromModel && toModel && configuration) {
-        idToIndex = {};
-        typeToCluster = {};
-
-        if (fromModel.nodes) {
-          if (template.settings) {
-            toModel.settings = template.settings;
-          }
-
-          var chain = lodash.chain(fromModel.nodes)
-            .filter(function(fromItem) {
-              return configuration.legend.nodes[fromItem.type].enabled;
-            });
-          if (template.nodeFilters) {
-            chain = chain
-              .filter(filterItem(template.nodeFilters), configuration);
-          }
-
-          toModel.nodes = chain
-            .sortBy(sortNode, configuration)
-            .map(mapNode, configuration)
-            .value();
-        }
-
-        if (fromModel.edges) {
-          var chain = lodash.chain(fromModel.edges);
-          if (template.edgeFilters) {
-            chain = chain.filter(filterItem(template.edgeFilters), configuration);
-          }
-
-          // Remove links to dropped nodes.
-          var linkFilters = [{
-            "eval" : "('%s' !== 'undefined') && ('%s' !== 'undefined')",
-            "args" : [ "$.source", "$.target" ]
-          }];
-
-          toModel.links = chain
-            .map(mapEdge, configuration)
-            .filter(filterItem(linkFilters), configuration)
-            .sortBy(sortEdge, configuration)
-            .value();
-        }
-      }
-
-      return toModel;
-    };
-  }
+  "use strict";
 
   // Compute the view model based on the data model and control parameters
   // and place the result in the current scope at $scope.viewModel.
   var viewModelService = function ViewModelService(lodash) {
-    var defaultWidth = 1;
+    var defaultWidth = 2;
     this.setDefaultWidth = function (value) {
       defaultWidth = value;
     };
 
-    var defaultStroke = 'gray';
+    var defaultStroke = "gray";
     this.setDefaultStroke = function (value) {
       defaultStroke = value;
     };
 
-    var defaultDash = undefined;
+    var defaultDash = "1";
     this.setDefaultDash = function (value) {
       defaultDash = value;
     };
@@ -268,10 +30,12 @@
     };
 
     var defaultLink = {
-      'width' : defaultWidth,
-      'stroke' : defaultStroke,
-      // 'dash' : defaultDash,
-      'distance' : defaultDistance
+      "style" : {
+        "dash" : defaultDash,
+        "width" : defaultWidth,
+        "stroke" : defaultStroke,
+        "distance" : defaultDistance
+      }
     };
 
     this.setDefaultLink = function(value) {
@@ -283,7 +47,7 @@
       defaultRadius = value;
     };
 
-    var defaultFill = 'cornflowerblue';
+    var defaultFill = "cornflowerblue";
     this.setDefaultFill = function(value) {
       defaultFill = value;
     };
@@ -294,10 +58,13 @@
     };
 
     var defaultNode = {
-      'radius' : defaultRadius,
-      'fill' : defaultFill,
-      'icon' : defaultIcon,
-      'enabled' : true
+      "style" : {
+        "radius" : defaultRadius,
+        "fill" : defaultFill,
+        "icon" : defaultIcon
+      },
+      "selected" : true,
+      "included" : true
     };
 
     this.setDefaultNode = function(value) {
@@ -307,7 +74,7 @@
     var defaultSettings = {
       "clustered": false,
 
-      // TODO: Remove these when they're no longer needed.
+      // TODO: Remove these when they"re no longer needed.
       "showEdgeLabels": false,
       "showNodeLabels": true
     };
@@ -336,60 +103,87 @@
           "nodes" : {
             "Container" : defaultNode,
             "Cluster" : {
-              "radius" : 30,
-              "fill" : "lightcoral",
-              "enabled" : false
+              "style" : {
+                "radius" : 30,
+                "fill" : "#D32F2F"                
+              },
+              "selected" : false,
+              "included" : true
             },
             "Node" : {
-              "radius" : 25,
-              "fill" : "indianred",
-              "enabled" : false
+              "style" : {
+                "radius" : 25,
+                "fill" : "#FF4D81"
+              },
+              "selected" : false,
+              "included" : true
             },
             "Process" : {
-              "radius" : 15,
-              "fill" : "coral",
-              "enabled" : true
+              "style" : {
+                "radius" : 15,
+                "fill" : "#FF9800"
+              },
+              "selected" : true,
+              "included" : true
             },
             "Service" : {
-              "radius" : 20,
-              "fill" : "lightblue",
-              "enabled" : true
+              "style" : {
+                "radius" : 20,
+                "fill" : "#7C4DFF"
+              },
+              "selected" : true,
+              "included" : true
             },
             "ReplicationController" : {
-              "radius" : 15,
-              "fill" : "lightcyan",
-              "enabled" : true
+              "style" : {
+                "radius" : 20,
+                "fill" : "#DE2AFB"
+              },
+              "selected" : true,
+              "included" : true
             },
             "Pod" : {
-              "radius" : 15,
-              "fill" : "darkblue",
-              "enabled" : true
+              "style" : {
+                "radius" : 20,
+                "fill" : "#E91E63"
+              },
+              "selected" : true,
+              "included" : true
             },
             "Image" : {
-              "radius" : 15,
-              "fill" : "green",
-              "enabled" : true
+              "style" : {
+                "radius" : 15,
+                "fill" : "#D1C4E9"
+              },
+              "selected" : true,
+              "included" : true 
             }
           },
           "links" : {
             "contains" : defaultLink,
             "balances" : {
-              "width" : 1,
-              "stroke" : "gray",
-              "dash" : "5, 5, 1, 5",
-              "distance" : 60
+              "style" : {
+                "width" : 2,
+                "stroke" : "#7C4DFF",
+                "dash" : "5, 5",
+                "distance" : 60
+              }
             },
             "uses" : {
-              "width" : 2,
-              "stroke" : "gray",
-              "dash" : "1, 5",
-              "distance" : 60
+              "style" : {
+                "width" : 2,
+                "stroke" : "#D1C4E9",
+                "dash" : "5, 5",
+                "distance" : 60
+              }
             },
             "monitors" : {
-              "width" : 1,
-              "stroke" : "gray",
-              "dash" : "5, 10",
-              "distance" : 60
+              "style" : {
+                "width" : 2,
+                "stroke" : "#DE2AFB",
+                "dash" : "5, 5",
+                "distance" : 60
+              }
             }
           }
         }
@@ -432,11 +226,10 @@
 
       var constructorName = stripSuffix(directoryEntry.script);
 
-      // TODO: Remove the following when finished debugging.
-      if (constructorName === "templateTransform") {
-        bindTransform(templateTransform, directoryEntry);
-        return;
-      }
+      // if (constructorName === "templateTransform") {
+      //   bindTransform(templateTransform, directoryEntry);
+      //   return;
+      // }
 
       if (window[constructorName]) {
         bindTransform(window[constructorName], directoryEntry);
@@ -491,6 +284,92 @@
       }
     };
 
+    var setIndex = function(toNode, idToIndex) {
+      if (!idToIndex[toNode.id]) {
+        idToIndex[toNode.id] = lodash.keys(idToIndex).length;
+      }
+    };
+
+    var getIndex = function(toLink, idToIndex) {
+      if (toLink.source && toLink.target) {
+        toLink.source = idToIndex[toLink.source];
+        toLink.target = idToIndex[toLink.target];
+      }
+    };
+
+    var setCluster = function(toNode, typeToCluster) {
+      if (toNode.type) {
+        toNode.cluster = typeToCluster[toNode.type];
+        if (!toNode.cluster) {
+          toNode.cluster = lodash.keys(typeToCluster).length;
+          typeToCluster[toNode.type] = toNode.cluster;
+        }
+      } else {
+        toNode.cluster = 0;
+      }
+    };
+
+    var postProcess = function(toModel, configuration) {
+      if (toModel.nodes) {
+        var legend = configuration.legend;
+        lodash.forOwn(legend.nodes, function(nodeEntry) {
+          nodeEntry.included = false;
+        });
+
+        var typeToCluster = {};
+        var idToIndex = {};
+
+        var chain = lodash.chain(toModel.nodes)
+          .forEach(function(toNode) {
+            if (legend.nodes[toNode.type]) {
+              legend.nodes[toNode.type].included = true;
+            }
+          });
+        var filtered = lodash.any(legend.nodes, function(nodeEntry) {
+          return !nodeEntry.selected;
+        });
+
+        if (filtered) {
+          chain = chain
+            .filter(function(toNode) {
+              return legend.nodes[toNode.type].selected;
+            });
+        }
+        
+        if (toModel.settings && toModel.settings.clustered) {
+          chain = chain
+            .forEach(function(toNode) {
+              setCluster(toNode, typeToCluster);
+            });
+        }
+
+        toModel.nodes = chain
+          .forEach(function(toNode) {
+            setIndex(toNode, idToIndex);
+          })
+          .value();
+
+        if (toModel.links) {
+          var chain = lodash.chain(toModel.links)
+            .forEach(function(toLink) {
+              getIndex(toLink, idToIndex);
+            });
+
+          if (filtered) {
+            chain = chain
+              .filter(function(toLink) {
+                return (typeof toLink.source !== "undefined") 
+                  && (typeof toLink.target !== "undefined");
+              });          
+          }
+
+          toModel.links = chain.value();
+        }
+      }
+
+      return toModel;
+    };
+
     // Generate the view model from a given data model using a given transform.
     var generateViewModel = function(dataModel, transformName) {
       // console.log('DEBUG: generateViewModel called.');
@@ -511,22 +390,22 @@
       }
 
       var toModel = JSON.parse(JSON.stringify(defaultModel));
-      var fromModel = JSON.parse(JSON.stringify(dataModel));
+      toModel = transform(dataModel, toModel, viewModel.configuration);
+      toModel = postProcess(toModel, viewModel.configuration);
 
-      toModel = transform(fromModel, toModel, viewModel.configuration);
       setViewModel(toModel);
     };
 
     this.$get = function() {
       return {
-        'viewModel' : viewModel,
-        'generateViewModel' : generateViewModel,
-        'setViewModel' : setViewModel
+        "viewModel" : viewModel,
+        "generateViewModel" : generateViewModel,
+        "setViewModel" : setViewModel
       };
     };
   };
 
-  angular.module('krakenApp.Graph')
-    .provider('viewModelService', ['lodash', viewModelService]);
+  angular.module("krakenApp.Graph")
+    .provider("viewModelService", ["lodash", viewModelService]);
 
 })();

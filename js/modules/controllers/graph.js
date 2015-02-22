@@ -19,6 +19,27 @@
         $scope.selectedTransformName = transformName;
       };
 
+      $scope.getLegendNodeTypes = function() {
+        var legendNodes = viewModelService.viewModel.configuration.legend.nodes;
+        return lodash.keys(legendNodes)
+          .filter(function(type) {
+            return legendNodes[type].included;
+          })
+          .sort();
+      };
+
+      $scope.getLegendNodeStyle = function(type) {
+        return viewModelService.viewModel.configuration.legend.nodes[type].style;
+      };
+
+      $scope.getLegendLinkTypes = function() {
+        return lodash.keys(viewModelService.viewModel.configuration.legend.links);
+      };
+
+      $scope.getLegendLinkStyle = function(type) {
+        return viewModelService.viewModel.configuration.legend.links[type].style;
+      };
+
       $scope.updateModel = function() {
         viewModelService.generateViewModel(pollK8sDataService.k8sdatamodel.data, $scope.selectedTransformName);
       }
