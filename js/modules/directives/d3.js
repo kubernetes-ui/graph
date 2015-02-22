@@ -418,7 +418,7 @@ angular.module('krakenApp.Graph')
                   return d;
                 });
 
-              div
+              var p = div
                 .append("a")
                 .attr("class", function (d) {
                   if (d !== null
@@ -431,21 +431,32 @@ angular.module('krakenApp.Graph')
                 .attr("href", function (d) {
                   if (d !== null && typeof n.tags[d] === 'object') {
                     // TODO(duftler): Update this to reflect new route/pattern defined by Xin.
-                    return "/graph/inspect.html?key=" + d;
+                    return ".";
                   } else if (d != null && n.tags[d].toString().indexOf("http://") === 0) {
                     return n.tags[d];
                   } else {
                     return "";
                   }
                 })
-                .append("p")
-                .text(function (d) {
-                  if (d !== null && typeof n.tags[d] === 'object') {
-                    return "Inspect...";
-                  } else {
-                    return n.tags[d];
-                  }
-                });
+                .append("p");
+
+              p.text(function (d) {
+                if (d !== null && typeof n.tags[d] === 'object') {
+                  return "Inspect...";
+                } else {
+                  return n.tags[d];
+                }
+              });
+
+              p.on('click', function (d, i) {
+                if (typeof n.tags[d] === 'object') {
+                  d3.event.preventDefault();
+                  d3.select('.popup-tags-table').style('display', 'none');
+
+                  inspectNode(n, d);
+                }
+              });
+
 
               var i = 0;
               for (i = 0; i < mdItem.size() - 1; ++i) {
@@ -650,16 +661,34 @@ angular.module('krakenApp.Graph')
               return "Inspect Node";
             },
             action: function(elm, d, i) {
-              // Add the node details into the service, to be consumed by the
-              // next controller.
-              inspectNodeService.setDetailData(d);
-
-              // Redirect to the detail view page.
-              $location.path('/graph/inspect');
-              scope.$apply();
+              inspectNode(d);
             }
 	  }
         ];
+
+        function inspectNode(d, tagName) {
+          if (tagName) {
+            // Clone the node.
+            d = JSON.parse(JSON.stringify(d));
+
+            // TODO(duftler): Update this routine when Xin's 'inspect' view is only displaying 'metadata'.
+            if (d.tags && d.tags[tagName]) {
+              // Prefix the tag name with asterisks so it stands out in the details view.
+              d.tags["** " + tagName] = d.tags[tagName];
+
+              // Remove the non-decorated tag.
+              delete d.tags[tagName];
+            }
+          }
+
+          // Add the node details into the service, to be consumed by the
+          // next controller.
+          inspectNodeService.setDetailData(d);
+
+          // Redirect to the detail view page.
+          $location.path('/graph/inspect');
+          scope.$apply();
+        }
 
         function wheelScrollHandler() {
           var origTranslate = zoom.translate();
