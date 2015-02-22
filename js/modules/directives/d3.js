@@ -363,7 +363,7 @@ angular.module('krakenApp.Graph')
               .attr("height", function (d) {
                 return d.size[1];
               })
-              .on("dblclick", dblclick)
+              .on("dblclick", connectedNodes)
               .on('contextmenu', function (data, index) {
                 d3.selectAll('.popup-tags-table').style("display", "none");
                 showContextMenu(data, index, nodeContextMenu);
