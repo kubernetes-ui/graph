@@ -422,7 +422,7 @@ angular.module('krakenApp.Graph')
                 .append("a")
                 .attr("class", function (d) {
                   if (d !== null
-                      && (typeof n.tags[d] === 'object' || n.tags[d].indexOf("http://") === 0)) {
+                      && (typeof n.tags[d] === 'object' || n.tags[d].toString().indexOf("http://") === 0)) {
                     return "";
                   } else {
                     return "not-a-link";
@@ -432,7 +432,7 @@ angular.module('krakenApp.Graph')
                   if (d !== null && typeof n.tags[d] === 'object') {
                     // TODO(duftler): Update this to reflect new route/pattern defined by Xin.
                     return "/graph/inspect.html?key=" + d;
-                  } else if (d != null && n.tags[d].indexOf("http://") === 0) {
+                  } else if (d != null && n.tags[d].toString().indexOf("http://") === 0) {
                     return n.tags[d];
                   } else {
                     return "";
