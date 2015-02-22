@@ -10,6 +10,12 @@ angular.module('krakenApp.Graph')
         d3Service.d3().then(draw);
       });
 
+      scope.$watch("selectionIdList", function(newValue, oldValue) {
+        if (newValue !== undefined) {
+          selectJustTheseNodes(newValue);
+        }
+      });
+
       var viewSettingsCache = {};
       var nodeSettingsCache = {};
 
@@ -17,6 +23,91 @@ angular.module('krakenApp.Graph')
       selection.nodes = new Set();
       selection.edges = new Set();
       selection.edgelabels = new Set();
+
+      var node;
+      var link;
+      var edgelabels;
+
+      var selectJustTheseNodes = function(idList) {
+        selection.nodes = new Set();
+
+        idList.forEach(function (e) {
+          selection.nodes.add({id: e});
+        });
+
+        selectEdgesInScope();
+
+        applySelectionToOpacity();
+      };
+
+      function selectEdgesInScope() {
+        selection.edges.clear();
+        selection.edgelabels.clear();
+
+        // Add each edge where both the source and target nodes are selected.
+        if (link) {
+          link.each(function (e) {
+            if (setHas(selection.nodes, e.source) && setHas(selection.nodes, e.target)) {
+              selection.edges.add(e);
+            }
+          });
+        }
+
+        // Add each edge label where both the source and target nodes are selected.
+        if (edgelabels) {
+          edgelabels.each(function (e) {
+            if (setHas(selection.nodes, e.source) && setHas(selection.nodes, e.target)) {
+              selection.edgelabels.add(e);
+            }
+          });
+        }
+      }
+
+      function applySelectionToOpacity() {
+        var notSelectedOpacity = 0.2;
+
+        // If nothing is selected, show everything.
+        if (!selection.nodes.size && !selection.edges.size && !selection.edgelabels.size) {
+          notSelectedOpacity = 1;
+        }
+
+        // Reduce the opacity of all but the selected nodes.
+        node.style("opacity", function (e) {
+          return setHas(selection.nodes, e) ? 1 : notSelectedOpacity;
+        });
+
+        // Reduce the opacity of all but the selected edges.
+        if (link) {
+          link.style("opacity", function (e) {
+            return setHas(selection.edges, e) ? 1 : notSelectedOpacity;
+          });
+        }
+
+        // Reduce the opacity of all but the selected edge labels.
+        if (edgelabels) {
+          edgelabels.style("opacity", function (e) {
+            return setHas(selection.edgelabels, e) ? 1 : notSelectedOpacity;
+          });
+        }
+      }
+
+      // Match on Set.has() or id.
+      function setHas(searchSet, item) {
+        if (searchSet.has(item)) {
+          return true;
+        }
+
+        var found = false;
+
+        searchSet.forEach(function (e) {
+          if (typeof e.id != 'undefined' && e.id === item.id) {
+            found = true;
+            return;
+          }
+        });
+
+        return found;
+      }
 
       var draw = function() {
         var d3 = window.d3;
@@ -120,7 +211,7 @@ angular.module('krakenApp.Graph')
             }).links(graph.links)
 
           // Create all the line svgs but without locations yet.
-          var link = g.selectAll(".link")
+          link = g.selectAll(".link")
             .data(graph.links)
             .enter().append("line")
             .attr("class", "link")
@@ -143,6 +234,7 @@ angular.module('krakenApp.Graph')
         }
 
         var newPositionCount = 0;
+        var selectedNodeSet = new Set();
 
         graph.nodes.forEach(function (n) {
           var cachedSettings;
@@ -180,7 +272,16 @@ angular.module('krakenApp.Graph')
 
             ++newPositionCount;
           }
+
+          if (n.selected && n.id !== 'undefined') {
+            selectedNodeSet.add({id: n.id});
+          }
         });
+
+        // If any nodes in the graph are explicitly selected, the cached selection is overridden.
+        if (selectedNodeSet.size) {
+          selection.nodes = selectedNodeSet;
+        }
 
         force.nodes(graph.nodes);
 
@@ -219,7 +320,7 @@ angular.module('krakenApp.Graph')
           clusters = buildClusters(graph.nodes);
         }
 
-        var node = g.selectAll(".node")
+        node = g.selectAll(".node")
           .data(graph.nodes)
           .enter().append("g")
           .attr("class", "node")
@@ -325,7 +426,7 @@ angular.module('krakenApp.Graph')
             })
             .style("pointer-events", "none");
 
-          var edgelabels = g.selectAll(".edgelabel")
+          edgelabels = g.selectAll(".edgelabel")
             .data(graph.links)
             .enter()
             .append('text')
@@ -384,47 +485,6 @@ angular.module('krakenApp.Graph')
           selectEdgesInScope();
 
           applySelectionToOpacity();
-        }
-
-        function selectEdgesInScope() {
-          selection.edges.clear();
-          selection.edgelabels.clear();
-
-          // Add each edge where both the source and target nodes are selected.
-          if (link) {
-            link.each(function (e) {
-              if (setHas(selection.nodes, e.source) && setHas(selection.nodes, e.target)) {
-                selection.edges.add(e);
-              }
-            });
-          }
-
-          // Add each edge label where both the source and target nodes are selected.
-          if (edgelabels) {
-            edgelabels.each(function (e) {
-              if (setHas(selection.nodes, e.source) && setHas(selection.nodes, e.target)) {
-                selection.edgelabels.add(e);
-              }
-            });
-          }
-        }
-
-        // Match on Set.has() or id.
-        function setHas(searchSet, item) {
-          if (searchSet.has(item)) {
-            return true;
-          }
-
-          var found = false;
-
-          searchSet.forEach(function (e) {
-            if (typeof e.id != 'undefined' && e.id === item.id) {
-              found = true;
-              return;
-            }
-          });
-
-          return found;
         }
 
         function showContextMenu(data, index, contextMenu) {
@@ -583,34 +643,6 @@ angular.module('krakenApp.Graph')
           }
 
           applySelectionToOpacity();
-        }
-
-        function applySelectionToOpacity() {
-          var notSelectedOpacity = 0.2;
-
-          // If nothing is selected, show everything.
-          if (!selection.nodes.size && !selection.edges.size && !selection.edgelabels.size) {
-            notSelectedOpacity = 1;
-          }
-
-          // Reduce the opacity of all but the selected nodes.
-          node.style("opacity", function (e) {
-            return setHas(selection.nodes, e) ? 1 : notSelectedOpacity;
-          });
-
-          // Reduce the opacity of all but the selected edges.
-          if (link) {
-            link.style("opacity", function (e) {
-              return setHas(selection.edges, e) ? 1 : notSelectedOpacity;
-            });
-          }
-
-          // Reduce the opacity of all but the selected edge labels.
-          if (edgelabels) {
-            edgelabels.style("opacity", function (e) {
-              return setHas(selection.edgelabels, e) ? 1 : notSelectedOpacity;
-            });
-          }
         }
 
         function resetSelection() {
@@ -785,6 +817,16 @@ angular.module('krakenApp.Graph')
             action: function (elm, d, i) {
               resetSelection();
             }
+          },
+          {
+            title: function(d) {
+              // TODO(duftler): Remove this when the example is no longer needed.
+              return "Test External Selection";
+            },
+            action: function() {
+              scope.selectionIdList = ["Service:guestbook", "Pod:guestbook-controller-ls6k1"];
+              scope.$apply();
+            }
           }
         ];
 
@@ -810,13 +852,13 @@ angular.module('krakenApp.Graph')
               }
             }
           }, {
-	    title: function(d) {
+            title: function(d) {
               return "Inspect Node";
             },
             action: function(elm, d, i) {
               inspectNode(d);
             }
-	  }
+          }
         ];
 
         function inspectNode(d, tagName) {

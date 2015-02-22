@@ -14,17 +14,23 @@
           {
             "name": "service: guestbook",
             "radius": 16,
-            "fill": "olivedrab"
+            "fill": "olivedrab",
+            "id": 1,
+            "selected": true
           }, 
           {
             "name": "pod: guestbook-controller",
             "radius": 20,
-            "fill": "palegoldenrod"
+            "fill": "palegoldenrod",
+            "id": 2,
+            "selected": true
           }, 
           {
             "name": "pod: guestbook-controller",
             "radius": 20,
-            "fill": "palegoldenrod"
+            "fill": "palegoldenrod",
+            "id": 3,
+            "selected": true
           },
           {
             "name": "pod: guestbook-controller",
