@@ -333,7 +333,7 @@
         if (filtered) {
           chain = chain
             .filter(function(toNode) {
-              return legend.nodes[toNode.type].selected;
+              return legend.nodes[toNode.type] ? legend.nodes[toNode.type].selected : false;
             });
         }
         
