@@ -4,9 +4,15 @@
   
   <div class="md-whiteframe-z2">
     <md-toolbar>
+      <div class="md-toolbar-tools">
+      <md-button class="icon-button" aria-label="PlayPause" ng-click="backToGraph()">
+        <md-icon md-svg-src="components/graph/img/BackButton.svg"></md-icon>
+        <paper-ripple class="circle recenteringTouch" fit></paper-ripple>
+      </md-button>
       <h1 class="md-toolbar-tools">
-        <span>Inspecting: {{nodeDetail.id}}</span>
-      </h1>
+        <span>Inspector for {{nodeDetail.id}}</span>
+        </h1>
+      </div>
     </md-toolbar>
     
     <md-content>

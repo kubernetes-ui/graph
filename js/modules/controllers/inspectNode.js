@@ -7,10 +7,14 @@
 
   angular.module('krakenApp.Graph').controller(
       'InspectNodeCtrl',
-      ['$scope', 'inspectNodeService', 'lodash', function($scope, inspectNodeService, lodash) {
-        // TODO(xinzh): When the data server is up and we have live data, only display
-        // the metadata section in the detailed data.
-        $scope.nodeDetail = JSON.stringify(inspectNodeService.getDetailData(), undefined, 2);
+      ['$scope', 'inspectNodeService', 'lodash', '$location', function($scope, inspectNodeService, lodash, $location) {
+        $scope.nodeDetail = inspectNodeService.getDetailData();
+        $scope.nodeDetailString = JSON.stringify($scope.nodeDetail, undefined, 2);
+
+        $scope.backToGraph = function() {
+          $location.path('/graph');
+          $scope.$apply();
+        };
   }]);
 
 })();
