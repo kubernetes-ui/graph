@@ -54,8 +54,50 @@
               </md-card>
             </div>
           </md-card>
-<!--
-           <md-card flex layout="column" style="padding:0;">
+          <md-card flex layout="column" style="padding:0;">
+            <md-card flex style="margin:0;">
+              <md-button flex class="md-primary" ng-click="showHide('details')">Details</md-button>
+            </md-card>
+            <div flex id="details" style="display:none; padding:0;">
+              <md-card flex style="margin:0;">
+                <md-list>
+                  <md-item ng-repeat="(tag, value) in getSelectionDetails()">
+                    <md-item-content>
+                      <div class="md-tile-content" style="padding:0;">
+                        <table style="width:100%">
+                          <tr>
+                            <td style="width:33%">
+                              <p style="font-size:12px">{{tag}}</p>
+                            </td>
+                            <td style="width:66%">
+                              <md-content>
+                                <p style="font-size:12px">{{value}}</p>
+                              </md-content>
+                            </td> 
+                          </tr>
+                        </table>
+                      </div>
+                    </md-item-content>
+                  </md-item>
+                </md-list>
+<!--                 <md-list>
+                    <md-item ng-repeat="(tag, value) in getSelectionDetails()">
+                      <md-item-content>
+                        <div class="md-tile-content">
+                          <p style="font-size:12px">{{tag}}</p>
+                          <md-content>
+                            <p style="font-size:12px">{{value}}</p>
+                          </md-content>
+                        </div>
+                      </md-item-content>
+                    </md-item>
+                </md-list>
+ -->              </md-card>
+            </div>
+          </md-card>
+
+ <!--
+          <md-card flex layout="column" style="padding:0;">
             <md-button flex class="md-primary" ng-click="showHide('samples')">Samples</md-button>
             <div flex id="samples" style="display:none; padding:0;">
               <div flex layout ng-repeat="sampleName in sampleNames">

@@ -50,10 +50,46 @@
       $scope.getLegendLinkStyle = function(type) {
         return viewModelService.viewModel.configuration.legend.links[type].style;
       };
+ 
+      $scope.getSelectionDetails = function() {
+        var results = {};
+        var selectionIdList = viewModelService.viewModel.configuration.selectionIdList;
+        if (selectionIdList && selectionIdList.length > 0) {
+          var selectedId = selectionIdList[0];
+          var selectedNode = lodash.find(viewModelService.viewModel.data.nodes, function(node) {
+            return node.id === selectedId;
+          });
+
+          if (selectedNode && selectedNode.tags) {
+            lodash.forOwn(selectedNode.tags, function(value, property) {
+              if (value) {
+                if (typeof value === "string") {
+                  // if ((typeof value === "object" && lodash.keys(value).length > 0) 
+                  //   || (lodash.isArray(value) && value.length > 0)) {
+                  //   value = JSON.stringify(value);
+                  // } else {
+                  //   value = "";
+                  // }
+
+                  if (value.length > 0) {
+                    results[property] = value;
+                  }
+                }
+              }
+            });
+          }
+        }
+
+        return results;
+      };
 
       $scope.updateModel = function() {
         viewModelService.generateViewModel(pollK8sDataService.k8sdatamodel.data, $scope.selectedTransformName);
-      }
+      };
+
+      $scope.$watch("viewModelService.viewModel.configuration.selectionIdList", function(newValue, oldValue) {
+        console.log("INFO: Selection changed.");
+      });
 
       // Update the view model every time the user changes the transformation approach.
       $scope.$watch("selectedTransformName", function(newValue, oldValue) {

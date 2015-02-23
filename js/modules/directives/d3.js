@@ -99,6 +99,7 @@ angular.module('krakenApp.Graph')
         });
 
         scope.viewModelService.viewModel.configuration.selectionIdList = selectionIdList;
+        scope.$apply();
       }
 
       // Match on Set.has() or id.
