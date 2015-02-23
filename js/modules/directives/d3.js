@@ -874,13 +874,12 @@ angular.module('krakenApp.Graph')
             // Clone the node.
             d = JSON.parse(JSON.stringify(d));
 
-            // TODO(duftler): Update this routine when Xin's 'inspect' view is only displaying 'metadata'.
-            if (d.tags && d.tags[tagName]) {
+            if (d.metadata && d.metadata[tagName]) {
               // Prefix the tag name with asterisks so it stands out in the details view.
-              d.tags["** " + tagName] = d.tags[tagName];
+              d.metadata["** " + tagName] = d.metadata[tagName];
 
               // Remove the non-decorated tag.
-              delete d.tags[tagName];
+              delete d.metadata[tagName];
             }
           }
 
