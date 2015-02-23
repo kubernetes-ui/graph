@@ -1,8 +1,5 @@
-<div>
-
-<div ng-controller="InspectNodeCtrl" layout="column" style="padding:25px;" class="pod">
-  
-  <div class="md-whiteframe-z2" layout-fill>
+<div ng-controller="InspectNodeCtrl" flex layout="row" layout-fill>
+  <div flex layout="column" layout-fill>
     <md-toolbar>
       <div class="md-toolbar-tools">
       <md-button class="icon-button" aria-label="PlayPause" ng-click="backToGraph()">
@@ -15,18 +12,10 @@
       </div>
     </md-toolbar>
     
-    <md-content>
-      <md-list>
-        <md-item>
-          <md-item-content>
-            <div class="md-tile-content">
-                <div json-human="metadata"></div>
-            </div>
-          </md-item-content>
-        </md-item>
-      </md-list>
+    <md-content layout="row">
+      <div class="md-tile-content">
+        <div json-human="metadata"></div>
+      </div>
     </md-content>
   </div>
-</div>
-    
 </div>
