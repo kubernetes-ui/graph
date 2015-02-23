@@ -92,14 +92,18 @@
       };
 
       pollK8sDataService.k8sdatamodel.useSampleData = false;
-      $scope.sourceIcon = "components/graph/img/Play.svg";
+      $scope.sourceIcon = "components/graph/img/LiveData.svg";
+      $scope.getSourceText = function() {
+        return pollK8sDataService.k8sdatamodel.useSampleData ? "Sample Data" : "Live Data";
+      };
+
       $scope.toggleSource = function() {
         if (pollK8sDataService.k8sdatamodel.useSampleData) {
           pollK8sDataService.k8sdatamodel.useSampleData = false;
-          $scope.sourceIcon = "components/graph/img/Play.svg";
+          $scope.sourceIcon = "components/graph/img/LiveData.svg"; 
         } else {
           pollK8sDataService.k8sdatamodel.useSampleData = true;
-          $scope.sourceIcon = "components/graph/img/Pause.svg";
+          $scope.sourceIcon = "components/graph/img/SampleData.svg";
         }
       };
 
