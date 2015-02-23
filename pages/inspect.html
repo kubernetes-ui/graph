@@ -2,7 +2,7 @@
 
 <div ng-controller="InspectNodeCtrl" layout="column" style="padding:25px;" class="pod">
   
-  <div class="md-whiteframe-z2">
+  <div class="md-whiteframe-z2" layout-fill>
     <md-toolbar>
       <div class="md-toolbar-tools">
       <md-button class="icon-button" aria-label="PlayPause" ng-click="backToGraph()">
@@ -10,7 +10,7 @@
         <paper-ripple class="circle recenteringTouch" fit></paper-ripple>
       </md-button>
       <h1 class="md-toolbar-tools">
-        <span>Inspector for {{nodeDetail.id}}</span>
+        <span>Inspector for {{element}}</span>
         </h1>
       </div>
     </md-toolbar>
@@ -20,7 +20,7 @@
         <md-item>
           <md-item-content>
             <div class="md-tile-content">
-                <div json-human="nodeDetail"></div>
+                <div json-human="metadata"></div>
             </div>
           </md-item-content>
         </md-item>

@@ -8,8 +8,9 @@
   angular.module('krakenApp.Graph').controller(
       'InspectNodeCtrl',
       ['$scope', 'inspectNodeService', 'lodash', '$location', function($scope, inspectNodeService, lodash, $location) {
-        $scope.nodeDetail = inspectNodeService.getDetailData();
-        $scope.nodeDetailString = JSON.stringify($scope.nodeDetail, undefined, 2);
+        var nodeDetail = inspectNodeService.getDetailData();
+        $scope.element = nodeDetail.id;
+        $scope.metadata = nodeDetail.metadata;
 
         $scope.backToGraph = function() {
           $location.path('/graph');
