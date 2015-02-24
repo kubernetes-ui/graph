@@ -184,11 +184,19 @@ angular.module('krakenApp.Graph')
           .on("keydown", function() {
             if (d3.event.ctrlKey) {
               svg.on("wheel.zoom", origWheelZoomHandler);
+              svg.attr("class", "graph zoom-cursor");
+            } else if (d3.event.metaKey) {
+              svg.attr("class", "graph pin-cursor");
             }
           })
           .on("keyup", function() {
             if (!d3.event.ctrlKey) {
               svg.on("wheel.zoom", wheelScrollHandler);
+              svg.attr("class", "graph");
+            }
+
+            if (!d3.event.metaKey) {
+              svg.attr("class", "graph ");
             }
           });
 
@@ -337,7 +345,18 @@ angular.module('krakenApp.Graph')
           .attr("class", "node")
           .on("mouseover", d3_layout_forceMouseover)
           .on("mouseout", d3_layout_forceMouseout)
+          .on("mouseup", mouseup)
           .call(drag);
+
+        function mouseup(d) {
+          if (!d3.event.metaKey) {
+            if (d.dragMoved === undefined || !d.dragMoved) {
+              connectedNodes(d);
+            }
+          } else {
+            togglePinned(d);
+          }
+        }
 
         // create the div element that will hold the context menu
         d3.selectAll('.d3-context-menu').data([1])
@@ -374,11 +393,7 @@ angular.module('krakenApp.Graph')
               .attr("height", function (d) {
                 return d.size[1];
               })
-              .on("dblclick", connectedNodes)
-              .on('contextmenu', function (data, index) {
-                d3.selectAll('.popup-tags-table').style("display", "none");
-                showContextMenu(data, index, nodeContextMenu);
-              })
+              .on("dblclick", inspectNode)
               .on("mouseout", function () {
                 // Interrupt any pending transition on this node.
                 d3.selectAll('.popup-tags-table').transition();
@@ -394,11 +409,7 @@ angular.module('krakenApp.Graph')
               .style("fill", function (d) {
                 return d.fill;
               })
-              .on("dblclick", connectedNodes)
-              .on('contextmenu', function (data, index) {
-                d3.selectAll('.popup-tags-table').style("display", "none");
-                showContextMenu(data, index, nodeContextMenu);
-              })
+              .on("dblclick", inspectNode)
               .on("mouseout", function () {
                 // Interrupt any pending transition on this node.
                 d3.selectAll('.popup-tags-table').transition();
@@ -406,14 +417,32 @@ angular.module('krakenApp.Graph')
           }
         });
 
-        if (graph.settings.showNodeLabels) {
-          node.append("text")
-            .attr("dx", 10)
-            .attr("dy", ".35em")
-            .text(function (d) {
-              return !d.hideLabel ? d.name : ""
+        var text = node.append("text")
+          .attr("dx", 10)
+          .attr("dy", ".35em");
+
+        text.text(function (d) {
+            return graph.settings.showNodeLabels && !d.hideLabel ? d.name : ""
+          });
+
+        text.each(function (e) {
+          var singleText = d3.select(this);
+          var parentNode = singleText.node().parentNode;
+
+          d3.select(parentNode).append("image")
+            .attr("xlink:href", function (d) {
+              return "/components/graph/img/Pin.svg";
+            })
+            .attr("display", function (d) {
+              return d.fixed & 8 ? "" : "none";
+            })
+            .attr("width", function (d) {
+              return "13px";
+            })
+            .attr("height", function (d) {
+              return "13px";
             });
-        }
+        });
 
         if (!graph.settings.clustered && graph.settings.showEdgeLabels) {
           var edgepaths = g.selectAll(".edgepath")
@@ -719,13 +748,42 @@ angular.module('krakenApp.Graph')
               });
             }
 
-            d3.selectAll("image")
-              .attr("x", function (d) {
-                return d.x;
-              })
-              .attr("y", function (d) {
-                return d.y;
-              });
+            var image = d3.selectAll("image");
+
+            image.each(function (e) {
+              var singleImage = d3.select(this);
+              var siblingText = d3.select(singleImage.node().parentNode).select("text");
+              var bbox = siblingText[0][0] ? siblingText[0][0].getBBox() : null;
+              var isPinIcon = singleImage.attr("xlink:href") === "/components/graph/img/Pin.svg";
+
+              singleImage
+                .attr("display", function (d) {
+                  if (isPinIcon) {
+                    return d.fixed & 8 ? "" : "none";
+                  } else {
+                    return "";
+                  }
+                });
+              singleImage
+                .attr("x", function (d) {
+                  if (isPinIcon) {
+                    if (siblingText.text() !== "") {
+                      return d.x + bbox.width + 15;
+                    } else {
+                      return d.x - 5;
+                    }
+                  } else {
+                    return d.x
+                  }
+                })
+                .attr("y", function (d) {
+                  if (isPinIcon) {
+                    return d.y - 5;
+                  } else {
+                    return d.y;
+                  }
+                });
+            });
 
             d3.selectAll("text")
               .attr("x", function (d) {
@@ -834,34 +892,6 @@ angular.module('krakenApp.Graph')
         var nodeContextMenu = [
           {
             title: function(d) {
-              return d.fixed & 8 ? "Unlock" : "Lock";
-            },
-            action: function(elm, d, i) {
-              if (!nodeSettingsCache[d.id]) {
-                nodeSettingsCache[d.id] = {};
-              }
-
-              if (d.fixed) {
-                d.fixed &= ~8;
-                force.resume();
-
-                nodeSettingsCache[d.id].fixed = false;
-              } else {
-                d.fixed |= 8;
-
-                nodeSettingsCache[d.id].fixed = true;
-              }
-            }
-          }, {
-            title: function(d) {
-              return "Show Properties";
-            },
-            action: function(elm, d, i) {
-              console.log("d=" + JSON.stringify(d));
-              showPopupTagsTable(d);
-            }
-          }, {
-            title: function(d) {
               return "Inspect Node";
             },
             action: function(elm, d, i) {
@@ -869,6 +899,23 @@ angular.module('krakenApp.Graph')
             }
           }
         ];
+
+        function togglePinned(d) {
+          if (!nodeSettingsCache[d.id]) {
+            nodeSettingsCache[d.id] = {};
+          }
+
+          if (d.fixed & 8) {
+            d.fixed &= ~8;
+            force.resume();
+
+            nodeSettingsCache[d.id].fixed = false;
+          } else {
+            d.fixed |= 8;
+
+            nodeSettingsCache[d.id].fixed = true;
+          }
+        }
 
         function inspectNode(d, tagName) {
           if (tagName) {
@@ -921,6 +968,7 @@ angular.module('krakenApp.Graph')
         }
 
         function dragmove(d) {
+          d.dragMoved = true;
           d.px = d3.event.x, d.py = d3.event.y;
           force.resume();
         }
@@ -928,6 +976,7 @@ angular.module('krakenApp.Graph')
         function dragended(d) {
           d.fixed &= ~6;
           d.dragging = false;
+          d.dragMoved = false;
         }
 
         function d3_layout_forceMouseover(d) {
