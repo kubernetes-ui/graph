@@ -910,13 +910,14 @@ angular.module('krakenApp.Graph')
 
           if (d.fixed & 8) {
             d.fixed &= ~8;
-            force.resume();
+            force.start().alpha(0.02);
 
             nodeSettingsCache[d.id].fixed = false;
           } else {
             d.fixed |= 8;
 
             nodeSettingsCache[d.id].fixed = true;
+            tick();
           }
         }
 
@@ -973,7 +974,7 @@ angular.module('krakenApp.Graph')
         function dragmove(d) {
           d.dragMoved = true;
           d.px = d3.event.x, d.py = d3.event.y;
-          force.resume();
+          force.start().alpha(0.02);
         }
 
         function dragended(d) {
