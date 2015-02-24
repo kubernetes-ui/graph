@@ -12,7 +12,7 @@ angular.module('krakenApp.Graph')
     var scriptTag = $document[0].createElement('script');
     scriptTag.type = 'text/javascript';
     scriptTag.async = true;
-    scriptTag.src = 'http://d3js.org/d3.v3.min.js';
+    scriptTag.src = '/vendor/d3/d3.min.js';
     scriptTag.onreadystatechange = function () {
       if (this.readyState == 'complete') onScriptLoad();
     }
