@@ -655,7 +655,10 @@ angular.module('krakenApp.Graph')
 
         // This function looks up whether a pair are neighbours.
         function neighboring(a, b) {
-          return linkedByIndex[a.index + "," + b.index];
+          // TODO(duftler): Re-enable multi-hop logic. Add support for > 1 hops.
+          return false;
+
+          //return linkedByIndex[a.index + "," + b.index];
         }
 
         function connectedNodes(d) {
