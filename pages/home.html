@@ -3,6 +3,11 @@
     <md-toolbar>
       <div class="md-toolbar-tools">
         <span flex></span>
+        <md-button ng-click="inspectSelection()" aria-label="Inspector">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" style="stroke:white; fill:white;"/>
+          </svg>
+        </md-button>
         <md-button class="icon-button" aria-label="Source" ng-click="toggleSource()">
           <md-icon md-svg-src="{{sourceIcon}}"></md-icon>
           <paper-ripple class="circle recenteringTouch" fit></paper-ripple>
@@ -21,7 +26,7 @@
       </div>
     </md-toolbar>
     <md-content layout="row">
-      <div flex="20">
+      <div flex="25">
         <div layout="column">
           <md-card flex layout="column" style="padding:0;">
             <md-card flex style="margin:0;">
@@ -44,7 +49,8 @@
             <div flex id="legend" style="display:none; padding:0;">
               <md-card flex style="margin:0;">
                 <div flex layout="row" layout-padding ng-repeat="type in getLegendNodeTypes()">
-                  <md-checkbox style="margin:0;" ng-model="viewModelService.viewModel.configuration.legend.nodes[type].selected" 
+                  <md-checkbox style="margin:0;" 
+                    ng-model="viewModelService.viewModel.data.legend.nodes[type].selected" 
                     ng-change="updateModel()">{{type}}</md-checkbox>
                   <span flex></span>
                   <svg width="20px" height="20px">
@@ -60,39 +66,20 @@
             </md-card>
             <div flex id="details" style="display:none; padding:0;">
               <md-card flex style="margin:0;">
-                <md-list>
-                  <md-item ng-repeat="(tag, value) in getSelectionDetails()">
-                    <md-item-content>
-                      <div class="md-tile-content" style="padding:0;">
-                        <table style="width:100%">
-                          <tr>
-                            <td style="width:33%">
-                              <p style="font-size:12px">{{tag}}</p>
-                            </td>
-                            <td style="width:66%">
-                              <md-content>
-                                <p style="font-size:12px">{{value}}</p>
-                              </md-content>
-                            </td> 
-                          </tr>
-                        </table>
-                      </div>
-                    </md-item-content>
-                  </md-item>
-                </md-list>
-<!--                 <md-list>
-                    <md-item ng-repeat="(tag, value) in getSelectionDetails()">
-                      <md-item-content>
-                        <div class="md-tile-content">
-                          <p style="font-size:12px">{{tag}}</p>
-                          <md-content>
-                            <p style="font-size:12px">{{value}}</p>
-                          </md-content>
-                        </div>
-                      </md-item-content>
-                    </md-item>
-                </md-list>
- -->              </md-card>
+                <table class="details-table">
+                  <thead></thead>
+                  <tbody>
+                    <tr class="details-table-content-row" ng-repeat="(tag, value) in getSelectionDetails()">
+                      <td class="details-table-content" ng-class="bold">
+                        {{tag}}
+                      </td>
+                      <td class="details-table-content" ng-class="gray">
+                        {{value}}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </md-card>
             </div>
           </md-card>
 
@@ -112,7 +99,7 @@
  -->
         </div>
       </div>
-      <div flex="80" layout="column">
+      <div flex="75" layout="column">
         <md-card flex layout layout-padding>
           <d3-visualization></d3-visualization>
         </md-card>

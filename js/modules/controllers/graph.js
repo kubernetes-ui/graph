@@ -6,8 +6,9 @@
   "use strict";
 
   angular.module("krakenApp.Graph", ["krakenApp.services", "yaru22.jsonHuman"])
-  .controller("GraphCtrl", ["$scope", "lodash", "viewModelService", "mockDataService", "pollK8sDataService",
-    function($scope, lodash, viewModelService, mockDataService, pollK8sDataService) {
+  .controller("GraphCtrl", ["$scope", "lodash", "viewModelService", 
+    "mockDataService", "pollK8sDataService", "$location", "inspectNodeService",
+    function($scope, lodash, viewModelService, mockDataService, pollK8sDataService, $location, inspectNodeService) {
       $scope.viewModelService = viewModelService;
       $scope.getTransformNames = function() {
         return lodash.sortBy(viewModelService.viewModel.transformNames);
@@ -17,7 +18,7 @@
       if (viewModelService.viewModel.transformNames.length > 0) {
         $scope.selectedTransformName = lodash.first($scope.getTransformNames());
       }
-
+ 
       // Sets the selected transformName based on user selection
       $scope.setSelectedTransformName = function(transformName) {
         $scope.selectedTransformName = transformName;
@@ -30,54 +31,94 @@
         }
       };
 
+      $scope.hideElement = function(id) {
+        var element = document.getElementById(id);
+        if (element) {
+          element.style.display = "none";
+        }
+      };
+
       $scope.getLegendNodeTypes = function() {
-        var legendNodes = viewModelService.viewModel.configuration.legend.nodes;
-        return lodash.keys(legendNodes)
-          .filter(function(type) {
-            return legendNodes[type].included;
-          })
-          .sort();
+        var result = [];
+        var legend = viewModelService.viewModel.data.legend;
+        if (legend && legend.nodes) {
+          result = lodash.keys(legend.nodes)
+            .filter(function(type) {
+              return legend.nodes[type].available;
+            })
+            .sort();
+        }
+
+        return result;
       };
 
       $scope.getLegendNodeStyle = function(type) {
-        return viewModelService.viewModel.configuration.legend.nodes[type].style;
+        var result = {};
+        var legend = viewModelService.viewModel.data.legend;
+        if (legend && legend.nodes) {
+          result = legend.nodes[type].style;
+        }
+
+        return result;
       };
 
       $scope.getLegendLinkTypes = function() {
-        return lodash.keys(viewModelService.viewModel.configuration.legend.links);
+        var result = [];
+        var legend = viewModelService.viewModel.data.legend;
+        if (legend && legend.links) {
+          result = lodash.keys(legend.links)
+            .filter(function(type) {
+              return legend.links[type].available;
+            })
+            .sort();
+        }
+
+        return result;
       };
 
       $scope.getLegendLinkStyle = function(type) {
-        return viewModelService.viewModel.configuration.legend.links[type].style;
+        var result = {};
+        var legend = viewModelService.viewModel.data.legend;
+        if (legend && legend.links) {
+          result = legend.links[type].style;
+        }
+
+        return result;
+      };
+
+      var getSelection = function() {
+        var selectedNode = undefined;
+        var selectionIdList = viewModelService.viewModel.configuration.selectionIdList;
+        if (selectionIdList && selectionIdList.length > 0) {
+          var selectedId = selectionIdList[0];
+          selectedNode = lodash.find(viewModelService.viewModel.data.nodes, function(node) {
+            return node.id === selectedId;
+          });
+        }
+
+        return selectedNode;
       };
  
       $scope.getSelectionDetails = function() {
         var results = {};
-        var selectionIdList = viewModelService.viewModel.configuration.selectionIdList;
-        if (selectionIdList && selectionIdList.length > 0) {
-          var selectedId = selectionIdList[0];
-          var selectedNode = lodash.find(viewModelService.viewModel.data.nodes, function(node) {
-            return node.id === selectedId;
-          });
+        var selectedNode = getSelection();
+        if (selectedNode && selectedNode.tags) {
+          lodash.forOwn(selectedNode.tags, function(value, property) {
+            if (value) {
+              if (typeof value === "string") {
+                // if ((typeof value === "object" && lodash.keys(value).length > 0) 
+                //   || (lodash.isArray(value) && value.length > 0)) {
+                //   value = JSON.stringify(value);
+                // } else {
+                //   value = "";
+                // }
 
-          if (selectedNode && selectedNode.tags) {
-            lodash.forOwn(selectedNode.tags, function(value, property) {
-              if (value) {
-                if (typeof value === "string") {
-                  // if ((typeof value === "object" && lodash.keys(value).length > 0) 
-                  //   || (lodash.isArray(value) && value.length > 0)) {
-                  //   value = JSON.stringify(value);
-                  // } else {
-                  //   value = "";
-                  // }
-
-                  if (value.length > 0) {
-                    results[property] = value;
-                  }
+                if (value.length > 0) {
+                  results[property] = value;
                 }
               }
-            });
-          }
+            }
+          });
         }
 
         return results;
@@ -88,7 +129,10 @@
       };
 
       $scope.$watch("viewModelService.viewModel.configuration.selectionIdList", function(newValue, oldValue) {
-        console.log("INFO: Selection changed.");
+        var selectionIdList = viewModelService.viewModel.configuration.selectionIdList;
+        if (!selectionIdList || selectionIdList.length < 1) {
+          $scope.hideElement("details");
+        }
       });
 
       // Update the view model every time the user changes the transformation approach.
@@ -140,6 +184,14 @@
         } else {
           pollK8sDataService.k8sdatamodel.useSampleData = true;
           $scope.sourceIcon = "components/graph/img/SampleData.svg";
+        }
+      };
+
+      $scope.inspectSelection = function() {
+        var selectedNode = getSelection();
+        if (selectedNode && selectedNode.metadata) {
+          inspectNodeService.setDetailData(selectedNode);
+          $location.path('/graph/inspect');
         }
       };
 

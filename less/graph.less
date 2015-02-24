@@ -39,31 +39,35 @@
   color: #fefefe;
 }
 
-.popup-tags-table {
-  position: absolute;
-  display: none;
-  background-color: #f2f2f2;
-  border-radius: 4px;
-
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  min-width: 150px;
-  border: 1px solid #d4d4d4;
-
-  z-index: 1200;
-
-  height: 300px;
-  overflow: auto;
+.details-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
 }
 
-.popup-tags-table md-content {
-  padding: 8px;
+.details-table tbody tr:hover, .details-table tbody tr:focus {
+  cursor:pointer;
+  background-color:rgba(63,81,181,0.2);
 }
 
-.popup-tags-table md-content md-list md-item md-item-content div .not-a-link {
-  pointer-events: none;
-  color: #000000;
-  text-decoration: none;
+.details-table-content-row {
+  width: 100%;
+}
+
+.details-table-content {
+  width: 100%;
+  font-size: 0.8em;
+  padding: 4px;
+  word-break: break-all; 
+  word-wrap: break-word;
+}
+
+.bold {
+  font-weight: 700;
+}
+
+.gray {
+  color: gray;
 }
 
 .pin-cursor {

@@ -64,7 +64,7 @@
         "icon" : defaultIcon
       },
       "selected" : true,
-      "included" : true
+      "available" : true
     };
 
     this.setDefaultNode = function(value) {
@@ -108,7 +108,7 @@
                 "fill" : "#D32F2F"                
               },
               "selected" : false,
-              "included" : true
+              "available" : true
             },
             "Node" : {
               "style" : {
@@ -116,7 +116,7 @@
                 "fill" : "#FF4D81"
               },
               "selected" : false,
-              "included" : true
+              "available" : true
             },
             "Process" : {
               "style" : {
@@ -124,7 +124,7 @@
                 "fill" : "#FF9800"
               },
               "selected" : true,
-              "included" : true
+              "available" : true
             },
             "Service" : {
               "style" : {
@@ -132,7 +132,7 @@
                 "fill" : "#7C4DFF"
               },
               "selected" : true,
-              "included" : true
+              "available" : true
             },
             "Controller" : {
               "style" : {
@@ -140,7 +140,7 @@
                 "fill" : "#DE2AFB"
               },
               "selected" : true,
-              "included" : true
+              "available" : true
             },
             "Pod" : {
               "style" : {
@@ -148,7 +148,7 @@
                 "fill" : "#E91E63"
               },
               "selected" : true,
-              "included" : true
+              "available" : true
             },
             "Image" : {
               "style" : {
@@ -156,12 +156,13 @@
                 "fill" : "#D1C4E9"
               },
               "selected" : true,
-              "included" : true 
+              "available" : true 
             }
           },
           "links" : {
             "contains" : defaultLink,
             "balances" : {
+              "available" : true,
               "style" : {
                 "width" : 2,
                 "stroke" : "#7C4DFF",
@@ -170,6 +171,7 @@
               }
             },
             "uses" : {
+              "available" : true,
               "style" : {
                 "width" : 2,
                 "stroke" : "#D1C4E9",
@@ -178,6 +180,7 @@
               }
             },
             "monitors" : {
+              "available" : true,
               "style" : {
                 "width" : 2,
                 "stroke" : "#DE2AFB",
@@ -186,7 +189,8 @@
               }
             }
           }
-        }
+        },
+        "selectionIdList" : []
       },
       "version" : 0,
       "transformNames" : []
@@ -310,11 +314,32 @@
       }
     };
 
+    var setStyle = function(toItem, entries) {
+      if (toItem.type && entries[toItem.type]) {
+        lodash.assign(toItem, entries[toItem.type].style);
+        entries[toItem.type].available = true;
+      } else {
+        toItem.type = undefined;
+      }
+    };
+
     var postProcess = function(toModel, configuration) {
+      if (toModel.legend) {
+        if (!toModel.legend.nodes || toModel.legend.nodes.length < 1) {
+          toModel.legend.nodes = configuration.legend.nodes;
+        }
+
+        if (!toModel.legend.links || toModel.legend.links.length < 1) {
+          toModel.legend.links = configuration.legend.links;
+        }
+      } else {
+        toModel.legend = configuration.legend;
+      }
+
+      var legend = toModel.legend; 
       if (toModel.nodes) {
-        var legend = configuration.legend;
         lodash.forOwn(legend.nodes, function(nodeEntry) {
-          nodeEntry.included = false;
+          nodeEntry.available = false;
         });
 
         var typeToCluster = {};
@@ -322,14 +347,14 @@
 
         var chain = lodash.chain(toModel.nodes)
           .forEach(function(toNode) {
-            if (legend.nodes[toNode.type]) {
-              legend.nodes[toNode.type].included = true;
-            }
+            setStyle(toNode, legend.nodes);
           });
+
         var filtered = lodash.any(legend.nodes, function(nodeEntry) {
           return !nodeEntry.selected;
         });
 
+        chain = chain.filter("type");
         if (filtered) {
           chain = chain
             .filter(function(toNode) {
@@ -353,9 +378,13 @@
         if (toModel.links) {
           var chain = lodash.chain(toModel.links)
             .forEach(function(toLink) {
-              getIndex(toLink, idToIndex);
+              setStyle(toLink, legend.links);
+              if (toLink.type) {
+                getIndex(toLink, idToIndex);
+              }
             });
 
+          chain = chain.filter("type");
           if (filtered) {
             chain = chain
               .filter(function(toLink) {

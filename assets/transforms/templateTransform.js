@@ -124,10 +124,6 @@ function templateTransform(lodash, template) {
         }
       });
     }
-
-    var style = legend[toItem.type] ? 
-      legend[toItem.type].style : legend[lodash.first(lodash.keys(legend))].style;
-    lodash.assign(toItem, style);
   };
 
   var mapNode = function(fromNode) {
