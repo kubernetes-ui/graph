@@ -771,7 +771,7 @@ angular.module('krakenApp.Graph')
                 .attr("x", function (d) {
                   if (isPinIcon) {
                     if (siblingText.text() !== "") {
-                      return d.x + bbox.width + 15;
+                      return d.x + bbox.width + 12;
                     } else {
                       return d.x - 5;
                     }
