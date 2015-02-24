@@ -128,12 +128,12 @@
         viewModelService.generateViewModel(pollK8sDataService.k8sdatamodel.data, $scope.selectedTransformName);
       };
 
-      $scope.$watch("viewModelService.viewModel.configuration.selectionIdList", function(newValue, oldValue) {
-        var selectionIdList = viewModelService.viewModel.configuration.selectionIdList;
-        if (!selectionIdList || selectionIdList.length < 1) {
-          $scope.hideElement("details");
-        }
-      });
+      // $scope.$watch("viewModelService.viewModel.configuration.selectionIdList", function(newValue, oldValue) {
+      //   var selectionIdList = viewModelService.viewModel.configuration.selectionIdList;
+      //   if (!selectionIdList || selectionIdList.length < 1) {
+      //     $scope.hideElement("details");
+      //   }
+      // });
 
       // Update the view model every time the user changes the transformation approach.
       $scope.$watch("selectedTransformName", function(newValue, oldValue) {
@@ -184,6 +184,18 @@
         } else {
           pollK8sDataService.k8sdatamodel.useSampleData = true;
           $scope.sourceIcon = "components/graph/img/SampleData.svg";
+        }
+      };
+
+      $scope.selectIcon = "components/graph/img/SelectOne.svg"; 
+      $scope.toggleSelect = function() {
+        var selectionHops = viewModelService.viewModel.configuration.selectionHops;
+        if (!selectionHops) {
+          viewModelService.viewModel.configuration.selectionHops = 1;
+          $scope.selectIcon = "components/graph/img/SelectMany.svg"; 
+        } else {
+          viewModelService.viewModel.configuration.selectionHops = 0;
+          $scope.selectIcon = "components/graph/img/SelectOne.svg";
         }
       };
 
