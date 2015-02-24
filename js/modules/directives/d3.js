@@ -73,7 +73,13 @@ angular.module('krakenApp.Graph')
 
         // Reduce the opacity of all but the selected nodes.
         node.style("opacity", function (e) {
-          return setHas(selection.nodes, e) ? 1 : notSelectedOpacity;
+          var newOpacity = setHas(selection.nodes, e) ? 1 : notSelectedOpacity;
+
+          if (e.origOpacity) {
+            e.origOpacity = newOpacity;
+          }
+
+          return newOpacity;
         });
 
         // Reduce the opacity of all but the selected edges.
@@ -183,13 +189,19 @@ angular.module('krakenApp.Graph')
         var origWheelZoomHandler = svg.on("wheel.zoom");
         svg.on("wheel.zoom", wheelScrollHandler);
 
+        var showPin = 0;
+
         d3.select("body")
           .on("keydown", function() {
             if (d3.event.ctrlKey) {
               svg.on("wheel.zoom", origWheelZoomHandler);
               svg.attr("class", "graph zoom-cursor");
             } else if (d3.event.metaKey) {
-              svg.attr("class", "graph pin-cursor");
+              showPin |= 4;
+
+              if (showPin == 6) {
+                svg.attr("class", "graph pin-cursor");
+              }
             }
           })
           .on("keyup", function() {
@@ -199,6 +211,7 @@ angular.module('krakenApp.Graph')
             }
 
             if (!d3.event.metaKey) {
+              showPin &= ~4;
               svg.attr("class", "graph ");
             }
           });
@@ -689,6 +702,18 @@ angular.module('krakenApp.Graph')
 
         // Now we are giving the SVGs co-ordinates - the force layout is generating the co-ordinates which this code is using to update the attributes of the SVG elements.
         function tick(e) {
+          node.style("opacity", function (e) {
+            if (e.opacity) {
+              var opacity = e.opacity;
+
+              delete e.opacity;
+
+              return opacity;
+            }
+
+            return d3.select(this).style("opacity");
+          });
+
           if (graph.settings.clustered) {
             circle.each(function (d) {
               if (this.parentNode.childNodes.length == 2 && this.parentNode.lastChild.localName == 'text') {
@@ -984,12 +1009,32 @@ angular.module('krakenApp.Graph')
         }
 
         function d3_layout_forceMouseover(d) {
+          showPin |= 2;
+
+          if (showPin == 6) {
+            svg.attr("class", "graph pin-cursor");
+          }
+
           d.fixed |= 4;
           d.px = d.x, d.py = d.y;
+
+          d.origOpacity = d3.select(this).style("opacity");
+          d.opacity = 0.7;
+          tick();
         }
 
         function d3_layout_forceMouseout(d) {
+          showPin &= ~2;
+          svg.attr("class", "graph");
+
           d.fixed &= ~4;
+
+          if (d.origOpacity) {
+            d.opacity = d.origOpacity;
+            delete d.origOpacity;
+          }
+
+          tick();
         }
 
         function adjustZoom(factor) {
