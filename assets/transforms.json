@@ -1,6 +1,6 @@
 {
   "directory" : [{
-    "name" : "All Data",
+    "name" : "Expanded",
     "script" : "templateTransform.js",
     "data" : {
       "nodeMaps" : [{
@@ -9,14 +9,6 @@
           "name" : "$.label",
           "tags" : "$.metadata",
           "metadata" : "$.metadata"
-        }
-      },{
-        "filter" : {
-          "eval" : "('%s' == 'ReplicationController')",
-          "args" : [ "$.type" ]
-        },
-        "properties" : {
-          "type" : "Controller"
         }
       }],
       "edgeMaps" : [{
@@ -49,64 +41,21 @@
       }]
     }
   },{
-    "name" : "Services",
+    "name" : "Clustered",
     "script" : "templateTransform.js",
     "data" : {
+      "settings" : {
+        "clustered": true,
+        "showEdgeLabels": false,
+        "showNodeLabels": true
+      },
       "nodeMaps" : [{
-        "filter" : {
-          "eval" : "('%s' == 'Container')",
-          "args" : [ "$.type" ]
-        }, 
-        "properties" : {
-          "type" : "$.type", 
-          "name" : "$.metadata.Config.Image", 
-          "tags" : {
-            "properties" : {
-              "NetworkSettings" : "$.metadata.NetworkSettings", 
-              "State" : "$.metadata.State"
-            }
-          },
-          "metadata" : "$.metadata"
-        }
-      },{
-        "filter" : {
-          "eval" : "('%s' == 'Pod')",
-          "args" : [ "$.type" ]
-        }, 
         "properties" : {
           "type" : "$.type", 
           "name" : "$.label",
-          "tags" : {
-            "properties" : {
-              "podIP" : "$.metadata.currentState.podIP", 
-              "startedAt" : "$.metadata.currentState.status"
-            }
-          },
+          "tags" : "$.metadata",
           "metadata" : "$.metadata"
         }
-      }, {
-        "filter" : {
-          "eval" : "('%s' == 'Service')",
-          "args" : [ "$.type" ]
-        }, 
-        "properties" : {
-          "type" : "$.type", 
-          "name" : "$.label",
-          "tags" : {
-            "properties" : {
-              "labels": "$.metadata.labels", 
-              "namespace": "$.metadata.namespace", 
-              "port": "$.metadata.port", 
-              "portalIP": "$.metadata.portalIP", 
-              "selector": "$.metadata.selector"
-            }
-          },
-          "metadata" : "$.metadata"
-        }
-      }],
-      "nodeFilters" : [{
-        "eval" : "('%s' == 'Container') || ('%s' == 'Pod') || ('%s' == 'Service')",
-        "args" : [ "$.type", "$.type" , "$.type"]
       }],
       "edgeMaps" : [{
         "properties" : {

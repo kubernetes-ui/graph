@@ -120,7 +120,7 @@ angular.module('krakenApp.Graph')
         var found = false;
 
         searchSet.forEach(function (e) {
-          if (typeof e.id != 'undefined' && e.id === item.id) {
+          if (e.id !== undefined && e.id === item.id) {
             found = true;
             return;
           }
@@ -136,7 +136,7 @@ angular.module('krakenApp.Graph')
         var containerDimensions = getContainerDimensions();
 
         // TODO(duftler): Derive the svg height from the container rather than the other way around.
-        var width = containerDimensions[0] - 16;
+        var width = containerDimensions[0] - 16,
           height = 700,
           center = [width / 2, height / 2];
 
@@ -199,7 +199,7 @@ angular.module('krakenApp.Graph')
             } else if (d3.event.metaKey) {
               showPin |= 4;
 
-              if (showPin == 6) {
+              if (showPin === 6) {
                 svg.attr("class", "graph pin-cursor");
               }
             }
@@ -227,7 +227,9 @@ angular.module('krakenApp.Graph')
           graph = scope.viewModelService.viewModel.data;
         }
 
-        if (graph === undefined) return;
+        if (graph === undefined) {
+          return;
+        }
 
         var force = d3.layout.force()
           .size([width, height])
@@ -235,15 +237,15 @@ angular.module('krakenApp.Graph')
 
         if (graph.settings.clustered) {
           // TODO(duftler): Externalize these values.
-          force.gravity(.02)
+          force.gravity(0.02)
             .charge(0);
         } else {
           // TODO(duftler): Externalize these values.
-          force.gravity(.40)
+          force.gravity(0.40)
             .charge(-1250)
             .linkDistance(function (d) {
               return d.distance;
-            }).links(graph.links)
+            }).links(graph.links);
 
           // Create all the line svgs but without locations yet.
           link = g.selectAll(".link")
@@ -253,9 +255,9 @@ angular.module('krakenApp.Graph')
             .style("marker-end", function (d) {
               if (d.directed) {
                 return "url(#suit)";
-              } else {
-                return "none";
               }
+
+              return "none";
             })
             .style("stroke", function (d) {
               return d.stroke;
@@ -342,7 +344,9 @@ angular.module('krakenApp.Graph')
           var clusters = new Array(maxCluster + 1);
 
           nodes.forEach(function (d) {
-            if (!clusters[d.cluster] || (d.radius > clusters[d.cluster].radius)) clusters[d.cluster] = d;
+            if (!clusters[d.cluster] || (d.radius > clusters[d.cluster].radius)) {
+              clusters[d.cluster] = d;
+            }
           });
 
           return clusters;
@@ -438,7 +442,7 @@ angular.module('krakenApp.Graph')
           .attr("dy", ".35em");
 
         text.text(function (d) {
-            return graph.settings.showNodeLabels && !d.hideLabel ? d.name : ""
+            return graph.settings.showNodeLabels && !d.hideLabel ? d.name : "";
           });
 
         text.each(function (e) {
@@ -467,7 +471,7 @@ angular.module('krakenApp.Graph')
             .append('path')
             .attr({
               'd': function (d) {
-                return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y
+                return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
               },
               'class': 'edgepath',
               'fill-opacity': 0,
@@ -601,7 +605,7 @@ angular.module('krakenApp.Graph')
                 if (d !== null && typeof n.tags[d] === 'object') {
                   // TODO(duftler): Update this to reflect new route/pattern defined by Xin.
                   return ".";
-                } else if (d != null && n.tags[d].toString().indexOf("http://") === 0) {
+                } else if (d !== null && n.tags[d].toString().indexOf("http://") === 0) {
                   return n.tags[d];
                 } else {
                   return "";
@@ -645,7 +649,7 @@ angular.module('krakenApp.Graph')
         var linkedByIndex = {};
         for (i = 0; i < graph.nodes.length; i++) {
           linkedByIndex[i + "," + i] = 1;
-        };
+        }
 
         if (graph.links) {
           graph.links.forEach(function (d) {
@@ -869,11 +873,31 @@ angular.module('krakenApp.Graph')
           };
         }
 
+        var getClusterSettingsPadding = function(graph) {
+          // TODO: externalize this default.
+          var result = 4;
+          if (graph.settings.clusterSettings && graph.settings.clusterSettings.padding !== undefined) {
+            var result = graph.settings.clusterSettings.padding;
+          }
+
+          return result;
+        }
+
+        var getClusterSettingsClusterPadding = function(graph) {
+          // TODO: externalize this default.
+          var result = 32; 
+          if (graph.settings.clusterSettings && graph.settings.clusterSettings.clusterPadding !== undefined) {
+            var padding = graph.settings.clusterSettings.padding;
+          }
+
+          return result;
+        }
+
         // Resolves collisions between d and all other circles.
         function collide(alpha) {
           var quadtree = d3.geom.quadtree(graph.nodes);
           return function (d) {
-            var r = d.radius + maxRadius + Math.max(graph.settings.clusterSettings.padding, graph.settings.clusterSettings.clusterPadding),
+            var r = d.radius + maxRadius + Math.max(getClusterSettingsPadding(graph), getClusterSettingsClusterPadding(graph)),
               nx1 = d.x - r,
               nx2 = d.x + r,
               ny1 = d.y - r,
@@ -883,7 +907,7 @@ angular.module('krakenApp.Graph')
                 var x = d.x - quad.point.x,
                   y = d.y - quad.point.y,
                   l = Math.sqrt(x * x + y * y),
-                  r = d.radius + quad.point.radius + (d.cluster === quad.point.cluster ? graph.settings.clusterSettings.padding : graph.settings.clusterSettings.clusterPadding);
+                  r = d.radius + quad.point.radius + (d.cluster === quad.point.cluster ? getClusterSettingsPadding(graph) : getClusterSettingsClusterPadding(graph));
                 if (l < r) {
                   l = (l - r) / l * alpha;
                   d.x -= x *= l;
@@ -909,17 +933,19 @@ angular.module('krakenApp.Graph')
             action: function (elm, d, i) {
               resetSelection();
             }
-          },
-          {
-            title: function(d) {
-              // TODO(duftler): Remove this when the example is no longer needed.
-              return "Test External Selection";
-            },
-            action: function() {
-              scope.selectionIdList = ["Service:guestbook", "Pod:guestbook-controller-ls6k1"];
-              scope.$apply();
-            }
           }
+
+          // Removed this menu item for the 2/25/2015 demo.
+          // {
+          //   title: function(d) {
+          //     // TODO(duftler): Remove this when the example is no longer needed.
+          //     return "Test External Selection";
+          //   },
+          //   action: function() {
+          //     scope.selectionIdList = ["Service:guestbook", "Pod:guestbook-controller-ls6k1"];
+          //     scope.$apply();
+          //   }
+          // }
         ];
 
         var nodeContextMenu = [

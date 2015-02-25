@@ -73,8 +73,6 @@
 
     var defaultSettings = {
       "clustered": false,
-
-      // TODO: Remove these when they"re no longer needed.
       "showEdgeLabels": false,
       "showNodeLabels": true
     };
@@ -97,8 +95,6 @@
       "data" : defaultModel, 
       "default" : defaultModel,
       "configuration" : {
-        // TODO: Read the legend from an external file, though it needs to be
-        // exported for dependencies like GraphCtrl.
         "legend" : {
           "nodes" : {
             "Container" : defaultNode,
@@ -134,7 +130,7 @@
               "selected" : true,
               "available" : true
             },
-            "Controller" : {
+            "ReplicationController" : {
               "style" : {
                 "radius" : 20,
                 "fill" : "#DE2AFB"
@@ -196,6 +192,7 @@
       "transformNames" : []
     };
 
+    var defaultTransformName = undefined;
     var transformsByName = {}; // Loaded transforms by name.
 
     var stripSuffix = function(fileName) {
@@ -305,7 +302,7 @@
     var setCluster = function(toNode, typeToCluster) {
       if (toNode.type) {
         toNode.cluster = typeToCluster[toNode.type];
-        if (!toNode.cluster) {
+        if (toNode.cluster === undefined) {
           toNode.cluster = lodash.keys(typeToCluster).length;
           typeToCluster[toNode.type] = toNode.cluster;
         }
@@ -388,8 +385,8 @@
           if (filtered) {
             chain = chain
               .filter(function(toLink) {
-                return (typeof toLink.source !== "undefined") 
-                  && (typeof toLink.target !== "undefined");
+                return (toLink.source !== undefined) 
+                  && (toLink.target !== undefined);
               });          
           }
 
@@ -429,6 +426,8 @@
     loadTransformDirectory();
     this.$get = function() {
       return {
+        // TODO: Hard wired this for 2/25/2015 demo. 
+        "defaultTransformName" : "Expanded",
         "viewModel" : viewModel,
         "generateViewModel" : generateViewModel,
         "setViewModel" : setViewModel

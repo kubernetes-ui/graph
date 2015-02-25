@@ -14,10 +14,7 @@
         return lodash.sortBy(viewModelService.viewModel.transformNames);
       };
 
-      $scope.selectedTransformName = "";
-      if (viewModelService.viewModel.transformNames.length > 0) {
-        $scope.selectedTransformName = lodash.first($scope.getTransformNames());
-      }
+      $scope.selectedTransformName = viewModelService.defaultTransformName;
  
       // Sets the selected transformName based on user selection
       $scope.setSelectedTransformName = function(transformName) {
@@ -52,11 +49,13 @@
         return result;
       };
 
-      $scope.getLegendNodeStyle = function(type) {
-        var result = {};
+      $scope.getLegendNodeFill = function(type) {
+        var result = "white";
         var legend = viewModelService.viewModel.data.legend;
-        if (legend && legend.nodes) {
-          result = legend.nodes[type].style;
+        if (legend && legend.nodes && legend.nodes[type]) {
+          if (legend.nodes[type].selected) {
+            result = legend.nodes[type].style.fill;
+          }
         }
 
         return result;
@@ -72,7 +71,7 @@
             })
             .sort();
         }
-
+ 
         return result;
       };
 
@@ -184,6 +183,16 @@
         } else {
           pollK8sDataService.k8sdatamodel.useSampleData = true;
           $scope.sourceIcon = "components/graph/img/SampleData.svg";
+        }
+      };
+
+      $scope.toggleLegend = function(type) {
+        if (type) {
+          var legend = viewModelService.viewModel.data.legend;
+          if (legend.nodes) {
+            legend.nodes[type].selected = !legend.nodes[type].selected;
+            $scope.updateModel();
+          }
         }
       };
 
