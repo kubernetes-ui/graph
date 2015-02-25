@@ -323,17 +323,17 @@
       }
     };
 
-    var postProcess = function(toModel, configuration) {
+    var postProcess = function(toModel) {
       if (toModel.legend) {
         if (!toModel.legend.nodes || toModel.legend.nodes.length < 1) {
-          toModel.legend.nodes = configuration.legend.nodes;
+          toModel.legend.nodes = defaultLegend.nodes;
         }
 
         if (!toModel.legend.links || toModel.legend.links.length < 1) {
-          toModel.legend.links = configuration.legend.links;
+          toModel.legend.links = defaultLegend.links;
         }
       } else {
-        toModel.legend = configuration.legend;
+        toModel.legend = defaultLegend;
       }
 
       var legend = toModel.legend; 
@@ -419,9 +419,9 @@
         return;
       }
 
-      var toModel = JSON.parse(JSON.stringify(defaultModel));
+      var toModel = JSON.parse(JSON.stringify(viewModel.data));
       toModel = transform(dataModel, toModel, viewModel.configuration);
-      toModel = postProcess(toModel, viewModel.configuration);
+      toModel = postProcess(toModel);
 
       setViewModel(toModel);
     };
