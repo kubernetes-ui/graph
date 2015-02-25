@@ -116,6 +116,7 @@
           "available" : true
         },
         "ReplicationController" : {
+          "displayName" : "Replication Controller",
           "style" : {
             "radius" : 20,
             "fill" : "#DE2AFB"
@@ -145,7 +146,7 @@
         "balances" : {
           "available" : true,
           "style" : {
-            "width" : 2,
+            "width" : 3,
             "stroke" : "#7C4DFF",
             "dash" : "5, 5",
             "distance" : 60
@@ -154,7 +155,7 @@
         "uses" : {
           "available" : true,
           "style" : {
-            "width" : 2,
+            "width" : 3,
             "stroke" : "#D1C4E9",
             "dash" : "5, 5",
             "distance" : 60
@@ -163,7 +164,7 @@
         "monitors" : {
           "available" : true,
           "style" : {
-            "width" : 2,
+            "width" : 3,
             "stroke" : "#DE2AFB",
             "dash" : "5, 5",
             "distance" : 60

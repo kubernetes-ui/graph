@@ -7,8 +7,8 @@
 
   angular.module("krakenApp.Graph", ["krakenApp.services", "yaru22.jsonHuman"])
   .controller("GraphCtrl", ["$scope", "lodash", "viewModelService", 
-    "mockDataService", "pollK8sDataService", "$location", "inspectNodeService",
-    function($scope, lodash, viewModelService, mockDataService, pollK8sDataService, $location, inspectNodeService) {
+    "mockDataService", "pollK8sDataService", "$location", "$window", "inspectNodeService",
+    function($scope, lodash, viewModelService, mockDataService, pollK8sDataService, $location, $window, inspectNodeService) {
       $scope.viewModelService = viewModelService;
       $scope.getTransformNames = function() {
         return lodash.sortBy(viewModelService.viewModel.transformNames);
@@ -49,6 +49,16 @@
         return result;
       };
 
+      $scope.getLegendNodeDisplayName = function(type) {
+        var result = type;
+        var legend = viewModelService.viewModel.data.legend;
+        if (legend && legend.nodes && legend.nodes[type] && legend.nodes[type].displayName) {
+          result = legend.nodes[type].displayName;
+        }
+
+        return result;
+      };
+
       $scope.getLegendNodeFill = function(type) {
         var result = "white";
         var legend = viewModelService.viewModel.data.legend;
@@ -83,6 +93,12 @@
         }
 
         return result;
+      };
+
+      $scope.getLegendLinkStyleStrokeWidth = function(type, defaultWidth) {
+        var style = $scope.getLegendLinkStyle(type);
+
+        return $window.Math.max(style.width, defaultWidth);
       };
 
       var getSelection = function() {

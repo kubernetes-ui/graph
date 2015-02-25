@@ -7,7 +7,7 @@ angular.module('krakenApp.Graph')
     restrict: 'E',
     link: function (scope, element, attrs) {
       scope.$watch("viewModelService.viewModel.version", function(newValue, oldValue) {
-        d3Service.d3().then(draw);
+        d3Service.d3().then(drawNewModel);
       });
 
       scope.$watch("selectionIdList", function(newValue, oldValue) {
@@ -27,6 +27,8 @@ angular.module('krakenApp.Graph')
       var node;
       var link;
       var edgelabels;
+
+      var force;
 
       var selectJustTheseNodes = function(idList) {
         selection.nodes = new Set();
@@ -127,6 +129,14 @@ angular.module('krakenApp.Graph')
         });
 
         return found;
+      }
+
+      var drawNewModel = function() {
+        if (force) {
+          force.stop();
+        }
+
+        draw();
       }
 
       var draw = function() {
@@ -231,7 +241,7 @@ angular.module('krakenApp.Graph')
           return;
         }
 
-        var force = d3.layout.force()
+        force = d3.layout.force()
           .size([width, height])
           .on("tick", tick);
 
@@ -801,6 +811,7 @@ angular.module('krakenApp.Graph')
                     return "";
                   }
                 });
+
               singleImage
                 .attr("x", function (d) {
                   if (isPinIcon) {

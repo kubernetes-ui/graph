@@ -97,11 +97,11 @@
                           </circle>
                         </svg>
                         <md-tooltip>
-                          Show/Hide {{type}}
+                          Show/Hide {{getLegendNodeDisplayName(type)}}
                         </md-tooltip>
                       </td>
                       <td class="legend-table-text">
-                        <span>{{type}}</span>
+                        <span>{{getLegendNodeDisplayName(type)}}</span>
                       </td>
                     </tr>
                   </tbody>
@@ -118,7 +118,7 @@
                             stroke="{{getLegendLinkStyle(type).stroke}}" 
                             stroke-dasharray="{{getLegendLinkStyle(type).dash}}" 
                             fill="{{getLegendLinkStyle(type).fill}}" 
-                            width="{{Math.max(getLegendLinkStyle(type).width, 2)}}">
+                            stroke-width="{{getLegendLinkStyleStrokeWidth(type, 3)}}">
                           </line>
                         </svg>
                       </td>
