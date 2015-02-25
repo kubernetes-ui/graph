@@ -734,17 +734,8 @@ angular.module('krakenApp.Graph')
           });
 
           if (graph.settings.clustered) {
-            circle.each(function (d) {
-              if (this.parentNode.childNodes.length == 2 && this.parentNode.lastChild.localName == 'text') {
-                var siblingText = this.parentNode.lastChild;
-
-                siblingText.setAttribute("x", d.x);
-                siblingText.setAttribute("y", d.y);
-              }
-            });
-
             circle
-              .each(cluster(10 * e.alpha * e.alpha))
+              .each(cluster(10 * force.alpha() * force.alpha()))
               .each(collide(.5))
               .attr("cx", function (d) {
                 return d.x;
@@ -833,14 +824,6 @@ angular.module('krakenApp.Graph')
                 });
             });
 
-            d3.selectAll("text")
-              .attr("x", function (d) {
-                return d.x;
-              })
-              .attr("y", function (d) {
-                return d.y;
-              });
-
             if (edgepaths) {
               edgepaths.attr('d', function (d) {
                 var path = 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
@@ -860,6 +843,14 @@ angular.module('krakenApp.Graph')
               });
             }
           }
+
+          d3.selectAll("text")
+            .attr("x", function (d) {
+              return d.x;
+            })
+            .attr("y", function (d) {
+              return d.y;
+            });
         }
 
         // Move d to be adjacent to the cluster node.
