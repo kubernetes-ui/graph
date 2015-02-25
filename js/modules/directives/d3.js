@@ -719,6 +719,12 @@ angular.module('krakenApp.Graph')
           applySelectionToOpacity();
         }
 
+        function resetPins() {
+          node.each(function (d) {
+            d.fixed &= ~8;
+          });
+        }
+
         // Now we are giving the SVGs co-ordinates - the force layout is generating the co-ordinates which this code is using to update the attributes of the SVG elements.
         function tick(e) {
           node.style("opacity", function (e) {
@@ -934,6 +940,12 @@ angular.module('krakenApp.Graph')
             title: 'Reset Selection',
             action: function (elm, d, i) {
               resetSelection();
+            }
+          },
+          {
+            title: 'Reset Pins',
+            action: function (elm, d, i) {
+              resetPins();
             }
           }
 
