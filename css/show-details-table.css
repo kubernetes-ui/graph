@@ -32,9 +32,8 @@
 
 .jh-type-bool,
 .jh-type-number {
-  font-weight: bold;
   text-align: center;
-  color: #5286BC;
+  color: rgba(0,0,0,0.87);
 }
 
 .jh-type-string {
