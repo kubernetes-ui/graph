@@ -14,7 +14,7 @@
         return lodash.sortBy(viewModelService.viewModel.transformNames);
       };
 
-      $scope.selectedTransformName = viewModelService.defaultTransformName;
+      // $scope.selectedTransformName = viewModelService.defaultTransformName;
  
       // Sets the selected transformName based on user selection
       $scope.setSelectedTransformName = function(transformName) {
@@ -151,11 +151,11 @@
       // });
 
       // Update the view model every time the user changes the transformation approach.
-      $scope.$watch("selectedTransformName", function(newValue, oldValue) {
-        if (!pollK8sDataService.isPolling()) {
-          pollK8sDataService.refresh($scope);
-        }
-      });
+      // $scope.$watch("selectedTransformName", function(newValue, oldValue) {
+      //   if (!pollK8sDataService.isPolling()) {
+      //     pollK8sDataService.refresh($scope);
+      //   }
+      // });
 
       $scope.pollK8sDataService = pollK8sDataService;
       // Update the view model when the data model changes.
@@ -185,6 +185,31 @@
           pollK8sDataService.start($scope);
         }
       };
+
+      // TODO: Remove hard wired transform names for 2/25/2015 demo.
+      var element = document.getElementById("ExpandCollapse");
+      if (element) {
+        if (lodash.find(viewModelService.viewModel.transformNames, function(transformName) {
+            return transformName === "Expanded"; }) 
+          && lodash.find(viewModelService.viewModel.transformNames, function(transformName) {
+            return transformName === "Clustered"; })) {
+          $scope.expandIcon = "components/graph/img/Expand.svg";
+          $scope.selectedTransformName = "Expanded";
+          $scope.toggleExpand = function() {
+            if ($scope.selectedTransformName === "Expanded") {
+              $scope.expandIcon = "components/graph/img/Collapse.svg";
+              $scope.selectedTransformName = "Clustered";
+            } else {
+              $scope.expandIcon = "components/graph/img/Expand.svg";
+              $scope.selectedTransformName = "Expanded";
+            }
+
+            $scope.updateModel();
+          };
+        } else {
+          element.style.display = "none";
+        }
+      }
 
       pollK8sDataService.k8sdatamodel.useSampleData = false;
       $scope.sourceIcon = "components/graph/img/LiveData.svg";

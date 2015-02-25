@@ -2,6 +2,7 @@
   <div flex layout="column" layout-fill>
     <md-toolbar class="md-toolbar-small">
       <div class="md-toolbar-tools-small md-toolbar-tools">
+<!-- 
         <button class="menu-icon" aria-label="Menu">
           <md-icon md-svg-src="/assets/img/icons/ic_menu_24px.svg">
           </md-icon>
@@ -10,7 +11,16 @@
             Toggle Sidebar
           </md-tooltip>
         </button>
+ --> 
         <span flex></span>
+        <md-button id="ExpandCollapse" class="icon-button" aria-label="ExpandCollapse" ng-click="toggleExpand()">
+          <md-icon md-svg-src="{{expandIcon}}">
+          </md-icon>
+          <paper-ripple class="circle recenteringTouch" fit></paper-ripple>
+          <md-tooltip>
+            Expand/Collapse
+          </md-tooltip>
+        </md-button>
         <md-button class="icon-button" aria-label="Select" ng-click="toggleSelect()">
           <md-icon md-svg-src="{{selectIcon}}">
           </md-icon>

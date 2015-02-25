@@ -3,6 +3,11 @@
     "name" : "Expanded",
     "script" : "templateTransform.js",
     "data" : {
+      "settings" : {
+        "clustered": false,
+        "showEdgeLabels": false,
+        "showNodeLabels": true
+      },
       "nodeMaps" : [{
         "properties" : {
           "type" : "$.type", 
