@@ -80,7 +80,100 @@
       defaultSettings = value;
     };
 
+    var defaultLegend = {
+      "nodes" : {
+        "Container" : defaultNode,
+        "Cluster" : {
+          "style" : {
+            "radius" : 30,
+            "fill" : "#D32F2F"                
+          },
+          "selected" : false,
+          "available" : true
+        },
+        "Node" : {
+          "style" : {
+            "radius" : 25,
+            "fill" : "#FF4D81"
+          },
+          "selected" : false,
+          "available" : true
+        },
+        "Process" : {
+          "style" : {
+            "radius" : 15,
+            "fill" : "#FF9800"
+          },
+          "selected" : true,
+          "available" : true
+        },
+        "Service" : {
+          "style" : {
+            "radius" : 20,
+            "fill" : "#7C4DFF"
+          },
+          "selected" : true,
+          "available" : true
+        },
+        "ReplicationController" : {
+          "style" : {
+            "radius" : 20,
+            "fill" : "#DE2AFB"
+          },
+          "selected" : true,
+          "available" : true
+        },
+        "Pod" : {
+          "style" : {
+            "radius" : 20,
+            "fill" : "#E91E63"
+          },
+          "selected" : true,
+          "available" : true
+        },
+        "Image" : {
+          "style" : {
+            "radius" : 15,
+            "fill" : "#D1C4E9"
+          },
+          "selected" : true,
+          "available" : true 
+        }
+      },
+      "links" : {
+        "contains" : defaultLink,
+        "balances" : {
+          "available" : true,
+          "style" : {
+            "width" : 2,
+            "stroke" : "#7C4DFF",
+            "dash" : "5, 5",
+            "distance" : 60
+          }
+        },
+        "uses" : {
+          "available" : true,
+          "style" : {
+            "width" : 2,
+            "stroke" : "#D1C4E9",
+            "dash" : "5, 5",
+            "distance" : 60
+          }
+        },
+        "monitors" : {
+          "available" : true,
+          "style" : {
+            "width" : 2,
+            "stroke" : "#DE2AFB",
+            "dash" : "5, 5",
+            "distance" : 60
+          }
+        }
+      }
+    };
+
     var defaultModel = {
+      "legend" : defaultLegend,
       "settings" : defaultSettings,
       "nodes" : [{
           "name" : "no data",
@@ -95,97 +188,7 @@
       "data" : defaultModel, 
       "default" : defaultModel,
       "configuration" : {
-        "legend" : {
-          "nodes" : {
-            "Container" : defaultNode,
-            "Cluster" : {
-              "style" : {
-                "radius" : 30,
-                "fill" : "#D32F2F"                
-              },
-              "selected" : false,
-              "available" : true
-            },
-            "Node" : {
-              "style" : {
-                "radius" : 25,
-                "fill" : "#FF4D81"
-              },
-              "selected" : false,
-              "available" : true
-            },
-            "Process" : {
-              "style" : {
-                "radius" : 15,
-                "fill" : "#FF9800"
-              },
-              "selected" : true,
-              "available" : true
-            },
-            "Service" : {
-              "style" : {
-                "radius" : 20,
-                "fill" : "#7C4DFF"
-              },
-              "selected" : true,
-              "available" : true
-            },
-            "ReplicationController" : {
-              "style" : {
-                "radius" : 20,
-                "fill" : "#DE2AFB"
-              },
-              "selected" : true,
-              "available" : true
-            },
-            "Pod" : {
-              "style" : {
-                "radius" : 20,
-                "fill" : "#E91E63"
-              },
-              "selected" : true,
-              "available" : true
-            },
-            "Image" : {
-              "style" : {
-                "radius" : 15,
-                "fill" : "#D1C4E9"
-              },
-              "selected" : true,
-              "available" : true 
-            }
-          },
-          "links" : {
-            "contains" : defaultLink,
-            "balances" : {
-              "available" : true,
-              "style" : {
-                "width" : 2,
-                "stroke" : "#7C4DFF",
-                "dash" : "5, 5",
-                "distance" : 60
-              }
-            },
-            "uses" : {
-              "available" : true,
-              "style" : {
-                "width" : 2,
-                "stroke" : "#D1C4E9",
-                "dash" : "5, 5",
-                "distance" : 60
-              }
-            },
-            "monitors" : {
-              "available" : true,
-              "style" : {
-                "width" : 2,
-                "stroke" : "#DE2AFB",
-                "dash" : "5, 5",
-                "distance" : 60
-              }
-            }
-          }
-        },
+        "legend" : defaultLegend,
         "selectionIdList" : []
       },
       "version" : 0,
