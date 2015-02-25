@@ -15,6 +15,7 @@
 .jh-key,
 .jh-value,
 .jh-root tr {
+  font-size: 14px;
   -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
      -moz-box-sizing: border-box; /* Firefox, other Gecko */
           box-sizing: border-box; /* Opera/IE 8+ */
@@ -23,7 +24,7 @@
 .jh-key,
 .jh-value {
   margin: 0;
-  padding: 0.5em;
+  padding: 0.6em;
 }
 
 .jh-value {
