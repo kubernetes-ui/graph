@@ -17,7 +17,8 @@
     "name": "Graph",
     "url": "/graph/inspect",
     "type": "link",
-    "templateUrl": "/components/graph/pages/inspect.html"
+    "templateUrl": "/components/graph/pages/inspect.html",
+    "css": "/components/graph/css/show-details-table.css"
   }, {
     "name": "Graph",
     "type": "heading",
