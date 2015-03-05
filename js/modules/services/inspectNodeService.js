@@ -23,7 +23,7 @@
     };
   };
 
-  angular.module('krakenApp.Graph')
+  angular.module('krakenApp.Graph.services', [])
       .factory('inspectNodeService', inspectNodeService);
 
 })();

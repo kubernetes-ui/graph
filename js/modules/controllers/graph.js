@@ -5,7 +5,7 @@
 (function() {
   "use strict";
 
-  angular.module("krakenApp.Graph", ["krakenApp.services", "yaru22.jsonHuman"])
+  angular.module("krakenApp.Graph", ["krakenApp.services", "krakenApp.Graph.services", "yaru22.jsonHuman"])
   .controller("GraphCtrl", ["$scope", "lodash", "viewModelService", 
     "mockDataService", "pollK8sDataService", "$location", "$window", "inspectNodeService",
     function($scope, lodash, viewModelService, mockDataService, pollK8sDataService, $location, $window, inspectNodeService) {
