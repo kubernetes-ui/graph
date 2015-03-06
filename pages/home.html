@@ -21,7 +21,7 @@
             Expand/Collapse
           </md-tooltip>
         </md-button>
-        <md-button class="icon-button" aria-label="Select" ng-click="toggleSelect()">
+        <md-button id="ToggleSelect" class="icon-button" aria-label="Select" ng-click="toggleSelect()">
           <md-icon md-svg-src="{{selectIcon}}">
           </md-icon>
           <paper-ripple class="circle recenteringTouch" fit></paper-ripple>
@@ -29,7 +29,7 @@
             Toggle Multiple Selection
           </md-tooltip>
         </md-button>
-        <md-button class="icon-button" aria-label="Source" ng-click="toggleSource()">
+        <md-button id="ToggleSource" class="icon-button" aria-label="Source" ng-click="toggleSource()">
           <md-icon md-svg-src="{{sourceIcon}}">
           </md-icon>
           <paper-ripple class="circle recenteringTouch" fit></paper-ripple>
@@ -45,7 +45,7 @@
             Poll Continuosly
           </md-tooltip>
         </md-button>
-        <md-button class="icon-button" aria-label="Refresh" ng-click="refresh()" ng-disabled="isPolling">
+        <md-button id="PollOnce" class="icon-button" aria-label="Refresh" ng-click="refresh()" ng-disabled="isPolling">
           <md-icon md-svg-src="components/graph/img/Refresh.svg">
           </md-icon>
           <paper-ripple class="circle recenteringTouch" fit></paper-ripple>
