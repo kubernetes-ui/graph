@@ -15,7 +15,7 @@ describe("Inspect node controller", function() {
   beforeEach(inject(function (
       _inspectNodeService_, $controller, $location, $rootScope) {
     inspectNodeService = _inspectNodeService_;
-    // Mock the node detail data returned by the service
+    // Mock the node detail data returned by the service.
     inspectNodeService.setDetailData(mockNodeDetail);
     scope = $rootScope.$new();
     location = $location;
@@ -30,7 +30,7 @@ describe("Inspect node controller", function() {
     expect(scope.element).toEqual(mockNodeDetail.id);
     expect(scope.metadata).toEqual(mockNodeDetail.metadata);
 
-    // Test if the controller change the location correctly.
+    // Test if the controller changed the location correctly.
     scope.backToGraph();
     expect(location.path()).toEqual('/graph');
   });
