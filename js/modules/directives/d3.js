@@ -728,6 +728,8 @@ angular.module('krakenApp.Graph')
           node.each(function (d) {
             d.fixed &= ~8;
           });
+
+          force.start().alpha(0.01);
         }
 
         // Now we are giving the SVGs co-ordinates - the force layout is generating the co-ordinates which this code is using to update the attributes of the SVG elements.
