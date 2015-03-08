@@ -333,7 +333,9 @@ angular.module('krakenApp.Graph')
         console.log("graph.nodes.length=" + graph.nodes.length + " newPositionCount=" + newPositionCount);
 
         if (newPositionCount < (0.25 * graph.nodes.length)) {
-          force.start().alpha(0.01);
+          var startingAlpha = graph.settings.clustered ? 0.02 : 0.01;
+
+          force.start().alpha(startingAlpha);
         } else {
           force.start();
         }
@@ -507,18 +509,23 @@ angular.module('krakenApp.Graph')
         var circle = g.selectAll("circle");
 
         if (graph.settings.clustered && newPositionCount) {
-          circle.transition()
-            .duration(750)
-            .delay(function (d, i) {
-              return i * 5;
-            })
-            .attrTween("r", function (d) {
-              var i = d3.interpolate(0, d.radius);
-              return function (t) {
-                return d.radius = i(t);
-              };
-            });
+          circle.attr("r", function (d) {
+            return d.radius;
+          })
         }
+        //if (graph.settings.clustered && newPositionCount) {
+        //  circle.transition()
+        //    .duration(750)
+        //    .delay(function (d, i) {
+        //      return i * 5;
+        //    })
+        //    .attrTween("r", function (d) {
+        //      var i = d3.interpolate(0, d.radius);
+        //      return function (t) {
+        //        return d.radius = i(t);
+        //      };
+        //    });
+        //}
 
         // If zero nodes are in the current selection, reset the selection.
         var nodeMatches = new Set();
@@ -693,18 +700,6 @@ angular.module('krakenApp.Graph')
                 return d.y;
               });
 
-            if (force.alpha() < 0.04) {
-              graph.nodes.forEach(function (n) {
-                if (n.id) {
-                  if (!nodeSettingsCache[n.id]) {
-                    nodeSettingsCache[n.id] = {};
-                  }
-
-                  nodeSettingsCache[n.id].position = [n.x, n.y];
-                }
-              });
-            }
-
             var image = d3.selectAll("image");
 
             image.each(function (e) {
@@ -761,6 +756,18 @@ angular.module('krakenApp.Graph')
                 }
               });
             }
+          }
+
+          if (force.alpha() < 0.04) {
+            graph.nodes.forEach(function (n) {
+              if (n.id) {
+                if (!nodeSettingsCache[n.id]) {
+                  nodeSettingsCache[n.id] = {};
+                }
+
+                nodeSettingsCache[n.id].position = [n.x, n.y];
+              }
+            });
           }
 
           d3.selectAll("text")
