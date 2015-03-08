@@ -242,10 +242,16 @@ angular.module('krakenApp.Graph')
           .size([width, height])
           .on("tick", tick);
 
+        var clusterInnerPadding;
+        var clusterOuterPadding;
+
         if (graph.settings.clustered) {
           // TODO(duftler): Externalize these values.
           force.gravity(0.02)
             .charge(0);
+
+          clusterInnerPadding = getClusterInnerPadding(graph);
+          clusterOuterPadding = getClusterOuterPadding(graph);
         } else {
           // TODO(duftler): Externalize these values.
           force.gravity(0.40)
@@ -650,7 +656,7 @@ angular.module('krakenApp.Graph')
           if (graph.settings.clustered) {
             circle
               .each(cluster(10 * force.alpha() * force.alpha()))
-              .each(collide(.5))
+              .each(collide(.5, clusterInnerPadding, clusterOuterPadding))
               .attr("cx", function (d) {
                 return d.x;
               })
@@ -789,31 +795,33 @@ angular.module('krakenApp.Graph')
           };
         }
 
-        var getClusterSettingsPadding = function(graph) {
+        function getClusterInnerPadding(graph) {
           // TODO: externalize this default.
           var result = 4;
-          if (graph.settings.clusterSettings && graph.settings.clusterSettings.padding !== undefined) {
-            var result = graph.settings.clusterSettings.padding;
+
+          if (graph.settings.clusterSettings && graph.settings.clusterSettings.innerPadding !== undefined) {
+            result = graph.settings.clusterSettings.innerPadding;
           }
 
           return result;
         }
 
-        var getClusterSettingsClusterPadding = function(graph) {
+        function getClusterOuterPadding(graph) {
           // TODO: externalize this default.
-          var result = 32; 
-          if (graph.settings.clusterSettings && graph.settings.clusterSettings.clusterPadding !== undefined) {
-            var padding = graph.settings.clusterSettings.padding;
+          var result = 32;
+
+          if (graph.settings.clusterSettings && graph.settings.clusterSettings.outerPadding !== undefined) {
+            result = graph.settings.clusterSettings.outerPadding;
           }
 
           return result;
         }
 
         // Resolves collisions between d and all other circles.
-        function collide(alpha) {
+        function collide(alpha, clusterInnerPadding, clusterOuterPadding) {
           var quadtree = d3.geom.quadtree(graph.nodes);
           return function (d) {
-            var r = d.radius + maxRadius + Math.max(getClusterSettingsPadding(graph), getClusterSettingsClusterPadding(graph)),
+            var r = d.radius + maxRadius + Math.max(clusterInnerPadding, clusterOuterPadding),
               nx1 = d.x - r,
               nx2 = d.x + r,
               ny1 = d.y - r,
@@ -823,7 +831,7 @@ angular.module('krakenApp.Graph')
                 var x = d.x - quad.point.x,
                   y = d.y - quad.point.y,
                   l = Math.sqrt(x * x + y * y),
-                  r = d.radius + quad.point.radius + (d.cluster === quad.point.cluster ? getClusterSettingsPadding(graph) : getClusterSettingsClusterPadding(graph));
+                  r = d.radius + quad.point.radius + (d.cluster === quad.point.cluster ? clusterInnerPadding : clusterOuterPadding);
                 if (l < r) {
                   l = (l - r) / l * alpha;
                   d.x -= x *= l;
