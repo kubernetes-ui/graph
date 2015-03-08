@@ -422,7 +422,10 @@ angular.module('krakenApp.Graph')
               .attr("height", function (d) {
                 return d.size[1];
               })
-              .on("dblclick", inspectNode)
+              .on('contextmenu', function (data, index) {
+                d3.selectAll('.popup-tags-table').style("display", "none");
+                showContextMenu(data, index, nodeContextMenu);
+              })
               .on("mouseout", function () {
                 // Interrupt any pending transition on this node.
                 d3.selectAll('.popup-tags-table').transition();
@@ -438,7 +441,10 @@ angular.module('krakenApp.Graph')
               .style("fill", function (d) {
                 return d.fill;
               })
-              .on("dblclick", inspectNode)
+              .on('contextmenu', function (data, index) {
+                d3.selectAll('.popup-tags-table').style("display", "none");
+                showContextMenu(data, index, nodeContextMenu);
+              })
               .on("mouseout", function () {
                 // Interrupt any pending transition on this node.
                 d3.selectAll('.popup-tags-table').transition();
