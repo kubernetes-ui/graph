@@ -5,11 +5,11 @@ angular.module('krakenApp.Graph')
   return {
     restrict: 'E',
     link: function (scope, element, attrs) {
-      scope.$watch("viewModelService.viewModel.version", function(newValue, oldValue) {
+      scope.$watch('viewModelService.viewModel.version', function(newValue, oldValue) {
         d3Service.d3().then(drawNewModel);
       });
 
-      scope.$watch("selectionIdList", function(newValue, oldValue) {
+      scope.$watch('selectionIdList', function(newValue, oldValue) {
         if (newValue !== undefined) {
           selectJustTheseNodes(newValue);
         }
@@ -18,15 +18,15 @@ angular.module('krakenApp.Graph')
       var viewSettingsCache = {};
       var nodeSettingsCache = {};
 
-      var selection = {};
-      selection.nodes = new Set();
-      selection.edges = new Set();
-      selection.edgelabels = new Set();
+      var selection = {
+        nodes: new Set(),
+        edges: new Set(),
+        edgelabels: new Set()
+      };
 
       var node;
       var link;
       var edgelabels;
-
       var force;
 
       var selectJustTheseNodes = function(idList) {
@@ -73,7 +73,7 @@ angular.module('krakenApp.Graph')
         }
 
         // Reduce the opacity of all but the selected nodes.
-        node.style("opacity", function (e) {
+        node.style('opacity', function (e) {
           var newOpacity = setHas(selection.nodes, e) ? 1 : notSelectedOpacity;
 
           if (e.origOpacity) {
@@ -85,14 +85,14 @@ angular.module('krakenApp.Graph')
 
         // Reduce the opacity of all but the selected edges.
         if (link) {
-          link.style("opacity", function (e) {
+          link.style('opacity', function (e) {
             return setHas(selection.edges, e) ? 1 : notSelectedOpacity;
           });
         }
 
         // Reduce the opacity of all but the selected edge labels.
         if (edgelabels) {
-          edgelabels.style("opacity", function (e) {
+          edgelabels.style('opacity', function (e) {
             return setHas(selection.edgelabels, e) ? 1 : notSelectedOpacity;
           });
         }
@@ -151,29 +151,29 @@ angular.module('krakenApp.Graph')
 
         var color = d3.scale.category20();
 
-        d3.select(element[0]).select("svg").remove();
+        d3.select(element[0]).select('svg').remove();
 
         var svg = d3.select(element[0])
-          .append("svg")
-          .attr("width", width)
-          .attr("height", height)
-          .attr("class", "graph");
+          .append('svg')
+          .attr('width', width)
+          .attr('height', height)
+          .attr('class', 'graph');
 
-        svg.append("defs").selectAll("marker")
-          .data(["suit", "licensing", "resolved"])
-          .enter().append("marker")
-          .attr("id", function(d) { return d; })
-          .attr("viewBox", "0 -5 10 10")
-          .attr("refX", 60)
-          .attr("refY", 0)
-          .attr("markerWidth", 6)
-          .attr("markerHeight", 6)
-          .attr("orient", "auto")
-          .attr("markerUnits", "userSpaceOnUse")
-          .append("path")
-          .attr("d", "M0,-5L10,0L0,5 L10,0 L0, -5")
-          .style("stroke", "black")
-          .style("opacity", "1");
+        svg.append('defs').selectAll('marker')
+          .data(['suit', 'licensing', 'resolved'])
+          .enter().append('marker')
+          .attr('id', function(d) { return d; })
+          .attr('viewBox', '0 -5 10 10')
+          .attr('refX', 60)
+          .attr('refY', 0)
+          .attr('markerWidth', 6)
+          .attr('markerHeight', 6)
+          .attr('orient', 'auto')
+          .attr('markerUnits', 'userSpaceOnUse')
+          .append('path')
+          .attr('d', 'M0,-5L10,0L0,5 L10,0 L0, -5')
+          .style('stroke', 'black')
+          .style('opacity', '1');
 
         svg.on('contextmenu', function (data, index) {
           if (d3.select('.d3-context-menu').style('display') !== 'block') {
@@ -183,51 +183,51 @@ angular.module('krakenApp.Graph')
 
         var zoom = d3.behavior.zoom()
           .scaleExtent([0.5, 12])
-          .on("zoom", zoomed);
+          .on('zoom', zoomed);
 
         if (viewSettingsCache.translate && viewSettingsCache.scale) {
           zoom.translate(viewSettingsCache.translate).scale(viewSettingsCache.scale);
         }
 
-        var g = svg.append("g");
+        var g = svg.append('g');
 
-        svg.call(zoom).on("dblclick.zoom", null).call(zoom.event);
+        svg.call(zoom).on('dblclick.zoom', null).call(zoom.event);
 
-        var origWheelZoomHandler = svg.on("wheel.zoom");
-        svg.on("wheel.zoom", wheelScrollHandler);
+        var origWheelZoomHandler = svg.on('wheel.zoom');
+        svg.on('wheel.zoom', wheelScrollHandler);
 
         var showPin = 0;
 
-        d3.select("body")
-          .on("keydown", function() {
+        d3.select('body')
+          .on('keydown', function() {
             if (d3.event.ctrlKey) {
-              svg.on("wheel.zoom", origWheelZoomHandler);
-              svg.attr("class", "graph zoom-cursor");
+              svg.on('wheel.zoom', origWheelZoomHandler);
+              svg.attr('class', 'graph zoom-cursor');
             } else if (d3.event.metaKey) {
               showPin |= 4;
 
               if (showPin === 6) {
-                svg.attr("class", "graph pin-cursor");
+                svg.attr('class', 'graph pin-cursor');
               }
             }
           })
-          .on("keyup", function() {
+          .on('keyup', function() {
             if (!d3.event.ctrlKey) {
-              svg.on("wheel.zoom", wheelScrollHandler);
-              svg.attr("class", "graph");
+              svg.on('wheel.zoom', wheelScrollHandler);
+              svg.attr('class', 'graph');
             }
 
             if (!d3.event.metaKey) {
               showPin &= ~4;
-              svg.attr("class", "graph ");
+              svg.attr('class', 'graph ');
             }
           });
 
         var drag = d3.behavior.drag()
           .origin(function(d) { return d; })
-          .on("dragstart", dragstarted)
-          .on("drag", dragmove)
-          .on("dragend", dragended);
+          .on('dragstart', dragstarted)
+          .on('drag', dragmove)
+          .on('dragend', dragended);
 
         var graph = undefined;
         if (scope.viewModelService) {
@@ -240,7 +240,7 @@ angular.module('krakenApp.Graph')
 
         force = d3.layout.force()
           .size([width, height])
-          .on("tick", tick);
+          .on('tick', tick);
 
         var clusterInnerPadding;
         var clusterOuterPadding;
@@ -261,24 +261,24 @@ angular.module('krakenApp.Graph')
             }).links(graph.links);
 
           // Create all the line svgs but without locations yet.
-          link = g.selectAll(".link")
+          link = g.selectAll('.link')
             .data(graph.links)
-            .enter().append("line")
-            .attr("class", "link")
-            .style("marker-end", function (d) {
+            .enter().append('line')
+            .attr('class', 'link')
+            .style('marker-end', function (d) {
               if (d.directed) {
-                return "url(#suit)";
+                return 'url(#suit)';
               }
 
-              return "none";
+              return 'none';
             })
-            .style("stroke", function (d) {
+            .style('stroke', function (d) {
               return d.stroke;
             })
-            .style("stroke-dasharray", function (d) {
-              return d.dash ? (d.dash + ", " + d.dash) : ("1, 0");
+            .style('stroke-dasharray', function (d) {
+              return d.dash ? (d.dash + ', ' + d.dash) : ('1, 0');
             })
-            .style("stroke-width", function (d) {
+            .style('stroke-width', function (d) {
               return d.width;
             });
         }
@@ -336,7 +336,7 @@ angular.module('krakenApp.Graph')
         force.nodes(graph.nodes);
 
         // TODO(duftler): Remove this after we investigate why so many new id's are returned on 'Refresh'.
-        console.log("graph.nodes.length=" + graph.nodes.length + " newPositionCount=" + newPositionCount);
+        console.log('graph.nodes.length=' + graph.nodes.length + ' newPositionCount=' + newPositionCount);
 
         if (newPositionCount < (0.25 * graph.nodes.length)) {
           var startingAlpha = graph.settings.clustered ? 0.02 : 0.01;
@@ -374,13 +374,13 @@ angular.module('krakenApp.Graph')
           clusters = buildClusters(graph.nodes);
         }
 
-        node = g.selectAll(".node")
+        node = g.selectAll('.node')
           .data(graph.nodes)
-          .enter().append("g")
-          .attr("class", "node")
-          .on("mouseover", d3_layout_forceMouseover)
-          .on("mouseout", d3_layout_forceMouseout)
-          .on("mouseup", mouseup)
+          .enter().append('g')
+          .attr('class', 'node')
+          .on('mouseover', d3_layout_forceMouseover)
+          .on('mouseout', d3_layout_forceMouseout)
+          .on('mouseup', mouseup)
           .call(drag);
 
         function mouseup(d) {
@@ -410,28 +410,28 @@ angular.module('krakenApp.Graph')
           var singleNode = d3.select(this);
 
           if (n.icon) {
-            singleNode.append("image")
-              .attr("xlink:href", function (d) {
+            singleNode.append('image')
+              .attr('xlink:href', function (d) {
                 return d.icon;
               })
-              .attr("width", function (d) {
+              .attr('width', function (d) {
                 return d.size[0];
               })
-              .attr("height", function (d) {
+              .attr('height', function (d) {
                 return d.size[1];
               })
               .on('contextmenu', function (data, index) {
                 showContextMenu(data, index, nodeContextMenu);
               });
           } else {
-            singleNode.append("circle")
-              .attr("r", function (d) {
+            singleNode.append('circle')
+              .attr('r', function (d) {
                 return d.radius;
               })
-              .style("stroke", function (d) {
+              .style('stroke', function (d) {
                 return d.stroke;
               })
-              .style("fill", function (d) {
+              .style('fill', function (d) {
                 return d.fill;
               })
               .on('contextmenu', function (data, index) {
@@ -440,35 +440,35 @@ angular.module('krakenApp.Graph')
           }
         });
 
-        var text = node.append("text")
-          .attr("dx", 10)
-          .attr("dy", ".35em");
+        var text = node.append('text')
+          .attr('dx', 10)
+          .attr('dy', '.35em');
 
         text.text(function (d) {
-            return graph.settings.showNodeLabels && !d.hideLabel ? d.name : "";
+            return graph.settings.showNodeLabels && !d.hideLabel ? d.name : '';
           });
 
         text.each(function (e) {
           var singleText = d3.select(this);
           var parentNode = singleText.node().parentNode;
 
-          d3.select(parentNode).append("image")
-            .attr("xlink:href", function (d) {
-              return "/components/graph/img/Pin.svg";
+          d3.select(parentNode).append('image')
+            .attr('xlink:href', function (d) {
+              return '/components/graph/img/Pin.svg';
             })
-            .attr("display", function (d) {
-              return d.fixed & 8 ? "" : "none";
+            .attr('display', function (d) {
+              return d.fixed & 8 ? '' : 'none';
             })
-            .attr("width", function (d) {
-              return "13px";
+            .attr('width', function (d) {
+              return '13px';
             })
-            .attr("height", function (d) {
-              return "13px";
+            .attr('height', function (d) {
+              return '13px';
             });
         });
 
         if (!graph.settings.clustered && graph.settings.showEdgeLabels) {
-          var edgepaths = g.selectAll(".edgepath")
+          var edgepaths = g.selectAll('.edgepath')
             .data(graph.links)
             .enter()
             .append('path')
@@ -485,13 +485,13 @@ angular.module('krakenApp.Graph')
                 return 'edgepath' + i
               }
             })
-            .style("pointer-events", "none");
+            .style('pointer-events', 'none');
 
-          edgelabels = g.selectAll(".edgelabel")
+          edgelabels = g.selectAll('.edgelabel')
             .data(graph.links)
             .enter()
             .append('text')
-            .style("pointer-events", "none")
+            .style('pointer-events', 'none')
             .attr({
               'class': 'edgelabel',
               'id': function (d, i) {
@@ -507,16 +507,16 @@ angular.module('krakenApp.Graph')
             .attr('xlink:href', function (d, i) {
               return '#edgepath' + i
             })
-            .style("pointer-events", "none")
+            .style('pointer-events', 'none')
             .text(function (d, i) {
               return d.label
             });
         }
 
-        var circle = g.selectAll("circle");
+        var circle = g.selectAll('circle');
 
         if (graph.settings.clustered && newPositionCount) {
-          circle.attr("r", function (d) {
+          circle.attr('r', function (d) {
             return d.radius;
           })
         }
@@ -569,12 +569,12 @@ angular.module('krakenApp.Graph')
         // Create an array logging what is connected to what.
         var linkedByIndex = {};
         for (i = 0; i < graph.nodes.length; i++) {
-          linkedByIndex[i + "," + i] = 1;
+          linkedByIndex[i + ',' + i] = 1;
         }
 
         if (graph.links) {
           graph.links.forEach(function (d) {
-            linkedByIndex[d.source.index + "," + d.target.index] = 1;
+            linkedByIndex[d.source.index + ',' + d.target.index] = 1;
           });
         }
 
@@ -582,7 +582,7 @@ angular.module('krakenApp.Graph')
         function neighboring(a, b) {
           // TODO(duftler): Add support for > 1 hops.
           if (scope.viewModelService.viewModel.configuration.selectionHops) {
-            return linkedByIndex[a.index + "," + b.index];
+            return linkedByIndex[a.index + ',' + b.index];
           } else {
             return false;
           }
@@ -641,7 +641,7 @@ angular.module('krakenApp.Graph')
 
         // Now we are giving the SVGs co-ordinates - the force layout is generating the co-ordinates which this code is using to update the attributes of the SVG elements.
         function tick(e) {
-          node.style("opacity", function (e) {
+          node.style('opacity', function (e) {
             if (e.opacity) {
               var opacity = e.opacity;
 
@@ -650,71 +650,71 @@ angular.module('krakenApp.Graph')
               return opacity;
             }
 
-            return d3.select(this).style("opacity");
+            return d3.select(this).style('opacity');
           });
 
           if (graph.settings.clustered) {
             circle
               .each(cluster(10 * force.alpha() * force.alpha()))
               .each(collide(.5, clusterInnerPadding, clusterOuterPadding))
-              .attr("cx", function (d) {
+              .attr('cx', function (d) {
                 return d.x;
               })
-              .attr("cy", function (d) {
+              .attr('cy', function (d) {
                 return d.y;
               });
           } else {
             link
-              .attr("x1", function (d) {
+              .attr('x1', function (d) {
                 var offsetX = d.source.icon ? d.source.size[0] / 2 : 0;
 
                 return d.source.x + offsetX;
               })
-              .attr("y1", function (d) {
+              .attr('y1', function (d) {
                 var offsetY = d.source.icon ? d.source.size[1] / 2 : 0;
 
                 return d.source.y + offsetY;
               })
-              .attr("x2", function (d) {
+              .attr('x2', function (d) {
                 var offsetX = d.target.icon ? d.target.size[0] / 2 : 0;
 
                 return d.target.x + offsetX;
               })
-              .attr("y2", function (d) {
+              .attr('y2', function (d) {
                 var offsetY = d.target.icon ? d.target.size[1] / 2 : 0;
 
                 return d.target.y + offsetY;
               });
 
-            g.selectAll("circle")
-              .attr("cx", function (d) {
+            g.selectAll('circle')
+              .attr('cx', function (d) {
                 return d.x;
               })
-              .attr("cy", function (d) {
+              .attr('cy', function (d) {
                 return d.y;
               });
 
-            var image = d3.selectAll("image");
+            var image = d3.selectAll('image');
 
             image.each(function (e) {
               var singleImage = d3.select(this);
-              var siblingText = d3.select(singleImage.node().parentNode).select("text");
+              var siblingText = d3.select(singleImage.node().parentNode).select('text');
               var bbox = siblingText[0][0] ? siblingText[0][0].getBBox() : null;
-              var isPinIcon = singleImage.attr("xlink:href") === "/components/graph/img/Pin.svg";
+              var isPinIcon = singleImage.attr('xlink:href') === '/components/graph/img/Pin.svg';
 
               singleImage
-                .attr("display", function (d) {
+                .attr('display', function (d) {
                   if (isPinIcon) {
-                    return d.fixed & 8 ? "" : "none";
+                    return d.fixed & 8 ? '' : 'none';
                   } else {
-                    return "";
+                    return '';
                   }
                 });
 
               singleImage
-                .attr("x", function (d) {
+                .attr('x', function (d) {
                   if (isPinIcon) {
-                    if (siblingText.text() !== "") {
+                    if (siblingText.text() !== '') {
                       return d.x + bbox.width + 12;
                     } else {
                       return d.x - 5;
@@ -723,7 +723,7 @@ angular.module('krakenApp.Graph')
                     return d.x
                   }
                 })
-                .attr("y", function (d) {
+                .attr('y', function (d) {
                   if (isPinIcon) {
                     return d.y - 5;
                   } else {
@@ -764,11 +764,11 @@ angular.module('krakenApp.Graph')
             });
           }
 
-          d3.selectAll("text")
-            .attr("x", function (d) {
+          d3.selectAll('text')
+            .attr('x', function (d) {
               return d.x;
             })
-            .attr("y", function (d) {
+            .attr('y', function (d) {
               return d.y;
             });
         }
@@ -869,7 +869,7 @@ angular.module('krakenApp.Graph')
         var nodeContextMenu = [
           {
             title: function(d) {
-              return "Inspect Node";
+              return 'Inspect Node';
             },
             action: function(elm, d, i) {
               inspectNode(d);
@@ -902,7 +902,7 @@ angular.module('krakenApp.Graph')
 
             if (d.metadata && d.metadata[tagName]) {
               // Prefix the tag name with asterisks so it stands out in the details view.
-              d.metadata["** " + tagName] = d.metadata[tagName];
+              d.metadata['** ' + tagName] = d.metadata[tagName];
 
               // Remove the non-decorated tag.
               delete d.metadata[tagName];
@@ -929,7 +929,7 @@ angular.module('krakenApp.Graph')
           var translate = zoom.translate();
           var scale = zoom.scale();
 
-          g.attr("transform", "translate(" + translate + ")scale(" + scale + ")");
+          g.attr('transform', 'translate(' + translate + ')scale(' + scale + ')');
 
           viewSettingsCache.translate = translate;
           viewSettingsCache.scale = scale;
@@ -958,20 +958,20 @@ angular.module('krakenApp.Graph')
           showPin |= 2;
 
           if (showPin == 6) {
-            svg.attr("class", "graph pin-cursor");
+            svg.attr('class', 'graph pin-cursor');
           }
 
           d.fixed |= 4;
           d.px = d.x, d.py = d.y;
 
-          d.origOpacity = d3.select(this).style("opacity");
+          d.origOpacity = d3.select(this).style('opacity');
           d.opacity = 0.7;
           tick();
         }
 
         function d3_layout_forceMouseout(d) {
           showPin &= ~2;
-          svg.attr("class", "graph");
+          svg.attr('class', 'graph');
 
           d.fixed &= ~4;
 
@@ -1016,7 +1016,7 @@ angular.module('krakenApp.Graph')
           }
 
           // Transition to the new view over 350ms
-          d3.transition().duration(350).tween("zoom", function () {
+          d3.transition().duration(350).tween('zoom', function () {
             var interpolate_scale = d3.interpolate(scale, target_scale),
                 interpolate_trans = d3.interpolate(translate, [x,y]);
             return function (t) {
@@ -1029,8 +1029,8 @@ angular.module('krakenApp.Graph')
 
         function getContainerDimensions() {
           var parentNode = d3.select(element[0].parentNode);
-          var width = parseInt(parentNode.style("width"));
-          var height = parseInt(parentNode.style("height"));
+          var width = parseInt(parentNode.style('width'));
+          var height = parseInt(parentNode.style('height'));
 
           return [width, height];
         }
@@ -1039,7 +1039,7 @@ angular.module('krakenApp.Graph')
           var containerDimensions = getContainerDimensions();
           var width = containerDimensions[0] - 16;
           var height = containerDimensions[1] - 19;
-          var svg = d3.select(element[0]).select("svg");
+          var svg = d3.select(element[0]).select('svg');
 
           svg.attr('width', width);
           svg.attr('height', height);
