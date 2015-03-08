@@ -632,6 +632,7 @@ angular.module('krakenApp.Graph')
         function resetPins() {
           node.each(function (d) {
             d.fixed &= ~8;
+            nodeSettingsCache[d.id].fixed = false;
           });
 
           force.start().alpha(0.01);
