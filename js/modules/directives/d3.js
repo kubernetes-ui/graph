@@ -1,8 +1,7 @@
-// TODO(duftler): Remove mockDataService dependency once 'Samples' section is removed from canvas context menu.
 angular.module('krakenApp.Graph')
-    .directive('d3Visualization', ['lodash', 'd3Service', 'mockDataService', '$location',
+    .directive('d3Visualization', ['lodash', 'd3Service', '$location',
                                    'inspectNodeService',
-                                   function (lodash, d3Service, mockDataService, $location, inspectNodeService) {
+                                   function (lodash, d3Service, $location, inspectNodeService) {
   return {
     restrict: 'E',
     link: function (scope, element, attrs) {
