@@ -857,18 +857,6 @@ angular.module('krakenApp.Graph')
               resetPins();
             }
           }
-
-          // Removed this menu item for the 2/25/2015 demo.
-          // {
-          //   title: function(d) {
-          //     // TODO(duftler): Remove this when the example is no longer needed.
-          //     return "Test External Selection";
-          //   },
-          //   action: function() {
-          //     scope.selectionIdList = ["Service:guestbook", "Pod:guestbook-controller-ls6k1"];
-          //     scope.$apply();
-          //   }
-          // }
         ];
 
         var nodeContextMenu = [
