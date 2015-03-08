@@ -250,8 +250,8 @@ angular.module('krakenApp.Graph')
           force.gravity(0.02)
             .charge(0);
 
-          clusterInnerPadding = getClusterInnerPadding(graph);
-          clusterOuterPadding = getClusterOuterPadding(graph);
+          clusterInnerPadding = getClusterInnerPadding();
+          clusterOuterPadding = getClusterOuterPadding();
         } else {
           // TODO(duftler): Externalize these values.
           force.gravity(0.40)
@@ -795,7 +795,7 @@ angular.module('krakenApp.Graph')
           };
         }
 
-        function getClusterInnerPadding(graph) {
+        function getClusterInnerPadding() {
           // TODO: externalize this default.
           var result = 4;
 
@@ -806,7 +806,7 @@ angular.module('krakenApp.Graph')
           return result;
         }
 
-        function getClusterOuterPadding(graph) {
+        function getClusterOuterPadding() {
           // TODO: externalize this default.
           var result = 32;
 
