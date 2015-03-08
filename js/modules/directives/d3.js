@@ -176,8 +176,6 @@ angular.module('krakenApp.Graph')
           .style("opacity", "1");
 
         svg.on('contextmenu', function (data, index) {
-          d3.selectAll('.popup-tags-table').style("display", "none");
-
           if (d3.select('.d3-context-menu').style('display') !== 'block') {
             showContextMenu(data, index, canvasContextMenu);
           }
@@ -398,16 +396,6 @@ angular.module('krakenApp.Graph')
           d3.select('.d3-context-menu').style('display', 'none');
         });
 
-        d3.selectAll('.popup-tags-table').data([1])
-          .enter()
-          .append('div')
-          .attr('class', 'popup-tags-table')
-          .style('display', 'none');
-
-        d3.select('body').on('click.popup-tags-table', function() {
-          d3.selectAll('.popup-tags-table').style('display', 'none');
-        });
-
         node.each(function (n) {
           var singleNode = d3.select(this);
 
@@ -423,12 +411,7 @@ angular.module('krakenApp.Graph')
                 return d.size[1];
               })
               .on('contextmenu', function (data, index) {
-                d3.selectAll('.popup-tags-table').style("display", "none");
                 showContextMenu(data, index, nodeContextMenu);
-              })
-              .on("mouseout", function () {
-                // Interrupt any pending transition on this node.
-                d3.selectAll('.popup-tags-table').transition();
               });
           } else {
             singleNode.append("circle")
@@ -442,12 +425,7 @@ angular.module('krakenApp.Graph')
                 return d.fill;
               })
               .on('contextmenu', function (data, index) {
-                d3.selectAll('.popup-tags-table').style("display", "none");
                 showContextMenu(data, index, nodeContextMenu);
-              })
-              .on("mouseout", function () {
-                // Interrupt any pending transition on this node.
-                d3.selectAll('.popup-tags-table').transition();
               });
           }
         });
@@ -582,82 +560,6 @@ angular.module('krakenApp.Graph')
               .style('display', 'block');
 
           d3.event.preventDefault();
-        }
-
-        function showPopupTagsTable(n) {
-          d3.selectAll('.popup-tags-table').html('');
-
-          if (n.tags && Object.keys(n.tags)) {
-            var mdItem = d3
-              .selectAll('.popup-tags-table')
-              .append("md-content")
-              .append("md-list")
-              .selectAll("md-item")
-              .data(Object.keys(n.tags))
-              .enter()
-              .append("md-item");
-
-            var div = mdItem
-              .append("md-item-content")
-              .append("div");
-
-            div.append("h4")
-              .text(function (d) {
-                return d;
-              });
-
-            var p = div
-              .append("a")
-              .attr("class", function (d) {
-                if (d !== null
-                    && (typeof n.tags[d] === 'object' || n.tags[d].toString().indexOf("http://") === 0)) {
-                  return "";
-                } else {
-                  return "not-a-link";
-                }
-              })
-              .attr("href", function (d) {
-                if (d !== null && typeof n.tags[d] === 'object') {
-                  // TODO(duftler): Update this to reflect new route/pattern defined by Xin.
-                  return ".";
-                } else if (d !== null && n.tags[d].toString().indexOf("http://") === 0) {
-                  return n.tags[d];
-                } else {
-                  return "";
-                }
-              })
-              .append("p");
-
-            p.text(function (d) {
-              if (d !== null && typeof n.tags[d] === 'object') {
-                return "Inspect";
-              } else {
-                return n.tags[d];
-              }
-            });
-
-            p.on('click', function (d, i) {
-              if (typeof n.tags[d] === 'object') {
-                d3.event.preventDefault();
-                d3.select('.popup-tags-table').style('display', 'none');
-
-                inspectNode(n, d);
-              }
-            });
-
-
-            var i = 0;
-            for (i = 0; i < mdItem.size() - 1; ++i) {
-              d3.select(mdItem[0][i]).append("md-divider");
-            }
-
-            d3.selectAll('.popup-tags-table')
-              .style('left', (d3.event.pageX - 2) + 'px')
-              .style('top', (d3.event.pageY - 2) + 'px');
-
-            d3.selectAll('.popup-tags-table')
-              .style('display', 'block');
-          }
         }
 
         // Create an array logging what is connected to what.
@@ -1040,9 +942,6 @@ angular.module('krakenApp.Graph')
 
         function dragstarted(d) {
           d3.event.sourceEvent.stopPropagation();
-
-          // Interrupt any pending transition on this node.
-          d3.selectAll('.popup-tags-table').transition();
 
           d.fixed |= 2;
           d.dragging = true;
