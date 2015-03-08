@@ -395,9 +395,10 @@ angular.module('krakenApp.Graph')
           .attr('class', 'd3-context-menu');
 
         // close menu
-        d3.select('body').on('click.d3-context-menu', function() {
-          d3.select('.d3-context-menu').style('display', 'none');
-        });
+        d3.select('body')
+          .on('click.d3-context-menu', function() {
+            d3.select('.d3-context-menu').style('display', 'none');
+          });
 
         node.each(function (n) {
           var singleNode = d3.select(this);
@@ -513,19 +514,6 @@ angular.module('krakenApp.Graph')
             return d.radius;
           })
         }
-        //if (graph.settings.clustered && newPositionCount) {
-        //  circle.transition()
-        //    .duration(750)
-        //    .delay(function (d, i) {
-        //      return i * 5;
-        //    })
-        //    .attrTween("r", function (d) {
-        //      var i = d3.interpolate(0, d.radius);
-        //      return function (t) {
-        //        return d.radius = i(t);
-        //      };
-        //    });
-        //}
 
         // If zero nodes are in the current selection, reset the selection.
         var nodeMatches = new Set();
