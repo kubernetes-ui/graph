@@ -25,6 +25,13 @@ angular.module('krakenApp.Graph')
         OPACITY_DESELECTED: 0.2,
         // TODO: Externalize these defaults.
         DEFAULTS: {
+          FORCE_CLUSTERED_GRAVITY: 0.02,
+          FORCE_CLUSTERED_CHARGE: 0,
+          FORCE_CLUSTERED_REFRESH_STARTING_ALPHA: 0.02,
+          FORCE_NONCLUSTERED_GRAVITY: 0.40,
+          FORCE_NONCLUSTERED_CHARGE: -1250,
+          FORCE_NONCLUSTERED_REFRESH_STARTING_ALPHA: 0.01,
+          FORCE_REFRESH_THRESHOLD_PERCENTAGE: 0.25,
           CLUSTER_INNER_PADDING: 4,
           CLUSTER_OUTER_PADDING: 32
         }
@@ -273,16 +280,16 @@ angular.module('krakenApp.Graph')
         var clusterOuterPadding;
 
         if (graph.settings.clustered) {
-          // TODO(duftler): Externalize these values.
-          force.gravity(0.02)
-            .charge(0);
+          force
+            .gravity(CONSTANTS.DEFAULTS.FORCE_CLUSTERED_GRAVITY)
+            .charge(CONSTANTS.DEFAULTS.FORCE_CLUSTERED_CHARGE);
 
           clusterInnerPadding = getClusterInnerPadding();
           clusterOuterPadding = getClusterOuterPadding();
         } else {
-          // TODO(duftler): Externalize these values.
-          force.gravity(0.40)
-            .charge(-1250)
+          force
+            .gravity(CONSTANTS.DEFAULTS.FORCE_NONCLUSTERED_GRAVITY)
+            .charge(CONSTANTS.DEFAULTS.FORCE_NONCLUSTERED_CHARGE)
             .linkDistance(function (d) {
               return d.distance;
             }).links(graph.links);
@@ -365,8 +372,11 @@ angular.module('krakenApp.Graph')
         // TODO(duftler): Remove this after we investigate why so many new id's are returned on 'Refresh'.
         console.log('graph.nodes.length=' + graph.nodes.length + ' newPositionCount=' + newPositionCount);
 
-        if (newPositionCount < (0.25 * graph.nodes.length)) {
-          var startingAlpha = graph.settings.clustered ? 0.02 : 0.01;
+        if (newPositionCount < (CONSTANTS.DEFAULTS.FORCE_REFRESH_THRESHOLD_PERCENTAGE * graph.nodes.length)) {
+          var startingAlpha =
+            graph.settings.clustered
+            ? CONSTANTS.DEFAULTS.FORCE_CLUSTERED_REFRESH_STARTING_ALPHA
+            : CONSTANTS.DEFAULTS.FORCE_NONCLUSTERED_REFRESH_STARTING_ALPHA;
 
           force.start().alpha(startingAlpha);
         } else {
