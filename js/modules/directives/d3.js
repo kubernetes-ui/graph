@@ -15,6 +15,14 @@ angular.module('krakenApp.Graph')
         }
       });
 
+      var CONSTANTS = {
+        FIXED_DRAGGING_BIT: 2,
+        FIXED_MOUSEOVER_BIT: 4,
+        FIXED_PINNED_BIT: 8
+        SHOWPIN_MOUSEOVER_BIT: 2,
+        SHOWPIN_METAKEYDOWN_BIT: 4
+      };
+
       var viewSettingsCache = {};
       var nodeSettingsCache = {};
 
@@ -204,9 +212,9 @@ angular.module('krakenApp.Graph')
               svg.on('wheel.zoom', origWheelZoomHandler);
               svg.attr('class', 'graph zoom-cursor');
             } else if (d3.event.metaKey) {
-              showPin |= 4;
+              showPin |= CONSTANTS.SHOWPIN_METAKEYDOWN_BIT;
 
-              if (showPin === 6) {
+              if (showPin === (CONSTANTS.SHOWPIN_MOUSEOVER_BIT + CONSTANTS.SHOWPIN_METAKEYDOWN_BIT)) {
                 svg.attr('class', 'graph pin-cursor');
               }
             }
@@ -218,7 +226,7 @@ angular.module('krakenApp.Graph')
             }
 
             if (!d3.event.metaKey) {
-              showPin &= ~4;
+              showPin &= ~CONSTANTS.SHOWPIN_METAKEYDOWN_BIT;
               svg.attr('class', 'graph');
             }
           });
@@ -226,7 +234,7 @@ angular.module('krakenApp.Graph')
         function windowBlur() {
           // If we Cmd-Tab away from this window, the keyup event won't have a chance to fire.
           // Unsetting this bit here ensures that the Pin cursor won't be displayed when focus returns to this window.
-          showPin &= ~4;
+          showPin &= ~CONSTANTS.SHOWPIN_METAKEYDOWN_BIT;
           svg.attr('class', 'graph');
         }
 
@@ -303,9 +311,9 @@ angular.module('krakenApp.Graph')
           }
 
           if (n.fixed) {
-            n.fixed = 8;
+            n.fixed = CONSTANTS.FIXED_PINNED_BIT;
           } else if (cachedSettings && cachedSettings.fixed) {
-            n.fixed = 8;
+            n.fixed = CONSTANTS.FIXED_PINNED_BIT;
           }
 
           if (n.position) {
@@ -466,7 +474,7 @@ angular.module('krakenApp.Graph')
               return '/components/graph/img/Pin.svg';
             })
             .attr('display', function (d) {
-              return d.fixed & 8 ? '' : 'none';
+              return d.fixed & CONSTANTS.FIXED_PINNED_BIT ? '' : 'none';
             })
             .attr('width', function (d) {
               return '13px';
@@ -641,7 +649,7 @@ angular.module('krakenApp.Graph')
 
         function resetPins() {
           node.each(function (d) {
-            d.fixed &= ~8;
+            d.fixed &= ~CONSTANTS.FIXED_PINNED_BIT;
             nodeSettingsCache[d.id].fixed = false;
           });
 
@@ -734,7 +742,7 @@ angular.module('krakenApp.Graph')
             singleImage
               .attr('display', function (d) {
                 if (isPinIcon) {
-                  return d.fixed & 8 ? '' : 'none';
+                  return d.fixed & CONSTANTS.FIXED_PINNED_BIT ? '' : 'none';
                 } else {
                   return '';
                 }
@@ -891,13 +899,13 @@ angular.module('krakenApp.Graph')
             nodeSettingsCache[d.id] = {};
           }
 
-          if (d.fixed & 8) {
-            d.fixed &= ~8;
+          if (d.fixed & CONSTANTS.FIXED_PINNED_BIT) {
+            d.fixed &= ~CONSTANTS.FIXED_PINNED_BIT;
             force.start().alpha(0.02);
 
             nodeSettingsCache[d.id].fixed = false;
           } else {
-            d.fixed |= 8;
+            d.fixed |= CONSTANTS.FIXED_PINNED_BIT;
 
             nodeSettingsCache[d.id].fixed = true;
             tick();
@@ -947,7 +955,7 @@ angular.module('krakenApp.Graph')
         function dragstarted(d) {
           d3.event.sourceEvent.stopPropagation();
 
-          d.fixed |= 2;
+          d.fixed |= CONSTANTS.FIXED_DRAGGING_BIT;
           d.dragging = true;
         }
 
@@ -958,7 +966,7 @@ angular.module('krakenApp.Graph')
         }
 
         function dragended(d) {
-          d.fixed &= ~6;
+          d.fixed &= ~(CONSTANTS.FIXED_DRAGGING_BIT + CONSTANTS.FIXED_MOUSEOVER_BIT);
           d.dragging = false;
           d.dragMoved = false;
         }
@@ -968,16 +976,16 @@ angular.module('krakenApp.Graph')
           // Unsetting this bit here ensures that the Pin cursor won't be displayed when mousing over a node, unless
           // the Cmd key is down.
           if (!d3.event.metaKey) {
-            showPin &= ~4;
+            showPin &= ~CONSTANTS.SHOWPIN_METAKEYDOWN_BIT;
           }
 
-          showPin |= 2;
+          showPin |= CONSTANTS.SHOWPIN_MOUSEOVER_BIT;
 
-          if (showPin == 6) {
+          if (showPin === (CONSTANTS.SHOWPIN_MOUSEOVER_BIT + CONSTANTS.SHOWPIN_METAKEYDOWN_BIT)) {
             svg.attr('class', 'graph pin-cursor');
           }
 
-          d.fixed |= 4;
+          d.fixed |= CONSTANTS.FIXED_MOUSEOVER_BIT;
           d.px = d.x, d.py = d.y;
 
           d.origOpacity = d3.select(this).style('opacity');
@@ -1002,10 +1010,10 @@ angular.module('krakenApp.Graph')
         }
 
         function d3_layout_forceMouseout(d) {
-          showPin &= ~2;
+          showPin &= ~CONSTANTS.SHOWPIN_MOUSEOVER_BIT;
           svg.attr('class', 'graph');
 
-          d.fixed &= ~4;
+          d.fixed &= ~CONSTANTS.FIXED_MOUSEOVER_BIT;
 
           if (d.origOpacity) {
             d.opacity = d.origOpacity;
