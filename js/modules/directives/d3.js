@@ -188,6 +188,7 @@ angular.module('krakenApp.Graph')
             showContextMenu(data, index, canvasContextMenu);
           }
 
+          // Even if we don't show a new context menu, we don't want the browser's default context menu shown.
           d3.event.preventDefault();
         });
 
