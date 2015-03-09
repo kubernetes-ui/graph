@@ -219,9 +219,18 @@ angular.module('krakenApp.Graph')
 
             if (!d3.event.metaKey) {
               showPin &= ~4;
-              svg.attr('class', 'graph ');
+              svg.attr('class', 'graph');
             }
           });
+
+        function windowBlur() {
+          // If we Cmd-Tab away from this window, the keyup event won't have a chance to fire.
+          // Unsetting this bit here ensures that the Pin cursor won't be displayed when focus returns to this window.
+          showPin &= ~4;
+          svg.attr('class', 'graph');
+        }
+
+        window.addEventListener('blur', windowBlur);
 
         var drag = d3.behavior.drag()
           .origin(function(d) { return d; })
@@ -955,6 +964,13 @@ angular.module('krakenApp.Graph')
         }
 
         function d3_layout_forceMouseover(d) {
+          // If we use Cmd-Tab but don't navigate away from this window, the keyup event won't have a chance to fire.
+          // Unsetting this bit here ensures that the Pin cursor won't be displayed when mousing over a node, unless
+          // the Cmd key is down.
+          if (!d3.event.metaKey) {
+            showPin &= ~4;
+          }
+
           showPin |= 2;
 
           if (showPin == 6) {
