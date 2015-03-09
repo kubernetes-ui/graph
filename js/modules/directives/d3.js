@@ -6,7 +6,7 @@ angular.module('krakenApp.Graph')
     restrict: 'E',
     link: function (scope, element, attrs) {
       scope.$watch('viewModelService.viewModel.version', function(newValue, oldValue) {
-        d3Service.d3().then(drawNewModel);
+        d3Service.d3().then(draw);
       });
 
       scope.$watch('selectionIdList', function(newValue, oldValue) {
@@ -152,16 +152,12 @@ angular.module('krakenApp.Graph')
         return found;
       }
 
-      var drawNewModel = function() {
+      var draw = function() {
         // We want to stop any prior simulation before starting a new one.
         if (force) {
           force.stop();
         }
 
-        draw();
-      }
-
-      var draw = function() {
         var d3 = window.d3;
         d3.select(window).on('resize', resize);
 
