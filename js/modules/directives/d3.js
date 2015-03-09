@@ -153,6 +153,7 @@ angular.module('krakenApp.Graph')
       }
 
       var drawNewModel = function() {
+        // We want to stop any prior simulation before starting a new one.
         if (force) {
           force.stop();
         }
@@ -317,48 +318,13 @@ angular.module('krakenApp.Graph')
             });
         }
 
-        var newPositionCount = 0;
         var selectedNodeSet = new Set();
+        var newPositionCount = 0;
 
+        // Apply all cached settings and count number of nodes with new positions.
         graph.nodes.forEach(function (n) {
-          var cachedSettings;
-
-          if (n.id) {
-            cachedSettings = nodeSettingsCache[n.id];
-          }
-
-          if (n.fixed) {
-            n.fixed = CONSTANTS.FIXED_PINNED_BIT;
-          } else if (cachedSettings && cachedSettings.fixed) {
-            n.fixed = CONSTANTS.FIXED_PINNED_BIT;
-          }
-
-          if (n.position) {
-            n.x = n.position[0];
-            n.y = n.position[1];
-
+          if (applyCachedSettingsToNodes(n, selectedNodeSet)) {
             ++newPositionCount;
-          } else if (cachedSettings) {
-            var cachedPosition = cachedSettings.position;
-
-            if (cachedPosition) {
-              n.x = cachedPosition[0];
-              n.y = cachedPosition[1];
-            }
-          }
-
-          if (!n.x && !n.y) {
-            var radius = graph.nodes.length * 3;
-            var startingPosition = getRandomStartingPosition(radius);
-
-            n.x = center[0] + startingPosition[0];
-            n.y = center[1] + startingPosition[1];
-
-            ++newPositionCount;
-          }
-
-          if (n.selected && n.id !== 'undefined') {
-            selectedNodeSet.add({id: n.id});
           }
         });
 
@@ -1125,6 +1091,60 @@ angular.module('krakenApp.Graph')
           var r = u > 1 ? 2 - u : u;
 
           return [r * Math.cos(t) * radius, r * Math.sin(t) * radius];
+        }
+
+        // Apply all cached settings to nodes, giving precedence to properties explicitly specified in the view model.
+        // Return true if the given node has neither a specified nor cached position. Return false otherwise.
+        function applyCachedSettingsToNodes(n, selectedNodeSet) {
+          var noSpecifiedOrCachedPosition = false;
+          var cachedSettings;
+
+          if (n.id) {
+            cachedSettings = nodeSettingsCache[n.id];
+          }
+
+          if (n.fixed) {
+            // If view model specifies node is fixed, it's fixed.
+            n.fixed = CONSTANTS.FIXED_PINNED_BIT;
+          } else if (cachedSettings && cachedSettings.fixed) {
+            // Otherwise, take into account the fixed property from the cache.
+            n.fixed = CONSTANTS.FIXED_PINNED_BIT;
+          }
+
+          if (n.position) {
+            // If view model specifies position use that as the starting position.
+            n.x = n.position[0];
+            n.y = n.position[1];
+
+            noSpecifiedOrCachedPosition = true;
+          } else if (cachedSettings) {
+            // Otherwise, take into account the position from the cache.
+            var cachedPosition = cachedSettings.position;
+
+            if (cachedPosition) {
+              n.x = cachedPosition[0];
+              n.y = cachedPosition[1];
+            }
+          }
+
+          // If we have neither a view model specified position, nor a cached position, use a random starting position
+          // within some radius of the canvas center.
+          if (!n.x && !n.y) {
+            var radius = graph.nodes.length * 3;
+            var startingPosition = getRandomStartingPosition(radius);
+
+            n.x = center[0] + startingPosition[0];
+            n.y = center[1] + startingPosition[1];
+
+            noSpecifiedOrCachedPosition = true;
+          }
+
+          // Build up a set of nodes the view model specifies are to be selected.
+          if (n.selected && n.id !== 'undefined') {
+            selectedNodeSet.add({id: n.id});
+          }
+
+          return noSpecifiedOrCachedPosition;
         }
       };
     }
