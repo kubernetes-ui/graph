@@ -20,7 +20,9 @@ angular.module('krakenApp.Graph')
         FIXED_MOUSEOVER_BIT: 4,
         FIXED_PINNED_BIT: 8,
         SHOWPIN_MOUSEOVER_BIT: 2,
-        SHOWPIN_METAKEYDOWN_BIT: 4
+        SHOWPIN_METAKEYDOWN_BIT: 4,
+        OPACITY_MOUSEOVER: 0.7,
+        OPACITY_DESELECTED: 0.2
       };
 
       var viewSettingsCache = {};
@@ -73,7 +75,7 @@ angular.module('krakenApp.Graph')
       }
 
       function applySelectionToOpacity() {
-        var notSelectedOpacity = 0.2;
+        var notSelectedOpacity = CONSTANTS.OPACITY_DESELECTED;
 
         // If nothing is selected, show everything.
         if (!selection.nodes.size && !selection.edges.size && !selection.edgelabels.size) {
@@ -999,11 +1001,11 @@ angular.module('krakenApp.Graph')
 
           if (d.icon) {
             // Set the opacity here if the node is an icon.
-            d.opacity = 0.7;
+            d.opacity = CONSTANTS.OPACITY_MOUSEOVER;
           } else {
             // Or if it is a circle that is already dimmed.
-            if (d.origOpacity - 0.2 < 0.001) {
-              d.opacity = 0.7;
+            if (d.origOpacity - CONSTANTS.OPACITY_DESELECTED < 0.001) {
+              d.opacity = CONSTANTS.OPACITY_MOUSEOVER;
             }
 
             // Circles also get an outline.
