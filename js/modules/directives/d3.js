@@ -896,7 +896,7 @@ angular.module('krakenApp.Graph')
 
           if (d.fixed & CONSTANTS.FIXED_PINNED_BIT) {
             d.fixed &= ~CONSTANTS.FIXED_PINNED_BIT;
-            force.start().alpha(0.02);
+            force.start().alpha(CONSTANTS.DEFAULTS.FORCE_CLUSTERED_REFRESH_STARTING_ALPHA * 2);
 
             nodeSettingsCache[d.id].fixed = false;
           } else {
@@ -957,7 +957,7 @@ angular.module('krakenApp.Graph')
         function dragmove(d) {
           d.dragMoved = true;
           d.px = d3.event.x, d.py = d3.event.y;
-          force.start().alpha(0.02);
+          force.start().alpha(CONSTANTS.DEFAULTS.FORCE_CLUSTERED_REFRESH_STARTING_ALPHA * 2);
         }
 
         function dragended(d) {
@@ -976,6 +976,7 @@ angular.module('krakenApp.Graph')
 
           showPin |= CONSTANTS.SHOWPIN_MOUSEOVER_BIT;
 
+          // We show the Pin cursor if the cursor is over the node and the command key is depressed.
           if (showPin === (CONSTANTS.SHOWPIN_MOUSEOVER_BIT + CONSTANTS.SHOWPIN_METAKEYDOWN_BIT)) {
             svg.attr('class', 'graph pin-cursor');
           }
@@ -983,6 +984,7 @@ angular.module('krakenApp.Graph')
           d.fixed |= CONSTANTS.FIXED_MOUSEOVER_BIT;
           d.px = d.x, d.py = d.y;
 
+          // We capture the original opacity so we have a value to return to after removing the cursor from this node.
           d.origOpacity = d3.select(this).style('opacity');
 
           if (d.icon) {
@@ -1014,7 +1016,7 @@ angular.module('krakenApp.Graph')
             d.opacity = d.origOpacity;
             delete d.origOpacity;
 
-            // Remote any outline.
+            // Remove any outline.
             d3.select(this).style('stroke', '');
           }
 
