@@ -703,44 +703,6 @@ angular.module('krakenApp.Graph')
                 return d.y;
               });
 
-            var image = d3.selectAll('image');
-
-            image.each(function (e) {
-              var singleImage = d3.select(this);
-              var siblingText = d3.select(singleImage.node().parentNode).select('text');
-              var bbox = siblingText[0][0] ? siblingText[0][0].getBBox() : null;
-              var isPinIcon = singleImage.attr('xlink:href') === '/components/graph/img/Pin.svg';
-
-              singleImage
-                .attr('display', function (d) {
-                  if (isPinIcon) {
-                    return d.fixed & 8 ? '' : 'none';
-                  } else {
-                    return '';
-                  }
-                });
-
-              singleImage
-                .attr('x', function (d) {
-                  if (isPinIcon) {
-                    if (siblingText.text() !== '') {
-                      return d.x + bbox.width + 12;
-                    } else {
-                      return d.x - 5;
-                    }
-                  } else {
-                    return d.x
-                  }
-                })
-                .attr('y', function (d) {
-                  if (isPinIcon) {
-                    return d.y - 5;
-                  } else {
-                    return d.y;
-                  }
-                });
-            });
-
             if (edgepaths) {
               edgepaths.attr('d', function (d) {
                 var path = 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
@@ -760,6 +722,44 @@ angular.module('krakenApp.Graph')
               });
             }
           }
+
+          var image = d3.selectAll('image');
+
+          image.each(function (e) {
+            var singleImage = d3.select(this);
+            var siblingText = d3.select(singleImage.node().parentNode).select('text');
+            var bbox = siblingText[0][0] ? siblingText[0][0].getBBox() : null;
+            var isPinIcon = singleImage.attr('xlink:href') === '/components/graph/img/Pin.svg';
+
+            singleImage
+              .attr('display', function (d) {
+                if (isPinIcon) {
+                  return d.fixed & 8 ? '' : 'none';
+                } else {
+                  return '';
+                }
+              });
+
+            singleImage
+              .attr('x', function (d) {
+                if (isPinIcon) {
+                  if (siblingText.text() !== '') {
+                    return d.x + bbox.width + 12;
+                  } else {
+                    return d.x - 5;
+                  }
+                } else {
+                  return d.x
+                }
+              })
+              .attr('y', function (d) {
+                if (isPinIcon) {
+                  return d.y - 5;
+                } else {
+                  return d.y;
+                }
+              });
+          });
 
           if (force.alpha() < 0.04) {
             graph.nodes.forEach(function (n) {
@@ -981,7 +981,23 @@ angular.module('krakenApp.Graph')
           d.px = d.x, d.py = d.y;
 
           d.origOpacity = d3.select(this).style('opacity');
-          d.opacity = 0.7;
+
+          if (d.icon) {
+            // Set the opacity here if the node is an icon.
+            d.opacity = 0.7;
+          } else {
+            // Or if it is a circle that is already dimmed.
+            if (d.origOpacity - 0.2 < 0.001) {
+              d.opacity = 0.7;
+            }
+
+            // Circles also get an outline.
+            d3.select(this)
+              .style('stroke', 'black')
+              .style('stroke-width', '2')
+              .style('stroke-opacity', 0.5);
+          }
+
           tick();
         }
 
@@ -994,6 +1010,9 @@ angular.module('krakenApp.Graph')
           if (d.origOpacity) {
             d.opacity = d.origOpacity;
             delete d.origOpacity;
+
+            // Remote any outline.
+            d3.select(this).style('stroke', '');
           }
 
           tick();
