@@ -18,7 +18,7 @@ angular.module('krakenApp.Graph')
       var CONSTANTS = {
         FIXED_DRAGGING_BIT: 2,
         FIXED_MOUSEOVER_BIT: 4,
-        FIXED_PINNED_BIT: 8
+        FIXED_PINNED_BIT: 8,
         SHOWPIN_MOUSEOVER_BIT: 2,
         SHOWPIN_METAKEYDOWN_BIT: 4
       };
