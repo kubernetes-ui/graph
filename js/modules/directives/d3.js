@@ -482,15 +482,15 @@ angular.module('krakenApp.Graph')
             .enter()
             .append('path')
             .attr({
-              'd': function (d) {
+              d: function (d) {
                 return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
               },
-              'class': 'edgepath',
+              class: 'edgepath',
               'fill-opacity': 0,
               'stroke-opacity': 0,
-              'fill': 'blue',
-              'stroke': 'red',
-              'id': function (d, i) {
+              fill: 'blue',
+              stroke: 'red',
+              id: function (d, i) {
                 return 'edgepath' + i
               }
             })
@@ -502,14 +502,14 @@ angular.module('krakenApp.Graph')
             .append('text')
             .style('pointer-events', 'none')
             .attr({
-              'class': 'edgelabel',
-              'id': function (d, i) {
+              class: 'edgelabel',
+              id: function (d, i) {
                 return 'edgelabel' + i
               },
-              'dx': function (d) {
+              dx: function (d) {
                 return d.distance / 3
               },
-              'dy': 0
+              dy: 0
             });
 
           edgelabels.append('textPath')
