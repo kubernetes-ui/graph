@@ -385,7 +385,7 @@ angular.module('krakenApp.Graph')
         function mouseup(d) {
           if (!d3.event.metaKey) {
             if (d.dragMoved === undefined || !d.dragMoved) {
-              connectedNodes(d);
+              toggleSelected(d);
             }
           } else {
             togglePinned(d);
@@ -590,35 +590,33 @@ angular.module('krakenApp.Graph')
           }
         }
 
-        function connectedNodes(d) {
+        function toggleSelected(d) {
           // Operation is to select nodes if either no nodes are currently selected or this node is not selected.
           var selectOperation = !selection.nodes.size || !setHas(selection.nodes, d);
 
           if (selectOperation) {
-            // Add the double-clicked node.
+            // Add the clicked node.
             selection.nodes.add(d);
 
-            // Add each node within 1 hop from the double-clicked node.
+            // Add each node within 1 hop from the clicked node.
             node.each(function (e) {
               if (neighboring(d, e) | neighboring(e, d)) {
                 selection.nodes.add(e);
               }
             });
-
-            selectEdgesInScope();
           } else {
-            // De-select the double-clicked node.
+            // De-select the clicked node.
             selection.nodes.delete(d);
 
-            // Remove each node within 1 hop from the double-clicked node.
+            // Remove each node within 1 hop from the clicked node.
             node.each(function (e) {
               if (neighboring(d, e) | neighboring(e, d)) {
                 selection.nodes.delete(e);
               }
             });
-
-            selectEdgesInScope();
           }
+
+          selectEdgesInScope();
 
           applySelectionToOpacity();
         }
