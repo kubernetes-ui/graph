@@ -22,7 +22,12 @@ angular.module('krakenApp.Graph')
         SHOWPIN_MOUSEOVER_BIT: 2,
         SHOWPIN_METAKEYDOWN_BIT: 4,
         OPACITY_MOUSEOVER: 0.7,
-        OPACITY_DESELECTED: 0.2
+        OPACITY_DESELECTED: 0.2,
+        // TODO: Externalize these defaults.
+        DEFAULTS: {
+          CLUSTER_INNER_PADDING: 4,
+          CLUSTER_OUTER_PADDING: 32
+        }
       };
 
       var viewSettingsCache = {};
@@ -657,16 +662,23 @@ angular.module('krakenApp.Graph')
 
         function resetPins() {
           node.each(function (d) {
+            // Unset the appropriate bit on each node.
             d.fixed &= ~CONSTANTS.FIXED_PINNED_BIT;
-            // TODO(duftler): Make this first check if the value is already cached.
-            nodeSettingsCache[d.id].fixed = false;
+
+            // Ensure the node is not marked in the cache as fixed.
+            if (nodeSettingsCache[d.id]) {
+              nodeSettingsCache[d.id].fixed = false;
+            }
           });
 
           force.start().alpha(0.01);
         }
 
-        // Now we are giving the SVGs co-ordinates - the force layout is generating the co-ordinates which this code is using to update the attributes of the SVG elements.
+        // Now we are giving the SVGs coordinates - the force layout is generating the coordinates which this code is
+        // using to update the attributes of the SVG elements.
         function tick(e) {
+          var forceAlpha = force.alpha();
+
           node.style('opacity', function (e) {
             if (e.opacity) {
               var opacity = e.opacity;
@@ -681,7 +693,7 @@ angular.module('krakenApp.Graph')
 
           if (graph.settings.clustered) {
             circle
-              .each(cluster(10 * force.alpha() * force.alpha()))
+              .each(cluster(10 * forceAlpha * forceAlpha))
               .each(collide(.5, clusterInnerPadding, clusterOuterPadding))
               .attr('cx', function (d) {
                 return d.x;
@@ -778,7 +790,7 @@ angular.module('krakenApp.Graph')
               });
           });
 
-          if (force.alpha() < 0.04) {
+          if (forceAlpha < 0.04) {
             graph.nodes.forEach(function (n) {
               if (n.id) {
                 if (!nodeSettingsCache[n.id]) {
@@ -822,8 +834,7 @@ angular.module('krakenApp.Graph')
         }
 
         function getClusterInnerPadding() {
-          // TODO: externalize this default.
-          var result = 4;
+          var result = CONSTANTS.DEFAULTS.CLUSTER_INNER_PADDING;
 
           if (graph.settings.clusterSettings && graph.settings.clusterSettings.innerPadding !== undefined) {
             result = graph.settings.clusterSettings.innerPadding;
@@ -833,8 +844,7 @@ angular.module('krakenApp.Graph')
         }
 
         function getClusterOuterPadding() {
-          // TODO: externalize this default.
-          var result = 32;
+          var result = CONSTANTS.DEFAULTS.CLUSTER_OUTER_PADDING;
 
           if (graph.settings.clusterSettings && graph.settings.clusterSettings.outerPadding !== undefined) {
             result = graph.settings.clusterSettings.outerPadding;
