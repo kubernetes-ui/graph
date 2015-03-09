@@ -187,6 +187,8 @@ angular.module('krakenApp.Graph')
           if (d3.select('.d3-context-menu').style('display') !== 'block') {
             showContextMenu(data, index, canvasContextMenu);
           }
+
+          d3.event.preventDefault();
         });
 
         var zoom = d3.behavior.zoom()
@@ -578,7 +580,10 @@ angular.module('krakenApp.Graph')
           d3.select('.d3-context-menu')
             .style('left', (d3.event.pageX - 2) + 'px')
             .style('top', (d3.event.pageY - 2) + 'px')
-            .style('display', 'block');
+            .style('display', 'block')
+            .on('contextmenu', function() {
+              d3.event.preventDefault();
+            });
 
           d3.event.preventDefault();
         }
@@ -650,6 +655,7 @@ angular.module('krakenApp.Graph')
         function resetPins() {
           node.each(function (d) {
             d.fixed &= ~CONSTANTS.FIXED_PINNED_BIT;
+            // TODO(duftler): Make this first check if the value is already cached.
             nodeSettingsCache[d.id].fixed = false;
           });
 
