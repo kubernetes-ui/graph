@@ -25,6 +25,7 @@ angular.module('krakenApp.Graph')
         OPACITY_DESELECTED: 0.2,
         // TODO: Externalize these defaults.
         DEFAULTS: {
+          SVG_INITIAL_HEIGHT: 700,
           FORCE_CLUSTERED_GRAVITY: 0.02,
           FORCE_CLUSTERED_CHARGE: 0,
           FORCE_CLUSTERED_REFRESH_STARTING_ALPHA: 0.02,
@@ -131,6 +132,7 @@ angular.module('krakenApp.Graph')
 
         _.defer(function() {
           scope.$apply();
+          resize(d3, false);
         });
       }
 
@@ -152,6 +154,36 @@ angular.module('krakenApp.Graph')
         return found;
       }
 
+      function getContainerDimensions(d3) {
+        var parentNode = d3.select(element[0].parentNode);
+        var width = parseInt(parentNode.style('width'));
+        var height = parseInt(parentNode.style('height'));
+
+        return [width, height];
+      }
+
+      function resize(d3, windowWasResized) {
+        var containerDimensions = getContainerDimensions(d3);
+        var width = containerDimensions[0] - 16;
+        var height = containerDimensions[1] - 19;
+        var svg = d3.select(element[0]).select('svg');
+        var origWidth = svg.attr('width');
+        var origHeight = svg.attr('height');
+
+        svg.attr('width', width);
+        svg.attr('height', height);
+
+        // We want the width and height to survive redraws.
+        viewSettingsCache.width = width;
+        viewSettingsCache.height = height;
+
+        force.size([width, height]);
+
+        if (windowWasResized) {
+          force.resume();
+        }
+      }
+
       var draw = function() {
         // We want to stop any prior simulation before starting a new one.
         if (force) {
@@ -159,14 +191,12 @@ angular.module('krakenApp.Graph')
         }
 
         var d3 = window.d3;
-        d3.select(window).on('resize', resize);
+        d3.select(window).on('resize', resizeSVG);
 
-        var containerDimensions = getContainerDimensions();
-
-        // TODO(duftler): Derive the svg height from the container rather than the other way around.
-        var width = containerDimensions[0] - 16,
-          height = 700,
-          center = [width / 2, height / 2];
+        // TODO(duftler): Derive the initial svg height from the container rather than the other way around.
+        var width = viewSettingsCache.width ? viewSettingsCache.width : getContainerDimensions(d3)[0] - 16;
+        var height = viewSettingsCache.height ? viewSettingsCache.height : CONSTANTS.DEFAULTS.SVG_INITIAL_HEIGHT;
+        var center = [width / 2, height / 2];
 
         var color = d3.scale.category20();
 
@@ -1060,25 +1090,8 @@ angular.module('krakenApp.Graph')
             };
           });
         }
-
-        function getContainerDimensions() {
-          var parentNode = d3.select(element[0].parentNode);
-          var width = parseInt(parentNode.style('width'));
-          var height = parseInt(parentNode.style('height'));
-
-          return [width, height];
-        }
-
-        function resize() {
-          var containerDimensions = getContainerDimensions();
-          var width = containerDimensions[0] - 16;
-          var height = containerDimensions[1] - 19;
-          var svg = d3.select(element[0]).select('svg');
-
-          svg.attr('width', width);
-          svg.attr('height', height);
-
-          force.size([width, height]).resume();
+        function resizeSVG() {
+          resize(d3, true);
         }
 
         function getRandomStartingPosition(radius) {
