@@ -457,6 +457,9 @@ angular.module('krakenApp.Graph')
               .attr('r', function (d) {
                 return d.radius;
               })
+              .attr('id', function(d, i) {
+                return 'd3Node' + i;
+              })
               .style('stroke', function (d) {
                 return d.stroke;
               })

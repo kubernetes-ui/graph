@@ -54,7 +54,7 @@
           </md-tooltip>
         </md-button>
         <md-button ng-click="inspectSelection()" aria-label="Inspector">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <svg id="inspectBtn" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
             <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" style="stroke:white; fill:white;"/>
           </svg>
           <paper-ripple class="circle recenteringTouch" fit></paper-ripple>
@@ -84,7 +84,7 @@
  -->
            <md-card flex layout="column" style="padding:0;">
             <md-card flex style="margin:0;">
-              <md-button flex class="md-primary" ng-click="showHide('legend')">
+              <md-button id="toggleLegend" flex class="md-primary" ng-click="showHide('legend')">
                 Legend
                 <md-tooltip>
                   Toggle Legend
@@ -143,7 +143,7 @@
           </md-card>
           <md-card flex layout="column" style="padding:0;">
             <md-card flex style="margin:0;">
-              <md-button flex class="md-primary" ng-click="showHide('details')">
+              <md-button id="toggleDetails" flex class="md-primary" ng-click="showHide('details')">
                 Details
                 <md-tooltip>
                   Show/Hide Selection Details
