@@ -458,6 +458,7 @@ angular.module('krakenApp.Graph')
                 return d.radius;
               })
               .attr('id', function(d, i) {
+                // Add HTML element id for each node to ease testing.
                 return 'd3Node' + i;
               })
               .style('stroke', function (d) {
