@@ -1,6 +1,5 @@
 angular.module('kubernetesApp.Graph')
-.factory('d3Service', ['$document', '$q', '$rootScope',
-  function($document, $q, $rootScope) {
+    .factory('d3Service', ['$document', '$q', '$rootScope', function($document, $q, $rootScope) {
     var d = $q.defer();
     function onScriptLoad() {
       // Load client in the browser
@@ -23,5 +22,4 @@ angular.module('kubernetesApp.Graph')
 
     return {
       d3: function() { return d.promise; }
-    };
-}]);
+    }; }]);
