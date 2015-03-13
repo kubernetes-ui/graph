@@ -3,41 +3,42 @@
   "name": "Graph",
   "version": "1",
   "namespace": "Graph",
-
   "default_locale": "en",
   "description": "Force Directed Graph",
   "icons": {},
   "sections": [
-  {
-    "name": "Graph",
-    "url": "/graph",
-    "type": "link",
-    "templateUrl": "/components/graph/pages/home.html"
-  }, {
-    "name": "Graph",
-    "url": "/graph/inspect",
-    "type": "link",
-    "templateUrl": "/components/graph/pages/inspect.html",
-    "css": "/components/graph/css/show-details-table.css"
-  }, {
-    "name": "Graph",
-    "type": "heading",
-    "children": [
-      {
-        "name": "Graph",
-        "type": "toggle",
-        "url": "/graph",
-        "templateUrl": "/components/graph/pages/home.html",
-        "pages": [
-          {
-            "name": "Test",
-            "url": "/graph/test",
-            "type": "link",
-            "templateUrl": "/components/graph/pages/home.html"
-          }
-        ]
-      }
-    ]
-  }
-]
+    {
+      "name": "Graph",
+      "url": "/graph",
+      "type": "link",
+      "templateUrl": "/components/graph/pages/home.html"
+    },
+    {
+      "name": "Graph",
+      "url": "/graph/inspect",
+      "type": "link",
+      "templateUrl": "/components/graph/pages/inspect.html",
+      "css": "/components/graph/css/show-details-table.css"
+    },
+    {
+      "name": "Graph",
+      "type": "heading",
+      "children": [
+        {
+          "name": "Graph",
+          "type": "toggle",
+          "url": "/graph",
+          "templateUrl": "/components/graph/pages/home.html",
+          "pages": [
+            {
+              "name": "Test",
+              "url": "/graph/test",
+              "type": "link",
+              "templateUrl": "/components/graph/pages/home.html"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }
