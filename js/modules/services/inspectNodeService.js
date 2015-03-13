@@ -9,13 +9,9 @@
 
   var inspectNodeService = function() {
     var nodeDetails = null;
-    var setDetailData = function(data) {
-      nodeDetails = data;
-    };
+    var setDetailData = function(data) { nodeDetails = data; };
 
-    var getDetailData = function() {
-      return nodeDetails;
-    };
+    var getDetailData = function() { return nodeDetails; };
 
     return {
       'setDetailData': setDetailData,
@@ -23,7 +19,6 @@
     };
   };
 
-  angular.module('kubernetesApp.Graph.services', [])
-      .factory('inspectNodeService', inspectNodeService);
+  angular.module('kubernetesApp.Graph.services', []).factory('inspectNodeService', inspectNodeService);
 
 })();

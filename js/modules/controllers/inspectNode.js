@@ -5,17 +5,21 @@
 (function() {
   'use strict';
 
-  angular.module('kubernetesApp.Graph').controller(
-      'InspectNodeCtrl',
-      ['$scope', 'inspectNodeService', '$location', function($scope, inspectNodeService, $location) {
-        var nodeDetail = inspectNodeService.getDetailData();
-        $scope.element = nodeDetail.id;
-        $scope.metadata = nodeDetail.metadata;
+  angular.module('kubernetesApp.Graph')
+      .controller('InspectNodeCtrl', [
+        '$scope',
+        'inspectNodeService',
+        '$location',
+        function($scope, inspectNodeService, $location) {
+          var nodeDetail = inspectNodeService.getDetailData();
+          $scope.element = nodeDetail.id;
+          $scope.metadata = nodeDetail.metadata;
 
-        $scope.backToGraph = function() {
-          $location.path('/graph');
-          $scope.$apply();
-        };
-  }]);
+          $scope.backToGraph = function() {
+            $location.path('/graph');
+            $scope.$apply();
+          };
+        }
+      ]);
 
 })();

@@ -4,6 +4,5 @@ describe("Graph controller", function() {
 
   beforeEach(module("kubernetesApp.Graph"));
 
-  it("should work as intended", function() {
-  });
+  it("should work as intended", function() {});
 });

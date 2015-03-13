@@ -5,7 +5,7 @@ function templateTransform(_, template) {
         result = JSON.stringify(result);
         result = result.replace(/\"([^(\")"]+)\":/g, "$1:");
       } else {
-        result = "undefined";   
+        result = "undefined";
       }
     }
 
@@ -24,9 +24,7 @@ function templateTransform(_, template) {
               results = JSONPath(null, item, results);
             }
             if (results && results.length > 0) {
-              results = _.map(results, function(result) {
-                return stringifyNoQuotes(result);
-              });
+              results = _.map(results, function(result) { return stringifyNoQuotes(result); });
               args.push(results);
             }
           }
@@ -43,9 +41,7 @@ function templateTransform(_, template) {
 
   var filterItem = function(filters) {
     return function(fromItem) {
-      return _.every(filters, function(filter) { 
-        return evalExpression(fromItem, filter); 
-      });
+      return _.every(filters, function(filter) { return evalExpression(fromItem, filter); });
     };
   };
 
@@ -75,18 +71,14 @@ function templateTransform(_, template) {
             } else {
               result = mapping;
             }
-          } else
-          if (typeof mapping === "object") {
+          } else if (typeof mapping === "object") {
             if (mapping.expression) {
               result = evalExpression(item, mapping);
             } else {
               result = mapProperties(item, {}, mapping);
             }
-          } else
-          if (_.isArray(mapping)) {
-            result = _.map(mapping, function(member) {
-                return evalMapping(item, member);
-            });
+          } else if (_.isArray(mapping)) {
+            result = _.map(mapping, function(member) { return evalMapping(item, member); });
           }
         }
 
@@ -127,20 +119,14 @@ function templateTransform(_, template) {
       return toNode;
     };
 
-    var sortNode = function(fromNode) {
-      return fromNode.id;
-    };
+    var sortNode = function(fromNode) { return fromNode.id; };
 
     var chain = _.chain(fromNodes);
     if (template.nodeFilters) {
-      chain = chain
-        .filter(filterItem(template.nodeFilters));
+      chain = chain.filter(filterItem(template.nodeFilters));
     }
 
-    toData.nodes = chain
-      .map(mapNode)
-      .sortBy(sortNode)
-      .value();
+    toData.nodes = chain.map(mapNode).sortBy(sortNode).value();
   };
 
   var mapLinks = function(fromLinks, toData) {
@@ -150,19 +136,14 @@ function templateTransform(_, template) {
       return toLink;
     };
 
-    var sortLink = function(fromLink) {
-      return fromLink.source + ":" + fromLink.target;
-    };
+    var sortLink = function(fromLink) { return fromLink.source + ":" + fromLink.target; };
 
     var chain = _.chain(fromLinks);
     if (template.edgeFilters) {
       chain = chain.filter(filterItem(template.edgeFilters));
     }
 
-    toData.links = chain
-      .map(mapLink)
-      .sortBy(sortLink)
-      .value();
+    toData.links = chain.map(mapLink).sortBy(sortLink).value();
   };
 
   return function(fromData, configuration) {
@@ -170,19 +151,19 @@ function templateTransform(_, template) {
     toData.configuration = configuration;
     if (template.configuration) {
       if (template.configuration.legend) {
-        toData.configuration.legend = template.configuration.legend;          
+        toData.configuration.legend = template.configuration.legend;
       }
 
       if (template.configuration.settings) {
-        toData.configuration.settings = template.configuration.settings;          
+        toData.configuration.settings = template.configuration.settings;
       }
 
       if (template.configuration.selectionHops) {
-        toData.configuration.selectionHops = template.configuration.selectionHops;          
+        toData.configuration.selectionHops = template.configuration.selectionHops;
       }
 
       if (template.configuration.selectionIdList) {
-        toData.configuration.selectionIdList = template.configuration.selectionIdList;          
+        toData.configuration.selectionIdList = template.configuration.selectionIdList;
       }
     }
 

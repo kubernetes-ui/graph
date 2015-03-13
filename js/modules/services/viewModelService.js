@@ -10,36 +10,28 @@
   // and place the result in the current scope at $scope.viewModel.
   var viewModelService = function ViewModelService(_) {
     var defaultConfiguration = {
-      "legend" : undefined,
-      "settings" : {
-        "clustered": false,
-        "showEdgeLabels": false,
-        "showNodeLabels": true
-      },
-      "selectionHops" : 1,
-      "selectionIdList" : []
+      "legend": undefined,
+      "settings": {"clustered": false, "showEdgeLabels": false, "showNodeLabels": true},
+      "selectionHops": 1,
+      "selectionIdList": []
     };
 
     var defaultData = {
-      "configuration" : defaultConfiguration,
-      "nodes" : [{
-        "name" : "no data",
-        "radius" : 10,
-        "fill" : "cornflowerblue"
-      }],
-      "links" : []
+      "configuration": defaultConfiguration,
+      "nodes": [{"name": "no data", "radius": 10, "fill": "cornflowerblue"}],
+      "links": []
     };
 
     var viewModel = {
-      "data" : defaultData,
-      "default" : defaultData,
-      "version" : 0,
-      "transformNames" : []
+      "data": defaultData,
+      "default": defaultData,
+      "version": 0,
+      "transformNames": []
     };
 
     var getLegend = function() {
-      return (viewModel && viewModel.data && viewModel.data.configuration) ?
-        viewModel.data.configuration.legend : undefined;
+      return (viewModel && viewModel.data && viewModel.data.configuration) ? viewModel.data.configuration.legend :
+                                                                             undefined;
     };
 
     var setLegend = function(legend) {
@@ -49,8 +41,8 @@
     };
 
     var getSettings = function() {
-      return (viewModel && viewModel.data && viewModel.data.configuration) ?
-        viewModel.data.configuration.settings : undefined;
+      return (viewModel && viewModel.data && viewModel.data.configuration) ? viewModel.data.configuration.settings :
+                                                                             undefined;
     };
 
     var setSettings = function(settings) {
@@ -61,7 +53,8 @@
 
     var getSelectionHops = function() {
       return (viewModel && viewModel.data && viewModel.data.configuration) ?
-        viewModel.data.configuration.selectionHops : 1;
+                 viewModel.data.configuration.selectionHops :
+                 1;
     };
 
     var setSelectionHops = function(selectionHops) {
@@ -72,7 +65,8 @@
 
     var getSelectionIdList = function() {
       return (viewModel && viewModel.data && viewModel.data.configuration) ?
-        viewModel.data.configuration.selectionIdList : [];
+                 viewModel.data.configuration.selectionIdList :
+                 [];
     };
 
     var setSelectionIdList = function(selectionIdList) {
@@ -83,13 +77,11 @@
 
     // Load the default legend.
     (function() {
-    $.getJSON("components/graph/assets/legend.json")
-      .done(function(legend) {
-        defaultData.configuration.legend = legend;
-      })
-      .fail(function(jqxhr, settings, exception) {
-        console.log('ERROR: Could not load default legend: ' + exception);
-      });
+      $.getJSON("components/graph/assets/legend.json")
+          .done(function(legend) { defaultData.configuration.legend = legend; })
+          .fail(function(jqxhr, settings, exception) {
+            console.log('ERROR: Could not load default legend: ' + exception);
+          });
     }());
 
     var defaultTransformName = undefined;
@@ -106,9 +98,7 @@
         return fileName;
       };
 
-      var getConstructor = function(constructorName) {
-        return window[constructorName];
-      };
+      var getConstructor = function(constructorName) { return window[constructorName]; };
 
       var bindTransform = function(constructorName, directoryEntry) {
         var constructor = getConstructor(constructorName);
@@ -136,15 +126,13 @@
             // Load the script into the window scope.
             var scriptPath = "components/graph/assets/transforms/" + directoryEntry.script;
             $.getScript(scriptPath)
-              .done(function() {
-                // Defer to give the load opportunity to complete.
-                _.defer(function() {
-                  bindTransform(constructorName, directoryEntry);
+                .done(function() {
+                  // Defer to give the load opportunity to complete.
+                  _.defer(function() { bindTransform(constructorName, directoryEntry); });
+                })
+                .fail(function(jqxhr, settings, exception) {
+                  console.log('ERROR: Could not load transform "' + directoryEntry.name + '": ' + exception);
                 });
-              })
-              .fail(function(jqxhr, settings, exception) {
-                console.log('ERROR: Could not load transform "' + directoryEntry.name + '": ' + exception);
-              });
           } else {
             bindTransform(constructorName, directoryEntry);
           }
@@ -153,19 +141,17 @@
 
       // Load the transform directory
       $.getJSON("components/graph/assets/transforms.json")
-        .done(function(transforms) {
-          // Defer to give the load opportunity to complete.
-          _.defer(function() {
-            if (transforms.directory) {
-              _.forEach(transforms.directory, function(directoryEntry) {
-                loadTransform(directoryEntry);
-              });
-            }
+          .done(function(transforms) {
+            // Defer to give the load opportunity to complete.
+            _.defer(function() {
+              if (transforms.directory) {
+                _.forEach(transforms.directory, function(directoryEntry) { loadTransform(directoryEntry); });
+              }
+            });
+          })
+          .fail(function(jqxhr, settings, exception) {
+            console.log('ERROR: Could not load transform directory: ' + exception);
           });
-        })
-        .fail(function(jqxhr, settings, exception) {
-          console.log('ERROR: Could not load transform directory: ' + exception);
-        });
     }());
 
     var setViewModel = function(data) {
@@ -177,7 +163,7 @@
 
     // Generate the view model from a given data model using a given transform.
     var generateViewModel = function(fromData, transformName) {
-       var initializeConfiguration = function(toData) {
+      var initializeConfiguration = function(toData) {
         var initializeLegend = function(fromConfiguration, toConfiguration) {
           var toLegend = toConfiguration.legend;
           var fromLegend = fromConfiguration.legend;
@@ -222,7 +208,7 @@
         }
       };
 
-     var processNodes = function(toData) {
+      var processNodes = function(toData) {
         var typeToCluster = {};
         var idToIndex = {};
 
@@ -262,20 +248,18 @@
           };
 
           var chain = _.chain(toData.links)
-            .forEach(function(toLink) {
-              setStyle(toLink, legend.links);
-              if (toLink.type) {
-                getIndex(toLink, idToIndex);
-              }
-            });
+                          .forEach(function(toLink) {
+                            setStyle(toLink, legend.links);
+                            if (toLink.type) {
+                              getIndex(toLink, idToIndex);
+                            }
+                          });
 
           chain = chain.filter("type");
           if (filtered) {
-            chain = chain
-              .filter(function(toLink) {
-                return (toLink.source !== undefined)
-                  && (toLink.target !== undefined);
-              });
+            chain = chain.filter(function(toLink) {
+              return (toLink.source !== undefined) && (toLink.target !== undefined);
+            });
           }
 
           toData.links = chain.value();
@@ -285,39 +269,24 @@
         var legend = configuration.legend;
         var settings = configuration.settings;
 
-        _.forOwn(legend.nodes, function(nodeEntry) {
-          nodeEntry.available = false;
-        });
+        _.forOwn(legend.nodes, function(nodeEntry) { nodeEntry.available = false; });
 
-        var chain = _.chain(toData.nodes)
-          .forEach(function(toNode) {
-            setStyle(toNode, legend.nodes);
-          });
+        var chain = _.chain(toData.nodes).forEach(function(toNode) { setStyle(toNode, legend.nodes); });
 
-        var filtered = _.any(legend.nodes, function(nodeEntry) {
-          return !nodeEntry.selected;
-        });
+        var filtered = _.any(legend.nodes, function(nodeEntry) { return !nodeEntry.selected; });
 
         chain = chain.filter("type");
         if (filtered) {
-          chain = chain
-            .filter(function(toNode) {
-              return legend.nodes[toNode.type] ? legend.nodes[toNode.type].selected : false;
-            });
+          chain = chain.filter(function(toNode) {
+            return legend.nodes[toNode.type] ? legend.nodes[toNode.type].selected : false;
+          });
         }
 
         if (settings && settings.clustered) {
-          chain = chain
-            .forEach(function(toNode) {
-              setCluster(toNode, typeToCluster);
-            });
+          chain = chain.forEach(function(toNode) { setCluster(toNode, typeToCluster); });
         }
 
-        toData.nodes = chain
-          .forEach(function(toNode) {
-            setIndex(toNode, idToIndex);
-          })
-          .value();
+        toData.nodes = chain.forEach(function(toNode) { setIndex(toNode, idToIndex); }).value();
 
         if (toData.links) {
           processLinks(toData, legend, filtered);
@@ -347,22 +316,21 @@
 
     this.$get = function() {
       return {
-        "viewModel" : viewModel,
-        "getLegend" : getLegend,
-        "setLegend" : setLegend,
-        "getSettings" : getSettings,
-        "setSettings" : setSettings,
-        "getSelectionIdList" : getSelectionIdList,
-        "setSelectionIdList" : setSelectionIdList,
-        "getSelectionHops" : getSelectionHops,
-        "setSelectionHops" : setSelectionHops,
-        "defaultTransformName" : defaultTransformName,
-        "generateViewModel" : generateViewModel,
-        "setViewModel" : setViewModel
+        "viewModel": viewModel,
+        "getLegend": getLegend,
+        "setLegend": setLegend,
+        "getSettings": getSettings,
+        "setSettings": setSettings,
+        "getSelectionIdList": getSelectionIdList,
+        "setSelectionIdList": setSelectionIdList,
+        "getSelectionHops": getSelectionHops,
+        "setSelectionHops": setSelectionHops,
+        "defaultTransformName": defaultTransformName,
+        "generateViewModel": generateViewModel,
+        "setViewModel": setViewModel
       };
     };
   };
 
-  angular.module("kubernetesApp.Graph")
-    .provider("viewModelService", ["lodash", viewModelService]);
+  angular.module("kubernetesApp.Graph").provider("viewModelService", ["lodash", viewModelService]);
 }());

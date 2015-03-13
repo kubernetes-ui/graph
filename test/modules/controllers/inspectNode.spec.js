@@ -3,26 +3,22 @@
 describe("Inspect node controller", function() {
   var inspectNodeService = {};
   var scope, location, controller;
-  var mockNodeDetail = {'id': 1, 'metadata': 'data'};
+  var mockNodeDetail = {
+    'id': 1,
+    'metadata': 'data'
+  };
   // Work around to get ngLodash correctly injected.
-  beforeEach(function () {
-    angular.module('testModule',
-                   ['ngLodash', 'kubernetesApp.Graph', 'kubernetesApp.config']);
-  });
+  beforeEach(function() { angular.module('testModule', ['ngLodash', 'kubernetesApp.Graph', 'kubernetesApp.config']); });
 
   beforeEach(module('testModule'));
 
-  beforeEach(inject(function (
-      _inspectNodeService_, $controller, $location, $rootScope) {
+  beforeEach(inject(function(_inspectNodeService_, $controller, $location, $rootScope) {
     inspectNodeService = _inspectNodeService_;
     // Mock the node detail data returned by the service.
     inspectNodeService.setDetailData(mockNodeDetail);
     scope = $rootScope.$new();
     location = $location;
-    controller = $controller('InspectNodeCtrl', {
-      $scope: scope,
-      $location: location
-    });
+    controller = $controller('InspectNodeCtrl', {$scope: scope, $location: location});
   }));
 
   it("should work as intended", function() {
