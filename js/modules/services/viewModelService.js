@@ -8,376 +8,260 @@
 
   // Compute the view model based on the data model and control parameters
   // and place the result in the current scope at $scope.viewModel.
-  var viewModelService = function ViewModelService(lodash) {
-    var defaultWidth = 2;
-    this.setDefaultWidth = function (value) {
-      defaultWidth = value;
-    };
-
-    var defaultStroke = "gray";
-    this.setDefaultStroke = function (value) {
-      defaultStroke = value;
-    };
-
-    var defaultDash = "1";
-    this.setDefaultDash = function (value) {
-      defaultDash = value;
-    };
-
-    var defaultDistance = 40;
-    this.setDefaultDistance = function (value) {
-      defaultDistance = value;
-    };
-
-    var defaultLink = {
-      "style" : {
-        "dash" : defaultDash,
-        "width" : defaultWidth,
-        "stroke" : defaultStroke,
-        "distance" : defaultDistance
-      }
-    };
-
-    this.setDefaultLink = function(value) {
-      defaultLink = value;
-    };
-
-    var defaultRadius = 10;
-    this.setDefaultRadius = function(value) {
-      defaultRadius = value;
-    };
-
-    var defaultFill = "cornflowerblue";
-    this.setDefaultFill = function(value) {
-      defaultFill = value;
-    };
-
-    var defaultIcon = undefined;
-    this.setDefaultIcon = function(value) {
-      defaultIcon = value;
-    };
-
-    var defaultNode = {
-      "style" : {
-        "radius" : defaultRadius,
-        "fill" : defaultFill,
-        "icon" : defaultIcon
+  var viewModelService = function ViewModelService(_) {
+    var defaultConfiguration = {
+      "legend" : undefined,
+      "settings" : {
+        "clustered": false,
+        "showEdgeLabels": false,
+        "showNodeLabels": true
       },
-      "selected" : true,
-      "available" : true
+      "selectionHops" : 1,
+      "selectionIdList" : []
     };
 
-    this.setDefaultNode = function(value) {
-      defaultNode = value;
-    };
-
-    var defaultSettings = {
-      "clustered": false,
-      "showEdgeLabels": false,
-      "showNodeLabels": true
-    };
-    this.setDefaultSettings = function(value) {
-      defaultSettings = value;
-    };
-
-    var defaultLegend = {
-      "nodes" : {
-        "Container" : defaultNode,
-        "Cluster" : {
-          "style" : {
-            "radius" : 30,
-            "fill" : "#D32F2F"                
-          },
-          "selected" : false,
-          "available" : true
-        },
-        "Node" : {
-          "style" : {
-            "radius" : 25,
-            "fill" : "#FF4D81"
-          },
-          "selected" : false,
-          "available" : true
-        },
-        "Process" : {
-          "style" : {
-            "radius" : 15,
-            "fill" : "#FF9800"
-          },
-          "selected" : true,
-          "available" : true
-        },
-        "Service" : {
-          "style" : {
-            "radius" : 20,
-            "fill" : "#7C4DFF"
-          },
-          "selected" : true,
-          "available" : true
-        },
-        "ReplicationController" : {
-          "displayName" : "Replication Controller",
-          "style" : {
-            "radius" : 20,
-            "fill" : "#DE2AFB"
-          },
-          "selected" : true,
-          "available" : true
-        },
-        "Pod" : {
-          "style" : {
-            "radius" : 20,
-            "fill" : "#E91E63"
-          },
-          "selected" : true,
-          "available" : true
-        },
-        "Image" : {
-          "style" : {
-            "radius" : 15,
-            "fill" : "#D1C4E9"
-          },
-          "selected" : true,
-          "available" : true 
-        }
-      },
-      "links" : {
-        "contains" : defaultLink,
-        "balances" : {
-          "available" : true,
-          "style" : {
-            "width" : 3,
-            "stroke" : "#7C4DFF",
-            "dash" : "5, 5",
-            "distance" : 60
-          }
-        },
-        "uses" : {
-          "available" : true,
-          "style" : {
-            "width" : 3,
-            "stroke" : "#D1C4E9",
-            "dash" : "5, 5",
-            "distance" : 60
-          }
-        },
-        "monitors" : {
-          "available" : true,
-          "style" : {
-            "width" : 3,
-            "stroke" : "#DE2AFB",
-            "dash" : "5, 5",
-            "distance" : 60
-          }
-        }
-      }
-    };
-
-    var defaultModel = {
-      "legend" : defaultLegend,
-      "settings" : defaultSettings,
+    var defaultData = {
+      "configuration" : defaultConfiguration,
       "nodes" : [{
-          "name" : "no data",
-          "radius" : defaultRadius,
-          "fill": defaultFill
-        }
-      ],
+        "name" : "no data",
+        "radius" : 10,
+        "fill" : "cornflowerblue"
+      }],
       "links" : []
     };
 
     var viewModel = { 
-      "data" : defaultModel, 
-      "default" : defaultModel,
-      "configuration" : {
-        "legend" : defaultLegend,
-        "selectionIdList" : []
-      },
+      "data" : defaultData, 
+      "default" : defaultData,
       "version" : 0,
       "transformNames" : []
     };
 
+    var getLegend = function() {
+      return (viewModel && viewModel.data && viewModel.data.configuration) ? 
+        viewModel.data.configuration.legend : undefined;
+    };
+
+    var setLegend = function(legend) {
+      if (viewModel && viewModel.data && viewModel.data.configuration) {
+        viewModel.data.configuration.legend = legend;
+      }
+    };
+
+    var getSettings = function() {
+      return (viewModel && viewModel.data && viewModel.data.configuration) ? 
+        viewModel.data.configuration.settings : undefined;
+    };
+
+    var setSettings = function(settings) {
+      if (viewModel && viewModel.data && viewModel.data.configuration) {
+        viewModel.data.configuration.settings = settings;
+      }
+    };
+
+    var getSelectionHops = function() {
+      return (viewModel && viewModel.data && viewModel.data.configuration) ? 
+        viewModel.data.configuration.selectionHops : 1;
+    };
+
+    var setSelectionHops = function(selectionHops) {
+      if (viewModel && viewModel.data && viewModel.data.configuration) {
+        viewModel.data.configuration.selectionHops = selectionHops;
+      }
+    };
+
+    var getSelectionIdList = function() {
+      return (viewModel && viewModel.data && viewModel.data.configuration) ? 
+        viewModel.data.configuration.selectionIdList : [];
+    };
+
+    var setSelectionIdList = function(selectionIdList) {
+      if (viewModel && viewModel.data && viewModel.data.configuration) {
+        viewModel.data.configuration.selectionIdList = selectionIdList;
+      }
+    };
+
+    // Load the default legend.
+    (function() {
+    $.getJSON("components/graph/assets/legend.json")
+      .done(function(legend) {
+        defaultData.configuration.legend = legend;
+      })
+      .fail(function(jqxhr, settings, exception) {
+        console.log('ERROR: Could not load default legend: ' + exception);
+      });
+    }());
+
     var defaultTransformName = undefined;
-    var transformsByName = {}; // Loaded transforms by name.
+    var transformsByName = {};
 
-    var stripSuffix = function(fileName) {
-      var suffixIndex = fileName.indexOf(".");
-      if (suffixIndex > 0) {
-        fileName = fileName.substring(0, suffixIndex);
-      }
+    // Load transforms.
+    (function() {
+      var stripSuffix = function(fileName) {
+        var suffixIndex = fileName.indexOf(".");
+        if (suffixIndex > 0) {
+          fileName = fileName.substring(0, suffixIndex);
+        }
 
-      return fileName;
-    };
+        return fileName;
+      };
 
-    var bindTransform = function(constructor, directoryEntry) {
-      var transform = constructor(lodash, directoryEntry.data);
-      if (transform) {
-        // console.log('INFO: Loaded transform: "' + directoryEntry.name + '".');
-        viewModel.transformNames.push(directoryEntry.name);
-        transformsByName[directoryEntry.name] = transform;
-      } else {
-        console.log('ERROR: Could not bind transform "' + directoryEntry.name + '".');
-      }
-    };
+      var getConstructor = function(constructorName) {
+        return window[constructorName];
+      };
 
-    // Load a transform from a given directory entry.
-    var loadTransform = function(directoryEntry) {
-      if (!directoryEntry) {
-        return;
-      }
-
-      if (!directoryEntry.name || !directoryEntry.script) {
-        return;
-      }
-
-      var constructorName = stripSuffix(directoryEntry.script);
-
-      // if (constructorName === "templateTransform") {
-      //   bindTransform(templateTransform, directoryEntry);
-      //   return;
-      // }
-
-      if (window[constructorName]) {
-        bindTransform(window[constructorName], directoryEntry);
-        return;
-      }
-
-      // Load the script into the window scope.
-      var scriptPath = "components/graph/assets/transforms/" + directoryEntry.script;
-      $.getScript(scriptPath)
-        .done(function() {
-          // Defer to give the load opportunity to complete.
-          lodash.defer(function() {
-            // Get the constructor by name from the window scope.
-            if (window[constructorName]) {
-              bindTransform(window[constructorName], directoryEntry);
-              return;
+      var bindTransform = function(constructorName, directoryEntry) {
+        var constructor = getConstructor(constructorName);
+        if (constructor) {
+          var transform = constructor(_, directoryEntry.data);
+          if (transform) {
+            if (!defaultTransformName) {
+              defaultTransformName = directoryEntry.name;
             }
 
-            console.log('ERROR: Could not load transform "' + directoryEntry.name + '".');
-          });
-        })
-        .fail(function(jqxhr, settings, exception) {
-          console.log('ERROR: Could not load transform "' + directoryEntry.name + '": ' + exception);
-        });
-    };
+            viewModel.transformNames.push(directoryEntry.name);
+            transformsByName[directoryEntry.name] = transform;
+            return;
+          }
+        }
 
-    var loadTransformDirectory = function() {
+        console.log('ERROR: Could not bind transform "' + directoryEntry.name + '".');
+      };
+
+      // Load a transform from a given directory entry.
+      var loadTransform = function(directoryEntry) {
+        if (directoryEntry && directoryEntry.name && directoryEntry.script) {
+          var constructorName = stripSuffix(directoryEntry.script);
+          if (!getConstructor(constructorName)) {
+            // Load the script into the window scope.
+            var scriptPath = "components/graph/assets/transforms/" + directoryEntry.script;
+            $.getScript(scriptPath)
+              .done(function() {
+                // Defer to give the load opportunity to complete.
+                _.defer(function() {
+                  bindTransform(constructorName, directoryEntry);
+                });
+              })
+              .fail(function(jqxhr, settings, exception) {
+                console.log('ERROR: Could not load transform "' + directoryEntry.name + '": ' + exception);
+              });
+          } else {
+            bindTransform(constructorName, directoryEntry);
+          }
+        }
+      };
+
+      // Load the transform directory
       $.getJSON("components/graph/assets/transforms.json")
         .done(function(transforms) {
           // Defer to give the load opportunity to complete.
-          lodash.defer(function() {
-            // console.log('INFO: Loaded transform directory: ' + JSON.stringify(transforms));
+          _.defer(function() {
             if (transforms.directory) {
-              lodash.forEach(transforms.directory, function(directoryEntry) {
+              _.forEach(transforms.directory, function(directoryEntry) {
                 loadTransform(directoryEntry);
               });
-              return;
             }
-
-            console.log('ERROR: Could not load transform directory.');
           });
         })
         .fail(function(jqxhr, settings, exception) {
           console.log('ERROR: Could not load transform directory: ' + exception);
         });
-    };
+    }());
 
     var setViewModel = function(data) {
-      if (data && data.nodes && data.settings) {
-        // console.log('DEBUG: setViewModel called with: ' + JSON.stringify(data));
+      if (data && data.nodes && data.configuration && data.configuration.settings) {
         viewModel.data = data;
         viewModel.version++;
       }
     };
 
-    var setIndex = function(toNode, idToIndex) {
-      if (!idToIndex[toNode.id]) {
-        idToIndex[toNode.id] = lodash.keys(idToIndex).length;
-      }
-    };
+    // Generate the view model from a given data model using a given transform.
+    var generateViewModel = function(fromData, transformName) {
+       var initializeConfiguration = function(toData) {
+        var initializeLegend = function(fromConfiguration, toConfiguration) {
+          var toLegend = toConfiguration.legend;
+          var fromLegend = fromConfiguration.legend;
+          if (!toLegend) {
+            toConfiguration.legend = JSON.parse(JSON.stringify(fromLegend));
+          } else {
+            if (!toLegend.nodes) {
+              toLegend.nodes = JSON.parse(JSON.stringify(fromLegend.nodes));
+            }
 
-    var getIndex = function(toLink, idToIndex) {
-      if (toLink.source && toLink.target) {
-        toLink.source = idToIndex[toLink.source];
-        toLink.target = idToIndex[toLink.target];
-      }
-    };
+            if (!toLegend.links) {
+              toLegend.links = JSON.parse(JSON.stringify(fromLegend.links));
+            }
+          }
+        };
 
-    var setCluster = function(toNode, typeToCluster) {
-      if (toNode.type) {
-        toNode.cluster = typeToCluster[toNode.type];
-        if (toNode.cluster === undefined) {
-          toNode.cluster = lodash.keys(typeToCluster).length;
-          typeToCluster[toNode.type] = toNode.cluster;
+        var initializeSettings = function(fromConfiguration, toConfiguration) {
+          if (!toConfiguration.settings) {
+            toConfiguration.settings = JSON.parse(JSON.stringify(fromConfiguration.settings));
+          }
+        };
+
+        var initializeSelection = function(fromConfiguration, toConfiguration) {
+          if (!toConfiguration.selectionHops) {
+            toConfiguration.selectionHops = fromConfiguration.selectionHops;
+          }
+
+          if (!toConfiguration.selectionIdList) {
+            toConfiguration.selectionIdList = fromConfiguration.selectionIdList;
+          }
+        };
+
+        var toConfiguration = toData.configuration;
+        var fromConfiguration = viewModel.data.configuration;
+
+        if (!toConfiguration) {
+          toData.configuration = JSON.parse(JSON.stringify(fromConfiguration));
+        } else {
+          initializeLegend(fromConfiguration, toConfiguration);
+          initializeSettings(fromConfiguration, toConfiguration);
+          initializeSelection(fromConfiguration, toConfiguration);
         }
-      } else {
-        toNode.cluster = 0;
-      }
-    };
+      };
 
-    var setStyle = function(toItem, entries) {
-      if (toItem.type && entries[toItem.type]) {
-        lodash.assign(toItem, entries[toItem.type].style);
-        entries[toItem.type].available = true;
-      } else {
-        toItem.type = undefined;
-      }
-    };
-
-    var postProcess = function(toModel) {
-      if (toModel.legend) {
-        if (!toModel.legend.nodes || toModel.legend.nodes.length < 1) {
-          toModel.legend.nodes = defaultLegend.nodes;
-        }
-
-        if (!toModel.legend.links || toModel.legend.links.length < 1) {
-          toModel.legend.links = defaultLegend.links;
-        }
-      } else {
-        toModel.legend = defaultLegend;
-      }
-
-      var legend = toModel.legend; 
-      if (toModel.nodes) {
-        lodash.forOwn(legend.nodes, function(nodeEntry) {
-          nodeEntry.available = false;
-        });
-
+     var processNodes = function(toData) {
         var typeToCluster = {};
         var idToIndex = {};
 
-        var chain = lodash.chain(toModel.nodes)
-          .forEach(function(toNode) {
-            setStyle(toNode, legend.nodes);
-          });
+        var setIndex = function(toNode, idToIndex) {
+          if (!idToIndex[toNode.id]) {
+            idToIndex[toNode.id] = _.keys(idToIndex).length;
+          }
+        };
 
-        var filtered = lodash.any(legend.nodes, function(nodeEntry) {
-          return !nodeEntry.selected;
-        });
+        var setCluster = function(toNode, typeToCluster) {
+          if (toNode.type) {
+            toNode.cluster = typeToCluster[toNode.type];
+            if (toNode.cluster === undefined) {
+              toNode.cluster = _.keys(typeToCluster).length;
+              typeToCluster[toNode.type] = toNode.cluster;
+            }
+          } else {
+            toNode.cluster = 0;
+          }
+        };
 
-        chain = chain.filter("type");
-        if (filtered) {
-          chain = chain
-            .filter(function(toNode) {
-              return legend.nodes[toNode.type] ? legend.nodes[toNode.type].selected : false;
-            });
-        }
-        
-        if (toModel.settings && toModel.settings.clustered) {
-          chain = chain
-            .forEach(function(toNode) {
-              setCluster(toNode, typeToCluster);
-            });
-        }
+        var setStyle = function(toItem, entries) {
+          if (toItem.type && entries[toItem.type]) {
+            _.assign(toItem, entries[toItem.type].style);
+            entries[toItem.type].available = true;
+          } else {
+            toItem.type = undefined;
+          }
+        };
 
-        toModel.nodes = chain
-          .forEach(function(toNode) {
-            setIndex(toNode, idToIndex);
-          })
-          .value();
+        var processLinks = function(toData, legend, filtered) {
+          var getIndex = function(toLink, idToIndex) {
+            if (toLink.source && toLink.target) {
+              toLink.source = idToIndex[toLink.source];
+              toLink.target = idToIndex[toLink.target];
+            }
+          };
 
-        if (toModel.links) {
-          var chain = lodash.chain(toModel.links)
+          var chain = _.chain(toData.links)
             .forEach(function(toLink) {
               setStyle(toLink, legend.links);
               if (toLink.type) {
@@ -394,45 +278,85 @@
               });          
           }
 
-          toModel.links = chain.value();
+          toData.links = chain.value();
+        };
+
+        var configuration = toData.configuration;
+        var legend = configuration.legend;
+        var settings = configuration.settings;
+
+        _.forOwn(legend.nodes, function(nodeEntry) {
+          nodeEntry.available = false;
+        });
+
+        var chain = _.chain(toData.nodes)
+          .forEach(function(toNode) {
+            setStyle(toNode, legend.nodes);
+          });
+
+        var filtered = _.any(legend.nodes, function(nodeEntry) {
+          return !nodeEntry.selected;
+        });
+
+        chain = chain.filter("type");
+        if (filtered) {
+          chain = chain
+            .filter(function(toNode) {
+              return legend.nodes[toNode.type] ? legend.nodes[toNode.type].selected : false;
+            });
+        }
+        
+        if (settings && settings.clustered) {
+          chain = chain
+            .forEach(function(toNode) {
+              setCluster(toNode, typeToCluster);
+            });
+        }
+
+        toData.nodes = chain
+          .forEach(function(toNode) {
+            setIndex(toNode, idToIndex);
+          })
+          .value();
+
+        if (toData.links) {
+          processLinks(toData, legend, filtered);
+        }
+      };
+
+      if (fromData && transformName) {
+        var transform = transformsByName[transformName];
+        if (transform) {
+          var configuration = JSON.parse(JSON.stringify(viewModel.data.configuration));
+          var toData = transform(fromData, configuration);
+          if (toData.nodes) {
+            initializeConfiguration(toData);
+            processNodes(toData);
+          } else {
+            toData.configuration = configuration;
+            toData.nodes = defaultData.nodes;
+            toData.links = defaultData.links;
+          }
+
+          setViewModel(toData);
+        } else {
+          console.log('ERROR: Could not find transform "' + transformName + '".');
         }
       }
-
-      return toModel;
     };
 
-    // Generate the view model from a given data model using a given transform.
-    var generateViewModel = function(dataModel, transformName) {
-      // console.log('DEBUG: generateViewModel called.');
-      if (!dataModel || !transformName) {
-        // console.log('DEBUG: Invalid arguments.');
-        return;
-      }
-
-      if (!dataModel.nodes || dataModel.nodes.length < 1) {
-        // console.log('DEBUG: No nodes in data model.');
-        return;
-      }
-
-      var transform = transformsByName[transformName];
-      if (!transform) {
-        console.log('ERROR: Could not find transform "' + transformName + '".');
-        return;
-      }
-
-      var toModel = JSON.parse(JSON.stringify(viewModel.data));
-      toModel = transform(dataModel, toModel, viewModel.configuration);
-      toModel = postProcess(toModel);
-
-      setViewModel(toModel);
-    };
-
-    loadTransformDirectory();
     this.$get = function() {
       return {
-        // TODO: Hard wired this for 2/25/2015 demo. 
-        "defaultTransformName" : "Expanded",
         "viewModel" : viewModel,
+        "getLegend" : getLegend,
+        "setLegend" : setLegend,
+        "getSettings" : getSettings,
+        "setSettings" : setSettings,
+        "getSelectionIdList" : getSelectionIdList,
+        "setSelectionIdList" : setSelectionIdList,
+        "getSelectionHops" : getSelectionHops,
+        "setSelectionHops" : setSelectionHops,
+        "defaultTransformName" : defaultTransformName,
         "generateViewModel" : generateViewModel,
         "setViewModel" : setViewModel
       };
@@ -441,5 +365,4 @@
 
   angular.module("krakenApp.Graph")
     .provider("viewModelService", ["lodash", viewModelService]);
-
-})();
+}());

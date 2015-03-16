@@ -2,19 +2,9 @@
   <div flex layout="column" layout-fill>
     <md-toolbar class="md-toolbar-small">
       <div class="md-toolbar-tools-small md-toolbar-tools">
-<!-- 
-        <button class="menu-icon" aria-label="Menu">
-          <md-icon md-svg-src="/assets/img/icons/ic_menu_24px.svg">
-          </md-icon>
-          <paper-ripple class="circle recenteringTouch" fit></paper-ripple>
-          <md-tooltip>
-            Toggle Sidebar
-          </md-tooltip>
-        </button>
- --> 
         <span flex></span>
         <md-button id="ExpandCollapse" class="icon-button" aria-label="ExpandCollapse" ng-click="toggleExpand()">
-          <md-icon md-svg-src="{{expandIcon}}">
+          <md-icon md-svg-src="{{getExpandIcon()}}">
           </md-icon>
           <paper-ripple class="circle recenteringTouch" fit></paper-ripple>
           <md-tooltip>
@@ -22,7 +12,7 @@
           </md-tooltip>
         </md-button>
         <md-button id="ToggleSelect" class="icon-button" aria-label="Select" ng-click="toggleSelect()">
-          <md-icon md-svg-src="{{selectIcon}}">
+          <md-icon md-svg-src="{{getSelectIcon()}}">
           </md-icon>
           <paper-ripple class="circle recenteringTouch" fit></paper-ripple>
           <md-tooltip>
@@ -30,7 +20,7 @@
           </md-tooltip>
         </md-button>
         <md-button id="ToggleSource" class="icon-button" aria-label="Source" ng-click="toggleSource()">
-          <md-icon md-svg-src="{{sourceIcon}}">
+          <md-icon md-svg-src="{{getSourceIcon()}}">
           </md-icon>
           <paper-ripple class="circle recenteringTouch" fit></paper-ripple>
           <md-tooltip>
@@ -38,7 +28,7 @@
           </md-tooltip>
         </md-button>
         <md-button class="icon-button" aria-label="PlayPause" ng-click="togglePlay()">
-          <md-icon md-svg-src="{{playIcon}}">
+          <md-icon md-svg-src="{{getPlayIcon()}}">
           </md-icon>
           <paper-ripple class="circle recenteringTouch" fit></paper-ripple>
           <md-tooltip>
@@ -67,23 +57,8 @@
     <md-content layout="row">
       <div flex="25">
         <div layout="column">
-<!--           <md-card flex layout="column" style="padding:0;">
-            <md-card flex style="margin:0;">
-              <md-button flex class="md-primary" ng-click="showHide('graph')">Graph</md-button>
-            </md-card>
-            <div flex id="graph" style="display:none; padding:0;">
-              <div flex ng-repeat="transformName in getTransformNames()">
-                <div flex layout-padding>
-                  <md-button layout-fill class="md-raised md-primary" ng-click="setSelectedTransformName(transformName)">
-                    {{transformName}}
-                  </md-button>
-                </div>
-              </div>
-            </div>
-          </md-card>
- -->
-           <md-card flex layout="column" style="padding:0;">
-            <md-card flex style="margin:0;">
+           <md-card flex layout="column" class="sidenav-frame">
+            <md-card flex class="sidenav-card">
               <md-button id="toggleLegend" flex class="md-primary" ng-click="showHide('legend')">
                 Legend
                 <md-tooltip>
@@ -91,8 +66,8 @@
                 </md-tooltip>
               </md-button>
             </md-card>
-            <div flex id="legend" style="padding:0;">
-              <md-card flex style="margin:0;">
+            <div flex id="legend" class="sidenav-frame">
+              <md-card flex class="sidenav-card">
                 <table class="legend-table">
                   <thead></thead>
                   <tbody>
@@ -117,7 +92,7 @@
                   </tbody>
                 </table>
               </md-card>
-              <md-card flex style="margin:0;">
+              <md-card flex class="sidenav-card">
                 <table class="legend-table">
                   <thead></thead>
                   <tbody>
@@ -141,8 +116,8 @@
               </md-card>
             </div>
           </md-card>
-          <md-card flex layout="column" style="padding:0;">
-            <md-card flex style="margin:0;">
+          <md-card flex layout="column" class="sidenav-frame">
+            <md-card flex class="sidenav-card">
               <md-button id="toggleDetails" flex class="md-primary" ng-click="showHide('details')">
                 Details
                 <md-tooltip>
@@ -150,8 +125,8 @@
                 </md-tooltip>
               </md-button>
             </md-card>
-            <div flex id="details" style="padding:0;">
-              <md-card flex style="margin:0;">
+            <div flex id="details" class="sidenav-frame">
+              <md-card flex class="sidenav-card">
                 <table class="details-table">
                   <thead></thead>
                   <tbody>
@@ -170,21 +145,6 @@
               </md-card>
             </div>
           </md-card>
-
- <!--
-          <md-card flex layout="column" style="padding:0;">
-            <md-button flex class="md-primary" ng-click="showHide('samples')">Samples</md-button>
-            <div flex id="samples" style="display:none; padding:0;">
-              <div flex layout ng-repeat="sampleName in sampleNames">
-                <div flex layout-padding>
-                  <md-button layout-fill class="md-raised md-primary" ng-click="showDataSample(sampleName)">
-                    {{sampleName}}
-                  </md-button>
-                </div>
-              </div>
-            </div>
-          </md-card>
- -->
         </div>
       </div>
       <div flex="75" layout="column">

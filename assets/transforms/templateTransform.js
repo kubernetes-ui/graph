@@ -1,21 +1,9 @@
-function templateTransform(lodash, template) {
-  var nodeLegend = undefined;
-  var linkLegend = undefined;
-  if (template.legend) {
-    if (template.legend.nodes) {
-      nodeLegend = template.legend.nodes;
-    }
-
-    if (template.legend.links) {
-      linkLegend = template.legend.links;
-    }
-  }
-
+function templateTransform(_, template) {
   var stringifyNoQuotes = function(result) {
     if (typeof result !== "string") {
-      if (typeof result !== "undefined") {
+      if (result !== "undefined") {
         result = JSON.stringify(result);
-        result = result.replace(/\"([^(\")"]+)\":/g,"$1:");
+        result = result.replace(/\"([^(\")"]+)\":/g, "$1:");
       } else {
         result = "undefined";   
       }
@@ -26,24 +14,27 @@ function templateTransform(lodash, template) {
 
   var evalExpression = function(item, expression) {
     var result = undefined;
-    if (typeof expression.eval === "string") {
+    var expr = expression.eval;
+    if (typeof expr === "string") {
       var args = [];
-      if (lodash.isArray(expression.args)) {
-        lodash.forEach(expression.args, function(results) {
+      if (_.isArray(expression.args)) {
+        _.forEach(expression.args, function(results) {
           if (typeof results === "string") {
-            if (results.charAt(0) == "$") {
+            if (results.charAt(0) === "$") {
               results = JSONPath(null, item, results);
             }
             if (results && results.length > 0) {
-              results = lodash.map(results, function(result) {
+              results = _.map(results, function(result) {
                 return stringifyNoQuotes(result);
               });
               args.push(results);
             }
           }
         });
-        var expr = vsprintf(expression.eval, args);
+
+        expr = vsprintf(expr, args);
       }
+
       result = eval(expr);
     }
 
@@ -52,73 +43,76 @@ function templateTransform(lodash, template) {
 
   var filterItem = function(filters) {
     return function(fromItem) {
-      return lodash.every(filters, function(filter) { 
+      return _.every(filters, function(filter) { 
         return evalExpression(fromItem, filter); 
       });
     };
   };
 
-  var random = function() {
-    var str = JSON.stringify(Math.random());
-    var idx = str.indexOf(".") + 1;
-    if (idx > 0 && idx < str.length) {
-      str = str.substring(idx);
-    }
+  var mapItem = function(fromItem, toItem, maps) {
+    var random = function() {
+      var str = JSON.stringify(Math.random());
+      var idx = str.indexOf(".") + 1;
+      if (idx > 0 && idx < str.length) {
+        str = str.substring(idx);
+      }
 
-    return str;
-  };
+      return str;
+    };
 
-  var evalMapping = function(item, mapping) {
-    var result = undefined;
-    if (mapping) {
-      if (typeof mapping === "string") {
-        result = mapping;
-        if (result.charAt(0) == "$") {
-          result = JSONPath(null, item, mapping);
-          if (result && result.length == 1) {
-            result = result[0];
+    var mapProperties = function(fromItem, toItem, properties) {
+      var evalMapping = function(item, mapping) {
+        var result = undefined;
+        if (mapping) {
+          if (typeof mapping === "string") {
+            if (mapping.charAt(0) === "$") {
+              results = JSONPath(null, item, mapping);
+              if (results && results.length > 0) {
+                if (results.length === 1) {
+                  result = results[0];
+                }
+              }
+            } else {
+              result = mapping;
+            }
+          } else
+          if (typeof mapping === "object") {
+            if (mapping.expression) {
+              result = evalExpression(item, mapping);
+            } else {
+              result = mapProperties(item, {}, mapping);
+            }
+          } else
+          if (_.isArray(mapping)) {
+            result = _.map(mapping, function(member) {
+                return evalMapping(item, member);
+            });
           }
         }
-      } else
-      if (typeof mapping === "object") {
-        if (mapping.expression) {
-        result = evalExpression(item, mapping);
-        } else
-        if (mapping.properties) {
-          result = mapProperties(item, {}, mapping);
-        }
-      } else
-      if (lodash.isArray(mapping)) {
-        result = lodash.map(mapping, function(member) {
-            return evalMapping(item, member);
+
+        return result;
+      };
+
+      if (properties) {
+        _.forOwn(properties, function(mapping, property) {
+          mapping = evalMapping(fromItem, mapping);
+          if (mapping) {
+            property = evalMapping(fromItem, property);
+            if (property) {
+              property = stringifyNoQuotes(property);
+              toItem[property] = mapping;
+            }
+          }
         });
       }
-    }
 
-    return result;
-  };
+      return toItem;
+    };
 
-  var mapProperties = function(fromItem, toItem, properties) {
-    if (properties) {
-      lodash.forOwn(properties, function(mapping, property) {
-        mapping = evalMapping(fromItem, mapping);
-        if (mapping) {
-          property = evalMapping(fromItem, property);
-          if (property) {
-            property = stringifyNoQuotes(property);
-            toItem[property] = mapping;
-          }
-        }
-      });
-    }
-  };
-
-  var mapItem = function(fromItem, toItem, maps, legend) {
     toItem.id = fromItem.id || random();
-
     if (maps) {
       // TODO: Apply maps progressively not sequentially.
-      lodash.forEach(maps, function(map) {
+      _.forEach(maps, function(map) {
         if (!map.filter || evalExpression(fromItem, map.filter)) {
           mapProperties(fromItem, toItem, map.properties);
         }
@@ -126,65 +120,81 @@ function templateTransform(lodash, template) {
     }
   };
 
-  var mapNode = function(fromNode) {
-    var toNode = {};
-    mapItem(fromNode, toNode, template.nodeMaps, nodeLegend || this.legend.nodes);
-    return toNode;
-  };
+  var mapNodes = function(fromNodes, toData) {
+    var mapNode = function(fromNode) {
+      var toNode = {};
+      mapItem(fromNode, toNode, template.nodeMaps);
+      return toNode;
+    };
 
-  var mapEdge = function(fromEdge) {
-    var toEdge = {};
-    mapItem(fromEdge, toEdge, template.edgeMaps, linkLegend || this.legend.links);
-    return toEdge;
-  };
+    var sortNode = function(fromNode) {
+      return fromNode.id;
+    };
 
-  var sortNode = function(fromNode) {
-    return fromNode.id;
-  };
-
-  var sortEdge = function(fromEdge) {
-    return fromEdge.source + ":" + fromEdge.target;
-  };
-
-  var mapNodes = function(fromModel, toModel, configuration) {
-    var chain = lodash.chain(fromModel.nodes);
+    var chain = _.chain(fromNodes);
     if (template.nodeFilters) {
       chain = chain
-        .filter(filterItem(template.nodeFilters), configuration);
+        .filter(filterItem(template.nodeFilters));
     }
 
-    toModel.nodes = chain
-      .sortBy(sortNode, configuration)
-      .map(mapNode, configuration)
+    toData.nodes = chain
+      .map(mapNode)
+      .sortBy(sortNode)
       .value();
   };
 
-  var mapEdges = function(fromModel, toModel, configuration) {
-    var chain = lodash.chain(fromModel.edges);
+  var mapLinks = function(fromLinks, toData) {
+    var mapLink = function(fromLink) {
+      var toLink = {};
+      mapItem(fromLink, toLink, template.edgeMaps);
+      return toLink;
+    };
+
+    var sortLink = function(fromLink) {
+      return fromLink.source + ":" + fromLink.target;
+    };
+
+    var chain = _.chain(fromLinks);
     if (template.edgeFilters) {
-      chain = chain.filter(filterItem(template.edgeFilters), configuration);
+      chain = chain.filter(filterItem(template.edgeFilters));
     }
 
-    toModel.links = chain
-      .map(mapEdge, configuration)
-      .sortBy(sortEdge, configuration)
+    toData.links = chain
+      .map(mapLink)
+      .sortBy(sortLink)
       .value();
   };
 
-  return function(fromModel, toModel, configuration) {
-    if (fromModel && toModel && configuration) {
-      if (template.settings) {
-        toModel.settings = template.settings;
+  return function(fromData, configuration) {
+    var toData = {};
+    toData.configuration = configuration;
+    if (template.configuration) {
+      if (template.configuration.legend) {
+        toData.configuration.legend = template.configuration.legend;          
       }
 
-      if (fromModel.nodes) {
-        mapNodes(fromModel, toModel, configuration);
-        if (fromModel.edges) {
-          mapEdges(fromModel, toModel, configuration);
+      if (template.configuration.settings) {
+        toData.configuration.settings = template.configuration.settings;          
+      }
+
+      if (template.configuration.selectionHops) {
+        toData.configuration.selectionHops = template.configuration.selectionHops;          
+      }
+
+      if (template.configuration.selectionIdList) {
+        toData.configuration.selectionIdList = template.configuration.selectionIdList;          
+      }
+    }
+
+    if (fromData) {
+      if (fromData.resources) {
+        mapNodes(fromData.resources, toData);
+        if (fromData.relations) {
+          mapLinks(fromData.relations, toData);
         }
       }
     }
 
-    return toModel;
+    return toData;
   };
 }

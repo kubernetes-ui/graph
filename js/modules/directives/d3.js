@@ -128,7 +128,7 @@ angular.module('krakenApp.Graph')
           }
         });
 
-        scope.viewModelService.viewModel.configuration.selectionIdList = selectionIdList;
+        scope.viewModelService.setSelectionIdList(selectionIdList);
 
         _.defer(function() {
           scope.$apply();
@@ -306,7 +306,7 @@ angular.module('krakenApp.Graph')
         var clusterInnerPadding;
         var clusterOuterPadding;
 
-        if (graph.settings.clustered) {
+        if (graph.configuration.settings.clustered) {
           force
             .gravity(CONSTANTS.DEFAULTS.FORCE_CLUSTERED_GRAVITY)
             .charge(CONSTANTS.DEFAULTS.FORCE_CLUSTERED_CHARGE);
@@ -366,7 +366,7 @@ angular.module('krakenApp.Graph')
 
         if (newPositionCount < (CONSTANTS.DEFAULTS.FORCE_REFRESH_THRESHOLD_PERCENTAGE * graph.nodes.length)) {
           var startingAlpha =
-            graph.settings.clustered
+            graph.configuration.settings.clustered
             ? CONSTANTS.DEFAULTS.FORCE_CLUSTERED_REFRESH_STARTING_ALPHA
             : CONSTANTS.DEFAULTS.FORCE_NONCLUSTERED_REFRESH_STARTING_ALPHA;
 
@@ -399,7 +399,7 @@ angular.module('krakenApp.Graph')
         // The largest node for each cluster.
         var clusters;
 
-        if (graph.settings.clustered) {
+        if (graph.configuration.settings.clustered) {
           clusters = buildClusters(graph.nodes);
         }
 
@@ -478,7 +478,7 @@ angular.module('krakenApp.Graph')
           .attr('dy', '.35em');
 
         text.text(function (d) {
-            return graph.settings.showNodeLabels && !d.hideLabel ? d.name : '';
+            return graph.configuration.settings.showNodeLabels && !d.hideLabel ? d.name : '';
           });
 
         text.each(function (e) {
@@ -500,7 +500,7 @@ angular.module('krakenApp.Graph')
             });
         });
 
-        if (!graph.settings.clustered && graph.settings.showEdgeLabels) {
+        if (!graph.configuration.settings.clustered && graph.configuration.settings.showEdgeLabels) {
           var edgepaths = g.selectAll('.edgepath')
             .data(graph.links)
             .enter()
@@ -548,7 +548,7 @@ angular.module('krakenApp.Graph')
 
         var circle = g.selectAll('circle');
 
-        if (graph.settings.clustered && newPositionCount) {
+        if (graph.configuration.settings.clustered && newPositionCount) {
           circle.attr('r', function (d) {
             return d.radius;
           })
@@ -617,7 +617,7 @@ angular.module('krakenApp.Graph')
         // This function looks up whether a pair are neighbours.
         function neighboring(a, b) {
           // TODO(duftler): Add support for > 1 hops.
-          if (scope.viewModelService.viewModel.configuration.selectionHops) {
+          if (scope.viewModelService.getSelectionHops()) {
             return linkedByIndex[a.index + ',' + b.index];
           } else {
             return false;
@@ -695,7 +695,7 @@ angular.module('krakenApp.Graph')
             return d3.select(this).style('opacity');
           });
 
-          if (graph.settings.clustered) {
+          if (graph.configuration.settings.clustered) {
             circle
               .each(cluster(10 * forceAlpha * forceAlpha))
               .each(collide(.5, clusterInnerPadding, clusterOuterPadding))
@@ -840,8 +840,8 @@ angular.module('krakenApp.Graph')
         function getClusterInnerPadding() {
           var result = CONSTANTS.DEFAULTS.CLUSTER_INNER_PADDING;
 
-          if (graph.settings.clusterSettings && graph.settings.clusterSettings.innerPadding !== undefined) {
-            result = graph.settings.clusterSettings.innerPadding;
+          if (graph.configuration.settings.clusterSettings && graph.configuration.settings.clusterSettings.innerPadding !== undefined) {
+            result = graph.configuration.settings.clusterSettings.innerPadding;
           }
 
           return result;
@@ -850,8 +850,8 @@ angular.module('krakenApp.Graph')
         function getClusterOuterPadding() {
           var result = CONSTANTS.DEFAULTS.CLUSTER_OUTER_PADDING;
 
-          if (graph.settings.clusterSettings && graph.settings.clusterSettings.outerPadding !== undefined) {
-            result = graph.settings.clusterSettings.outerPadding;
+          if (graph.configuration.settings.clusterSettings && graph.configuration.settings.clusterSettings.outerPadding !== undefined) {
+            result = graph.configuration.settings.clusterSettings.outerPadding;
           }
 
           return result;
