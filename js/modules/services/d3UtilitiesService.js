@@ -1,6 +1,6 @@
 /**=========================================================
  * Module: Graph
- * Visualizer for force directed graph
+ * Visualizer for force directed graph.
  * This is a service that provides stateless utility
  * functions for use by the d3 visualization directive.
  =========================================================*/
@@ -8,7 +8,8 @@
 (function() {
   'use strict';
 
-  var d3UtilitiesService = function(viewModelService) {
+  var d3UtilitiesService = function() {
+    // Return a random position [x,y] within radius of the origin.
     function getRandomStartingPosition(radius) {
       var t = 2 * Math.PI * Math.random();
       var u = Math.random() + Math.random();
@@ -93,7 +94,7 @@
     }
 
     // Resolves collisions between d and all other nodes.
-    function collide(nodes, builtClusters, alpha, clusterInnerPadding, clusterOuterPadding) {
+    function collide(d3, nodes, builtClusters, alpha, clusterInnerPadding, clusterOuterPadding) {
       var quadtree = d3.geom.quadtree(nodes);
       return function (d) {
         var r = d.radius + builtClusters.maxRadius + Math.max(clusterInnerPadding, clusterOuterPadding),
@@ -161,6 +162,6 @@
   };
 
   angular.module('krakenApp.Graph.services.d3', [])
-    .service('d3UtilitiesService', ["viewModelService", d3UtilitiesService]);
+    .service('d3UtilitiesService', [d3UtilitiesService]);
 
 })();
