@@ -23,7 +23,7 @@
     };
   };
 
-  angular.module('krakenApp.Graph.services', [])
+  angular.module('kubernetesApp.Graph.services', [])
       .factory('inspectNodeService', inspectNodeService);
 
 })();

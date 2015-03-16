@@ -2,7 +2,7 @@
 
 describe("Graph controller", function() {
 
-  beforeEach(module("krakenApp.Graph"));
+  beforeEach(module("kubernetesApp.Graph"));
 
   it("should work as intended", function() {
   });

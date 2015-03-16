@@ -3,7 +3,7 @@
 describe("Inspect node service", function() {
   var inspectNodeService;
 
-  beforeEach(module('krakenApp.Graph.services'));
+  beforeEach(module('kubernetesApp.Graph.services'));
   beforeEach(inject(function (_inspectNodeService_) {
     inspectNodeService = _inspectNodeService_;
   }));

@@ -5,7 +5,7 @@
 (function() {
   'use strict';
 
-  angular.module('krakenApp.Graph').controller(
+  angular.module('kubernetesApp.Graph').controller(
       'InspectNodeCtrl',
       ['$scope', 'inspectNodeService', '$location', function($scope, inspectNodeService, $location) {
         var nodeDetail = inspectNodeService.getDetailData();

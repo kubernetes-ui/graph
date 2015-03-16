@@ -8,7 +8,7 @@
     var mockDataService = function MockDataService() {
       var MOCK_SAMPLE_DATA = [
       {
-        'name' : 'All Types', 
+        'name' : 'All Types',
         'data' : {
           "nodes": [
           {
@@ -17,14 +17,14 @@
             "fill": "olivedrab",
             "id": 1,
             "selected": true
-          }, 
+          },
           {
             "name": "pod: guestbook-controller",
             "radius": 20,
             "fill": "palegoldenrod",
             "id": 2,
             "selected": true
-          }, 
+          },
           {
             "name": "pod: guestbook-controller",
             "radius": 20,
@@ -41,7 +41,7 @@
             "name": "container: php-redis",
             "radius": 24,
             "fill": "cornflowerblue"
-          }, 
+          },
           {
             "name": "container: php-redis",
             "radius": 24,
@@ -51,7 +51,7 @@
             "name": "container: php-redis",
             "radius": 24,
             "fill": "cornflowerblue"
-          }, 
+          },
           {
             "name": "service: redis-master",
             "radius": 16,
@@ -91,12 +91,12 @@
             "name": "pod: redis-worker-controller",
             "radius": 20,
             "fill": "palegoldenrod"
-          }, 
+          },
           {
             "name": "container: slave",
             "radius": 24,
             "fill": "cornflowerblue"
-          }, 
+          },
           {
             "name": "container: slave",
             "radius": 24,
@@ -110,56 +110,56 @@
             "width": 2,
             "stroke": "black",
             "distance": 80
-          }, 
+          },
           {
             "source": 0,
             "target": 2,
             "width": 2,
             "stroke": "black",
             "distance": 80
-          }, 
+          },
           {
             "source": 0,
             "target": 3,
             "width": 2,
             "stroke": "black",
             "distance": 80
-          }, 
+          },
           {
             "source": 1,
             "target": 4,
             "width": 1,
             "stroke": "black",
             "distance": 80
-          }, 
+          },
           {
             "source": 2,
             "target": 5,
             "width": 1,
             "stroke": "black",
             "distance": 80
-          }, 
+          },
           {
             "source": 3,
             "target": 6,
             "width": 1,
             "stroke": "black",
             "distance": 80
-          }, 
+          },
           {
             "source": 7,
             "target": 8,
             "width": 2,
             "stroke": "black",
             "distance": 80
-          }, 
+          },
           {
             "source": 8,
             "target": 9,
             "width": 1,
             "stroke": "black",
             "distance": 80
-          }, 
+          },
           {
             "source": 10,
             "target": 0,
@@ -167,21 +167,21 @@
             "stroke": "black",
             "distance": 80,
             "label": "port: 3000"
-          }, 
+          },
           {
             "source": 11,
             "target": 12,
             "width": 2,
             "stroke": "black",
             "distance": 80
-          }, 
+          },
           {
             "source": 12,
             "target": 13,
             "width": 1,
             "stroke": "black",
             "distance": 80
-          }, 
+          },
           {
             "source": 12,
             "target": 14,
@@ -378,76 +378,76 @@
       {
       'name' : 'Clustered',
       'data' : {
-        "nodes" : [ 
+        "nodes" : [
         {
           "cluster" : 1,
           "name" : "pod: guestbook-controller",
           "radius" : 24,
           "fill": "red"
         },
-        { 
+        {
           "cluster" : 2,
           "name" : "pod: guestbook-controller",
           "radius" : 24,
           "fill": "green"
         },
-        { 
+        {
           "cluster" : 3,
           "name" : "pod: guestbook-controller",
           "radius" : 24,
           "fill": "blue"
         },
-        { 
+        {
           "cluster" : 1,
           "name" : "container: php-redis",
           "radius" : 20,
           "fill": "red"
         },
-        { 
+        {
           "cluster" : 2,
           "name" : "container: php-redis",
           "radius" : 20,
           "fill": "green"
         },
-        { 
+        {
           "cluster" : 3,
           "name" : "container: php-redis",
           "radius" : 20,
           "fill": "blue"
         },
-        { 
+        {
           "cluster" : 4,
           "name" : "pod: redis-master",
           "radius" : 24,
           "fill": "orange"
         },
-        { 
+        {
           "cluster" : 4,
           "name" : "container: master",
           "radius" : 20,
           "fill": "orange"
         },
-        { 
+        {
           "cluster" : 5,
           "name" : "pod: redis-worker-controller",
           "radius" : 24,
           "fill" : "goldenrod"
         },
-        { 
+        {
           "cluster" : 5,
           "name" : "container: slave",
           "radius" : 20,
           "fill" : "goldenrod"
         },
-        { 
+        {
           "cluster" : 5,
           "name" : "container: slave",
           "radius" : 20,
           "fill" : "goldenrod"
         }
         ],
-        "settings" : { 
-          "clusterSettings" : { 
+        "settings" : {
+          "clusterSettings" : {
             "clusterPadding" : 25,
             "padding" : 1.5
           },
@@ -463,7 +463,7 @@
     };
   };
 
-  angular.module('krakenApp.Graph')
+  angular.module('kubernetesApp.Graph')
   .service('mockDataService', mockDataService);
 
 })();

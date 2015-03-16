@@ -5,8 +5,8 @@
 (function() {
   "use strict";
 
-  angular.module("krakenApp.Graph", ["krakenApp.services", "krakenApp.Graph.services", "yaru22.jsonHuman"])
-  .controller("GraphCtrl", ["$scope", "lodash", "viewModelService", 
+  angular.module("kubernetesApp.Graph", ["kubernetesApp.services", "kubernetesApp.Graph.services", "yaru22.jsonHuman"])
+  .controller("GraphCtrl", ["$scope", "lodash", "viewModelService",
     "pollK8sDataService", "$location", "$window", "inspectNodeService",
     function($scope, _, viewModelService, pollK8sDataService, $location, $window, inspectNodeService) {
       $scope.showHide = function(id) {
@@ -52,7 +52,7 @@
       });
 
       $scope.getSourceIcon = function() {
-        return pollK8sDataService.k8sdatamodel.useSampleData ? 
+        return pollK8sDataService.k8sdatamodel.useSampleData ?
           "components/graph/img/LiveData.svg" : "components/graph/img/SampleData.svg";
       };
 
@@ -179,14 +179,14 @@
 
         return selectedNode;
       };
- 
+
       var stringifyNoQuotes = function(result) {
         if (typeof result !== "string") {
           if (result !== "undefined") {
             result = JSON.stringify(result);
             result = result.replace(/\"([^(\")"]+)\":/g, "$1:");
           } else {
-            result = "undefined";   
+            result = "undefined";
           }
         }
 
@@ -230,7 +230,7 @@
       });
 
       $scope.getExpandIcon = function() {
-        return viewModelService.getSettings().clustered ? 
+        return viewModelService.getSettings().clustered ?
           "components/graph/img/Expand.svg" : "components/graph/img/Collapse.svg";
       };
 
@@ -241,8 +241,8 @@
       };
 
       $scope.getSelectIcon = function() {
-        return viewModelService.getSelectionHops() ? 
-          "components/graph/img/SelectOne.svg" : "components/graph/img/SelectMany.svg"; 
+        return viewModelService.getSelectionHops() ?
+          "components/graph/img/SelectOne.svg" : "components/graph/img/SelectMany.svg";
       };
 
       $scope.toggleSelect = function() {

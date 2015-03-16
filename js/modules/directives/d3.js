@@ -1,4 +1,4 @@
-angular.module('krakenApp.Graph')
+angular.module('kubernetesApp.Graph')
     .directive('d3Visualization', ['lodash', 'd3Service', '$location',
                                    'inspectNodeService',
                                    function (lodash, d3Service, $location, inspectNodeService) {

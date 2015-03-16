@@ -30,15 +30,15 @@
       "links" : []
     };
 
-    var viewModel = { 
-      "data" : defaultData, 
+    var viewModel = {
+      "data" : defaultData,
       "default" : defaultData,
       "version" : 0,
       "transformNames" : []
     };
 
     var getLegend = function() {
-      return (viewModel && viewModel.data && viewModel.data.configuration) ? 
+      return (viewModel && viewModel.data && viewModel.data.configuration) ?
         viewModel.data.configuration.legend : undefined;
     };
 
@@ -49,7 +49,7 @@
     };
 
     var getSettings = function() {
-      return (viewModel && viewModel.data && viewModel.data.configuration) ? 
+      return (viewModel && viewModel.data && viewModel.data.configuration) ?
         viewModel.data.configuration.settings : undefined;
     };
 
@@ -60,7 +60,7 @@
     };
 
     var getSelectionHops = function() {
-      return (viewModel && viewModel.data && viewModel.data.configuration) ? 
+      return (viewModel && viewModel.data && viewModel.data.configuration) ?
         viewModel.data.configuration.selectionHops : 1;
     };
 
@@ -71,7 +71,7 @@
     };
 
     var getSelectionIdList = function() {
-      return (viewModel && viewModel.data && viewModel.data.configuration) ? 
+      return (viewModel && viewModel.data && viewModel.data.configuration) ?
         viewModel.data.configuration.selectionIdList : [];
     };
 
@@ -273,9 +273,9 @@
           if (filtered) {
             chain = chain
               .filter(function(toLink) {
-                return (toLink.source !== undefined) 
+                return (toLink.source !== undefined)
                   && (toLink.target !== undefined);
-              });          
+              });
           }
 
           toData.links = chain.value();
@@ -305,7 +305,7 @@
               return legend.nodes[toNode.type] ? legend.nodes[toNode.type].selected : false;
             });
         }
-        
+
         if (settings && settings.clustered) {
           chain = chain
             .forEach(function(toNode) {
@@ -363,6 +363,6 @@
     };
   };
 
-  angular.module("krakenApp.Graph")
+  angular.module("kubernetesApp.Graph")
     .provider("viewModelService", ["lodash", viewModelService]);
 }());

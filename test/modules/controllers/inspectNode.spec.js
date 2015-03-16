@@ -7,7 +7,7 @@ describe("Inspect node controller", function() {
   // Work around to get ngLodash correctly injected.
   beforeEach(function () {
     angular.module('testModule',
-                   ['ngLodash', 'krakenApp.Graph', 'krakenApp.config']);
+                   ['ngLodash', 'kubernetesApp.Graph', 'kubernetesApp.config']);
   });
 
   beforeEach(module('testModule'));
