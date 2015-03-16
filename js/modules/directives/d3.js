@@ -1,7 +1,7 @@
 angular.module('kubernetesApp.components.graph')
-    .directive('d3Visualization', ['lodash', 'd3Service', '$location',
-                                   'inspectNodeService',
-                                   function (lodash, d3Service, $location, inspectNodeService) {
+    .directive('d3Visualization', ['lodash', 'd3Service', 'd3UtilitiesService',
+                                   '$location', 'inspectNodeService',
+                                   function (lodash, d3Service, d3UtilitiesService, $location, inspectNodeService) {
   return {
     restrict: 'E',
     link: function (scope, element, attrs) {
@@ -71,7 +71,8 @@ angular.module('kubernetesApp.components.graph')
         // Add each edge where both the source and target nodes are selected.
         if (link) {
           link.each(function (e) {
-            if (setHas(selection.nodes, e.source) && setHas(selection.nodes, e.target)) {
+            if (d3UtilitiesService.setHas(selection.nodes, e.source)
+                && d3UtilitiesService.setHas(selection.nodes, e.target)) {
               selection.edges.add(e);
             }
           });
@@ -80,7 +81,8 @@ angular.module('kubernetesApp.components.graph')
         // Add each edge label where both the source and target nodes are selected.
         if (edgelabels) {
           edgelabels.each(function (e) {
-            if (setHas(selection.nodes, e.source) && setHas(selection.nodes, e.target)) {
+            if (d3UtilitiesService.setHas(selection.nodes, e.source)
+                && d3UtilitiesService.setHas(selection.nodes, e.target)) {
               selection.edgelabels.add(e);
             }
           });
@@ -97,7 +99,7 @@ angular.module('kubernetesApp.components.graph')
 
         // Reduce the opacity of all but the selected nodes.
         node.style('opacity', function (e) {
-          var newOpacity = setHas(selection.nodes, e) ? 1 : notSelectedOpacity;
+          var newOpacity = d3UtilitiesService.setHas(selection.nodes, e) ? 1 : notSelectedOpacity;
 
           if (e.origOpacity) {
             e.origOpacity = newOpacity;
@@ -109,14 +111,14 @@ angular.module('kubernetesApp.components.graph')
         // Reduce the opacity of all but the selected edges.
         if (link) {
           link.style('opacity', function (e) {
-            return setHas(selection.edges, e) ? 1 : notSelectedOpacity;
+            return d3UtilitiesService.setHas(selection.edges, e) ? 1 : notSelectedOpacity;
           });
         }
 
         // Reduce the opacity of all but the selected edge labels.
         if (edgelabels) {
           edgelabels.style('opacity', function (e) {
-            return setHas(selection.edgelabels, e) ? 1 : notSelectedOpacity;
+            return d3UtilitiesService.setHas(selection.edgelabels, e) ? 1 : notSelectedOpacity;
           });
         }
 
@@ -134,24 +136,6 @@ angular.module('kubernetesApp.components.graph')
           scope.$apply();
           resize(d3, false);
         });
-      }
-
-      // Match on Set.has() or id.
-      function setHas(searchSet, item) {
-        if (searchSet.has(item)) {
-          return true;
-        }
-
-        var found = false;
-
-        searchSet.forEach(function (e) {
-          if (e.id !== undefined && e.id === item.id) {
-            found = true;
-            return;
-          }
-        });
-
-        return found;
       }
 
       function getContainerDimensions(d3) {
@@ -226,7 +210,7 @@ angular.module('kubernetesApp.components.graph')
 
         svg.on('contextmenu', function (data, index) {
           if (d3.select('.d3-context-menu').style('display') !== 'block') {
-            showContextMenu(data, index, canvasContextMenu);
+            d3UtilitiesService.showContextMenu(d3, data, index, canvasContextMenu);
           }
 
           // Even if we don't show a new context menu, we don't want the browser's default context menu shown.
@@ -361,9 +345,6 @@ angular.module('kubernetesApp.components.graph')
 
         force.nodes(graph.nodes);
 
-        // TODO(duftler): Remove this after we investigate why so many new id's are returned on 'Refresh'.
-        console.log('graph.nodes.length=' + graph.nodes.length + ' newPositionCount=' + newPositionCount);
-
         if (newPositionCount < (CONSTANTS.DEFAULTS.FORCE_REFRESH_THRESHOLD_PERCENTAGE * graph.nodes.length)) {
           var startingAlpha =
             graph.configuration.settings.clustered
@@ -375,32 +356,11 @@ angular.module('kubernetesApp.components.graph')
           force.start();
         }
 
-        var maxRadius = -1;
-
-        function buildClusters(nodes) {
-          var maxCluster = -1;
-
-          nodes.forEach(function (d) {
-            maxCluster = Math.max(maxCluster, d.cluster);
-            maxRadius = Math.max(maxRadius, d.radius);
-          });
-
-          var clusters = new Array(maxCluster + 1);
-
-          nodes.forEach(function (d) {
-            if (!clusters[d.cluster] || (d.radius > clusters[d.cluster].radius)) {
-              clusters[d.cluster] = d;
-            }
-          });
-
-          return clusters;
-        }
-
-        // The largest node for each cluster.
-        var clusters;
+        // Used to store the largest node for each cluster.
+        var builtClusters;
 
         if (graph.configuration.settings.clustered) {
-          clusters = buildClusters(graph.nodes);
+          builtClusters = d3UtilitiesService.buildClusters(graph.nodes);
         }
 
         node = g.selectAll('.node')
@@ -422,14 +382,14 @@ angular.module('kubernetesApp.components.graph')
           }
         }
 
-        // create the div element that will hold the context menu
+        // Create the div element that will hold the context menu.
         d3.selectAll('.d3-context-menu')
           .data([1])
           .enter()
           .append('div')
           .attr('class', 'd3-context-menu');
 
-        // close menu
+        // Close context menu.
         d3.select('body')
           .on('click.d3-context-menu', function() {
             d3.select('.d3-context-menu').style('display', 'none');
@@ -450,16 +410,12 @@ angular.module('kubernetesApp.components.graph')
                 return d.size[1];
               })
               .on('contextmenu', function (data, index) {
-                showContextMenu(data, index, nodeContextMenu);
+                d3UtilitiesService.showContextMenu(d3, data, index, nodeContextMenu);
               });
           } else {
             singleNode.append('circle')
               .attr('r', function (d) {
                 return d.radius;
-              })
-              .attr('id', function(d, i) {
-                // Add HTML element id for each node to ease testing.
-                return 'd3Node' + i;
               })
               .style('stroke', function (d) {
                 return d.stroke;
@@ -468,7 +424,7 @@ angular.module('kubernetesApp.components.graph')
                 return d.fill;
               })
               .on('contextmenu', function (data, index) {
-                showContextMenu(data, index, nodeContextMenu);
+                d3UtilitiesService.showContextMenu(d3, data, index, nodeContextMenu);
               });
           }
         });
@@ -554,11 +510,13 @@ angular.module('kubernetesApp.components.graph')
           })
         }
 
+        var image = d3.selectAll('image');
+
         // If zero nodes are in the current selection, reset the selection.
         var nodeMatches = new Set();
 
         node.each(function (e) {
-          if (setHas(selection.nodes, e)) {
+          if (d3UtilitiesService.setHas(selection.nodes, e)) {
             nodeMatches.add(e);
           }
         });
@@ -573,35 +531,6 @@ angular.module('kubernetesApp.components.graph')
           applySelectionToOpacity();
         }
 
-        function showContextMenu(data, index, contextMenu) {
-          var elm = this;
-
-          d3.selectAll('.d3-context-menu').html('');
-          var list = d3.selectAll('.d3-context-menu').append('ul');
-          list.selectAll('li')
-            .data(contextMenu)
-            .enter()
-            .append('li')
-            .html(function (d) {
-              return (typeof d.title === 'string') ? d.title : d.title(data);
-            })
-            .on('click', function (d, i) {
-              d.action(elm, data, index);
-              d3.select('.d3-context-menu').style('display', 'none');
-            });
-
-          // display context menu
-          d3.select('.d3-context-menu')
-            .style('left', (d3.event.pageX - 2) + 'px')
-            .style('top', (d3.event.pageY - 2) + 'px')
-            .style('display', 'block')
-            .on('contextmenu', function() {
-              d3.event.preventDefault();
-            });
-
-          d3.event.preventDefault();
-        }
-
         // Create an array logging what is connected to what.
         var linkedByIndex = {};
         for (i = 0; i < graph.nodes.length; i++) {
@@ -614,19 +543,9 @@ angular.module('kubernetesApp.components.graph')
           });
         }
 
-        // This function looks up whether a pair are neighbours.
-        function neighboring(a, b) {
-          // TODO(duftler): Add support for > 1 hops.
-          if (scope.viewModelService.getSelectionHops()) {
-            return linkedByIndex[a.index + ',' + b.index];
-          } else {
-            return false;
-          }
-        }
-
         function toggleSelected(d) {
           // Operation is to select nodes if either no nodes are currently selected or this node is not selected.
-          var selectOperation = !selection.nodes.size || !setHas(selection.nodes, d);
+          var selectOperation = !selection.nodes.size || !d3UtilitiesService.setHas(selection.nodes, d);
 
           if (selectOperation) {
             // Add the clicked node.
@@ -634,7 +553,8 @@ angular.module('kubernetesApp.components.graph')
 
             // Add each node within 1 hop from the clicked node.
             node.each(function (e) {
-              if (neighboring(d, e) | neighboring(e, d)) {
+              if (d3UtilitiesService.neighboring(d, e, linkedByIndex, scope.viewModelService.viewModel.configuration.selectionHops)
+                  | d3UtilitiesService.neighboring(e, d, linkedByIndex, scope.viewModelService.viewModel.configuration.selectionHops)) {
                 selection.nodes.add(e);
               }
             });
@@ -644,7 +564,8 @@ angular.module('kubernetesApp.components.graph')
 
             // Remove each node within 1 hop from the clicked node.
             node.each(function (e) {
-              if (neighboring(d, e) | neighboring(e, d)) {
+              if (d3UtilitiesService.neighboring(d, e, linkedByIndex, scope.viewModelService.viewModel.configuration.selectionHops)
+                  | d3UtilitiesService.neighboring(e, d, linkedByIndex, scope.viewModelService.viewModel.configuration.selectionHops)) {
                 selection.nodes.delete(e);
               }
             });
@@ -697,14 +618,12 @@ angular.module('kubernetesApp.components.graph')
 
           if (graph.configuration.settings.clustered) {
             circle
-              .each(cluster(10 * forceAlpha * forceAlpha))
-              .each(collide(.5, clusterInnerPadding, clusterOuterPadding))
-              .attr('cx', function (d) {
-                return d.x;
-              })
-              .attr('cy', function (d) {
-                return d.y;
-              });
+              .each(d3UtilitiesService.cluster(builtClusters, 10 * forceAlpha * forceAlpha))
+              .each(d3UtilitiesService.collide(graph.nodes, builtClusters, .5, clusterInnerPadding, clusterOuterPadding));
+
+            image
+              .each(d3UtilitiesService.cluster(builtClusters, 10 * forceAlpha * forceAlpha))
+              .each(d3UtilitiesService.collide(graph.nodes, builtClusters, .5, clusterInnerPadding, clusterOuterPadding));
           } else {
             link
               .attr('x1', function (d) {
@@ -728,14 +647,6 @@ angular.module('kubernetesApp.components.graph')
                 return d.target.y + offsetY;
               });
 
-            g.selectAll('circle')
-              .attr('cx', function (d) {
-                return d.x;
-              })
-              .attr('cy', function (d) {
-                return d.y;
-              });
-
             if (edgepaths) {
               edgepaths.attr('d', function (d) {
                 var path = 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
@@ -756,12 +667,18 @@ angular.module('kubernetesApp.components.graph')
             }
           }
 
-          var image = d3.selectAll('image');
+          circle
+            .attr('cx', function (d) {
+              return d.x;
+            })
+            .attr('cy', function (d) {
+              return d.y;
+            });
 
           image.each(function (e) {
             var singleImage = d3.select(this);
-            var siblingText = d3.select(singleImage.node().parentNode).select('text');
-            var bbox = siblingText[0][0] ? siblingText[0][0].getBBox() : null;
+            var siblingText = d3.select(this.parentNode).select('text');
+            var bbox = siblingText[0][0] ? siblingText[0][0].getBBox() : {width: 0};
             var isPinIcon = singleImage.attr('xlink:href') === '/components/graph/img/Pin.svg';
 
             singleImage
@@ -815,28 +732,6 @@ angular.module('kubernetesApp.components.graph')
             });
         }
 
-        // Move d to be adjacent to the cluster node.
-        function cluster(alpha) {
-          return function (d) {
-            var cluster = clusters[d.cluster];
-            if (cluster === d) return;
-            if (d.x == cluster.x && d.y == cluster.y) {
-              d.x += 0.1;
-            }
-            var x = d.x - cluster.x,
-              y = d.y - cluster.y,
-              l = Math.sqrt(x * x + y * y),
-              r = d.radius + cluster.radius;
-            if (l != r) {
-              l = (l - r) / l * alpha;
-              d.x -= x *= l;
-              d.y -= y *= l;
-              cluster.x += x;
-              cluster.y += y;
-            }
-          };
-        }
-
         function getClusterInnerPadding() {
           var result = CONSTANTS.DEFAULTS.CLUSTER_INNER_PADDING;
 
@@ -855,34 +750,6 @@ angular.module('kubernetesApp.components.graph')
           }
 
           return result;
-        }
-
-        // Resolves collisions between d and all other circles.
-        function collide(alpha, clusterInnerPadding, clusterOuterPadding) {
-          var quadtree = d3.geom.quadtree(graph.nodes);
-          return function (d) {
-            var r = d.radius + maxRadius + Math.max(clusterInnerPadding, clusterOuterPadding),
-              nx1 = d.x - r,
-              nx2 = d.x + r,
-              ny1 = d.y - r,
-              ny2 = d.y + r;
-            quadtree.visit(function (quad, x1, y1, x2, y2) {
-              if (quad.point && (quad.point !== d)) {
-                var x = d.x - quad.point.x,
-                  y = d.y - quad.point.y,
-                  l = Math.sqrt(x * x + y * y),
-                  r = d.radius + quad.point.radius + (d.cluster === quad.point.cluster ? clusterInnerPadding : clusterOuterPadding);
-                if (l < r) {
-                  l = (l - r) / l * alpha;
-                  d.x -= x *= l;
-                  d.y -= y *= l;
-                  quad.point.x += x;
-                  quad.point.y += y;
-                }
-              }
-              return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
-            });
-          };
         }
 
         var canvasContextMenu = [
@@ -1010,7 +877,8 @@ angular.module('kubernetesApp.components.graph')
           }
 
           d.fixed |= CONSTANTS.FIXED_MOUSEOVER_BIT;
-          d.px = d.x, d.py = d.y;
+          d.px = d.x;
+          d.py = d.y;
 
           // We capture the original opacity so we have a value to return to after removing the cursor from this node.
           d.origOpacity = d3.select(this).style('opacity');
@@ -1094,16 +962,9 @@ angular.module('kubernetesApp.components.graph')
             };
           });
         }
+
         function resizeSVG() {
           resize(d3, true);
-        }
-
-        function getRandomStartingPosition(radius) {
-          var t = 2 * Math.PI * Math.random();
-          var u = Math.random() + Math.random();
-          var r = u > 1 ? 2 - u : u;
-
-          return [r * Math.cos(t) * radius, r * Math.sin(t) * radius];
         }
 
         // Apply all cached settings to nodes, giving precedence to properties explicitly specified in the view model.
@@ -1144,7 +1005,7 @@ angular.module('kubernetesApp.components.graph')
           // within some radius of the canvas center.
           if (!n.x && !n.y) {
             var radius = graph.nodes.length * 3;
-            var startingPosition = getRandomStartingPosition(radius);
+            var startingPosition = d3UtilitiesService.getRandomStartingPosition(radius);
 
             n.x = center[0] + startingPosition[0];
             n.y = center[1] + startingPosition[1];

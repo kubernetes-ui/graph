@@ -4,9 +4,9 @@
 =========================================================*/
 (function() {
   "use strict";
-
   angular.module("kubernetesApp.components.graph",
-                 ["kubernetesApp.services", "kubernetesApp.components.graph.services", "yaru22.jsonHuman"])
+                 ["kubernetesApp.services", "kubernetesApp.components.graph.services",
+                  "kubernetesApp.components.graph.services.d3", "yaru22.jsonHuman"])
       .controller("GraphCtrl", [
         "$scope",
         "lodash",
