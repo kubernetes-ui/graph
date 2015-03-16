@@ -18,7 +18,8 @@ angular.module('kubernetesApp.Graph')
         scriptTag.src = '/vendor/d3/d3.min.js';
         scriptTag.onreadystatechange = function() {
           if (this.readyState == 'complete') onScriptLoad();
-        } scriptTag.onload = onScriptLoad;
+        };
+        scriptTag.onload = onScriptLoad;
 
         var s = $document[0].getElementsByTagName('body')[0];
         s.appendChild(scriptTag);
