@@ -1,4 +1,4 @@
-angular.module('kubernetesApp.Graph')
+angular.module('kubernetesApp.components.graph')
     .directive('d3Visualization', ['lodash', 'd3Service', '$location',
                                    'inspectNodeService',
                                    function (lodash, d3Service, $location, inspectNodeService) {

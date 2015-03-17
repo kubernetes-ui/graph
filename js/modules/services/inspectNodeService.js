@@ -19,6 +19,6 @@
     };
   };
 
-  angular.module('kubernetesApp.Graph.services', []).factory('inspectNodeService', inspectNodeService);
+  angular.module('kubernetesApp.components.graph.services', []).factory('inspectNodeService', inspectNodeService);
 
 })();

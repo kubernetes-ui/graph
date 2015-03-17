@@ -332,5 +332,5 @@
     };
   };
 
-  angular.module("kubernetesApp.Graph").provider("viewModelService", ["lodash", viewModelService]);
+  angular.module("kubernetesApp.components.graph").provider("viewModelService", ["lodash", viewModelService]);
 }());

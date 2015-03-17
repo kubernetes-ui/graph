@@ -1,4 +1,4 @@
-angular.module('kubernetesApp.Graph')
+angular.module('kubernetesApp.components.graph')
     .factory('d3Service', [
       '$document',
       '$q',

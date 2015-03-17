@@ -5,7 +5,7 @@
 (function() {
   'use strict';
 
-  angular.module('kubernetesApp.Graph')
+  angular.module('kubernetesApp.components.graph')
       .controller('InspectNodeCtrl', [
         '$scope',
         'inspectNodeService',

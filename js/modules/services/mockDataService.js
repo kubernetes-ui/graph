@@ -124,6 +124,6 @@
     };
   };
 
-  angular.module('kubernetesApp.Graph').service('mockDataService', mockDataService);
+  angular.module('kubernetesApp.components.graph').service('mockDataService', mockDataService);
 
 })();

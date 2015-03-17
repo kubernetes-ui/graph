@@ -3,7 +3,7 @@
 describe("Inspect node service", function() {
   var inspectNodeService;
 
-  beforeEach(module('kubernetesApp.Graph.services'));
+  beforeEach(module('kubernetesApp.components.graph.services'));
   beforeEach(inject(function(_inspectNodeService_) { inspectNodeService = _inspectNodeService_; }));
 
   it("should set and get data as intended", function() {
