@@ -121,7 +121,7 @@
           }
         });
 
-        controllerScope.viewModelService.viewModel.configuration.selectionIdList = selectionIdList;
+        controllerScope.viewModelService.setSelectionIdList(selectionIdList);
 
         _.defer(function() {
           $rootScope.$apply();
@@ -290,7 +290,7 @@
         var clusterInnerPadding;
         var clusterOuterPadding;
 
-        if (graph.settings.clustered) {
+        if (graph.configuration.settings.clustered) {
           force
             .gravity(CONSTANTS.DEFAULTS.FORCE_CLUSTERED_GRAVITY)
             .charge(CONSTANTS.DEFAULTS.FORCE_CLUSTERED_CHARGE);
@@ -346,7 +346,7 @@
 
         if (newPositionCount < (CONSTANTS.DEFAULTS.FORCE_REFRESH_THRESHOLD_PERCENTAGE * graph.nodes.length)) {
           var startingAlpha =
-            graph.settings.clustered
+            graph.configuration.settings.clustered
             ? CONSTANTS.DEFAULTS.FORCE_CLUSTERED_REFRESH_STARTING_ALPHA
             : CONSTANTS.DEFAULTS.FORCE_NONCLUSTERED_REFRESH_STARTING_ALPHA;
 
@@ -358,7 +358,7 @@
         // Used to store the largest node for each cluster.
         var builtClusters;
 
-        if (graph.settings.clustered) {
+        if (graph.configuration.settings.clustered) {
           builtClusters = d3UtilitiesService.buildClusters(graph.nodes);
         }
 
@@ -433,7 +433,7 @@
           .attr('dy', '.35em');
 
         text.text(function (d) {
-          return graph.settings.showNodeLabels && !d.hideLabel ? d.name : '';
+          return graph.configuration.settings.showNodeLabels && !d.hideLabel ? d.name : '';
         });
 
         text.each(function (e) {
@@ -455,7 +455,7 @@
             });
         });
 
-        if (!graph.settings.clustered && graph.settings.showEdgeLabels) {
+        if (!graph.configuration.settings.clustered && graph.configuration.settings.showEdgeLabels) {
           var edgepaths = g.selectAll('.edgepath')
             .data(graph.links)
             .enter()
@@ -503,7 +503,7 @@
 
         var circle = g.selectAll('circle');
 
-        if (graph.settings.clustered && newPositionCount) {
+        if (graph.configuration.settings.clustered && newPositionCount) {
           circle.attr('r', function (d) {
             return d.radius;
           })
@@ -553,8 +553,8 @@
 
             // Add each node within 1 hop from the clicked node.
             node.each(function (e) {
-              if (d3UtilitiesService.neighboring(d, e, linkedByIndex, controllerScope.viewModelService.viewModel.configuration.selectionHops)
-                  | d3UtilitiesService.neighboring(e, d, linkedByIndex, controllerScope.viewModelService.viewModel.configuration.selectionHops)) {
+              if (d3UtilitiesService.neighboring(d, e, linkedByIndex, controllerScope.viewModelService.getSelectionHops())
+                  | d3UtilitiesService.neighboring(e, d, linkedByIndex, controllerScope.viewModelService.getSelectionHops())) {
                 selection.nodes.add(e);
               }
             });
@@ -564,8 +564,8 @@
 
             // Remove each node within 1 hop from the clicked node.
             node.each(function (e) {
-              if (d3UtilitiesService.neighboring(d, e, linkedByIndex, controllerScope.viewModelService.viewModel.configuration.selectionHops)
-                  | d3UtilitiesService.neighboring(e, d, linkedByIndex, controllerScope.viewModelService.viewModel.configuration.selectionHops)) {
+              if (d3UtilitiesService.neighboring(d, e, linkedByIndex, controllerScope.viewModelService.getSelectionHops())
+                  | d3UtilitiesService.neighboring(e, d, linkedByIndex, controllerScope.viewModelService.getSelectionHops())) {
                 selection.nodes.delete(e);
               }
             });
@@ -618,7 +618,7 @@
             return d3.select(this).style('opacity');
           });
 
-          if (graph.settings.clustered) {
+          if (graph.configuration.settings.clustered) {
             circle
               .each(d3UtilitiesService.cluster(builtClusters, 10 * forceAlpha * forceAlpha))
               .each(d3UtilitiesService.collide(d3, graph.nodes, builtClusters, .5, clusterInnerPadding, clusterOuterPadding));
@@ -739,8 +739,8 @@
         function getClusterInnerPadding() {
           var result = CONSTANTS.DEFAULTS.CLUSTER_INNER_PADDING;
 
-          if (graph.settings.clusterSettings && graph.settings.clusterSettings.innerPadding !== undefined) {
-            result = graph.settings.clusterSettings.innerPadding;
+          if (graph.configuration.settings.clusterSettings && graph.configuration.settings.clusterSettings.innerPadding !== undefined) {
+            result = graph.configuration.settings.clusterSettings.innerPadding;
           }
 
           return result;
@@ -750,8 +750,8 @@
         function getClusterOuterPadding() {
           var result = CONSTANTS.DEFAULTS.CLUSTER_OUTER_PADDING;
 
-          if (graph.settings.clusterSettings && graph.settings.clusterSettings.outerPadding !== undefined) {
-            result = graph.settings.clusterSettings.outerPadding;
+          if (graph.configuration.settings.clusterSettings && graph.configuration.settings.clusterSettings.outerPadding !== undefined) {
+            result = graph.configuration.settings.clusterSettings.outerPadding;
           }
 
           return result;
@@ -1103,7 +1103,7 @@
     };
   };
 
-  angular.module('krakenApp.Graph.services.d3.rendering', [])
+  angular.module('kubernetesApp.Graph.services.d3.rendering', [])
     .service('d3RenderingService',
       ['lodash', 'd3UtilitiesService', '$location', '$rootScope', 'inspectNodeService', d3RenderingService]);
 

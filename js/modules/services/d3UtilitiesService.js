@@ -161,7 +161,7 @@
     };
   };
 
-  angular.module('krakenApp.Graph.services.d3', [])
+  angular.module('kubernetesApp.Graph.services.d3', [])
     .service('d3UtilitiesService', [d3UtilitiesService]);
 
 })();

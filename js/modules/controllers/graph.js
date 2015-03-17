@@ -6,7 +6,7 @@
   "use strict";
   angular.module("kubernetesApp.Graph", ["kubernetesApp.services", "kubernetesApp.Graph.services", "kubernetesApp.Graph.services.d3", "kubernetesApp.Graph.services.d3.rendering", "yaru22.jsonHuman"])
       .controller("GraphCtrl", ["$scope", "lodash", "viewModelService",
-          "mockDataService", "pollK8sDataService", "$location", "$window", "inspectNodeService",
+          "pollK8sDataService", "$location", "$window", "inspectNodeService",
           function($scope, _, viewModelService, pollK8sDataService, $location, $window, inspectNodeService) {
               $scope.showHide = function(id) {
                   var element = document.getElementById(id);

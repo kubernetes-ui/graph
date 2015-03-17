@@ -17,7 +17,7 @@ describe('D3 rendering service', function() {
 
   // Work around to get ngLodash correctly injected.
   beforeEach(function() {
-    angular.module('testModule', ['ngLodash', 'krakenApp.Graph']);
+    angular.module('testModule', ['ngLodash', 'kubernetesApp.Graph']);
   });
 
   beforeEach(module('testModule'));
@@ -38,7 +38,8 @@ describe('D3 rendering service', function() {
         viewModel: {
           configuration: {},
           data: MOCK_SAMPLE_DATA[0].data
-        }
+        },
+        setSelectionIdList: function() {}
       }
     };
 
@@ -421,10 +422,12 @@ describe('D3 rendering service', function() {
             'distance': 80
           },
         ],
-        'settings': {
-          'clustered': false,
-          'showEdgeLabels': true,
-          'showNodeLabels': true
+        'configuration': {
+          'settings': {
+            'clustered': false,
+            'showEdgeLabels': true,
+            'showNodeLabels': true
+          }
         }
       }
     },

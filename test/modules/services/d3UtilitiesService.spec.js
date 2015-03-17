@@ -5,7 +5,7 @@ describe('D3 utilities service', function() {
 
   // Work around to get ngLodash correctly injected.
   beforeEach(function () {
-    angular.module('testModule', ['ngLodash', 'krakenApp.Graph']);
+    angular.module('testModule', ['ngLodash', 'kubernetesApp.Graph']);
   });
 
   beforeEach(module('testModule'));

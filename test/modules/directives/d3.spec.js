@@ -7,7 +7,7 @@ describe('D3 directive', function() {
 
   // Work around to get ngLodash correctly injected.
   beforeEach(function() {
-    angular.module('testModule', ['ngLodash', 'krakenApp.Graph']);
+    angular.module('testModule', ['ngLodash', 'kubernetesApp.Graph']);
   });
 
   beforeEach(module('testModule'));
@@ -90,10 +90,12 @@ describe('D3 directive', function() {
           },
         ],
         'links': [],
-        'settings': {
-          'clustered': false,
-          'showEdgeLabels': true,
-          'showNodeLabels': true
+        'configuration': {
+          'settings': {
+            'clustered': false,
+            'showEdgeLabels': true,
+            'showNodeLabels': true
+          }
         }
       }
     }
