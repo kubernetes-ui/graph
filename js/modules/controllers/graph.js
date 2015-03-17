@@ -58,8 +58,8 @@
           });
 
           $scope.getSourceIcon = function() {
-            return pollK8sDataService.k8sdatamodel.useSampleData ? "components/graph/img/LiveData.svg" :
-                                                                   "components/graph/img/SampleData.svg";
+            return pollK8sDataService.k8sdatamodel.useSampleData ? "components/graph/img/SampleData.svg" :
+                                                                   "components/graph/img/LiveData.svg";
           };
 
           $scope.toggleSource = function() {
@@ -223,8 +223,8 @@
           });
 
           $scope.getExpandIcon = function() {
-            return viewModelService.getSettings().clustered ? "components/graph/img/Expand.svg" :
-                                                              "components/graph/img/Collapse.svg";
+            return viewModelService.getSettings().clustered ? "components/graph/img/Collapse.svg" :
+                                                              "components/graph/img/Expand.svg";
           };
 
           $scope.toggleExpand = function() {
@@ -234,8 +234,8 @@
           };
 
           $scope.getSelectIcon = function() {
-            return viewModelService.getSelectionHops() ? "components/graph/img/SelectOne.svg" :
-                                                         "components/graph/img/SelectMany.svg";
+            return viewModelService.getSelectionHops() ? "components/graph/img/SelectMany.svg" :
+                                                         "components/graph/img/SelectOne.svg";
           };
 
           $scope.toggleSelect = function() {
