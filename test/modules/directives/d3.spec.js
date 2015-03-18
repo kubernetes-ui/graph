@@ -18,7 +18,7 @@ describe('D3 directive', function() {
     viewModelService = _viewModelService_;
   }));
 
-  it('should replace the element with the appropriate svg content', function() {
+  it('should replace the element with the appropriate svg content in response to the viewModel being set', function() {
     // Compile some HTML containing the directive.
     var element = $compile('<div><d3-visualization></d3-visualization></div>')($rootScope);
 
@@ -42,7 +42,7 @@ describe('D3 directive', function() {
     expect(element.html()).toContain('pod: guestbook-controller');
   });
 
-  it('blah, blah, should replace the element with the appropriate svg content', function() {
+  it('should set the node selection in response to the selectionIdList being set', function() {
     // Compile some HTML containing the directive.
     var element = $compile('<div><d3-visualization></d3-visualization></div>')($rootScope);
 
