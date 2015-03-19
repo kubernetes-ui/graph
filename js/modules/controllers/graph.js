@@ -4,7 +4,7 @@
 =========================================================*/
 (function() {
   "use strict";
-  angular.module("kubernetesApp.Graph", ["kubernetesApp.services", "kubernetesApp.Graph.services", "kubernetesApp.Graph.services.d3", "kubernetesApp.Graph.services.d3.rendering", "yaru22.jsonHuman"])
+  angular.module("kubernetesApp.components.graph", ["kubernetesApp.services", "kubernetesApp.components.graph.services", "kubernetesApp.components.graph.services.d3", "kubernetesApp.components.graph.services.d3.rendering", "yaru22.jsonHuman"])
       .controller("GraphCtrl", ["$scope", "lodash", "viewModelService",
           "pollK8sDataService", "$location", "$window", "inspectNodeService",
           function($scope, _, viewModelService, pollK8sDataService, $location, $window, inspectNodeService) {

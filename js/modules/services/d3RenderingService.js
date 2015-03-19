@@ -1103,7 +1103,7 @@
     };
   };
 
-  angular.module('kubernetesApp.Graph.services.d3.rendering', [])
+  angular.module('kubernetesApp.components.graph.services.d3.rendering', [])
     .service('d3RenderingService',
       ['lodash', 'd3UtilitiesService', '$location', '$rootScope', 'inspectNodeService', d3RenderingService]);
 

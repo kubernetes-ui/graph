@@ -5,7 +5,7 @@
  * element.
  =========================================================*/
 
-angular.module('kubernetesApp.Graph')
+angular.module('kubernetesApp.components.graph')
     .directive('d3Visualization', ['d3Service', 'd3RenderingService',
                                    function (d3Service, d3RenderingService) {
   return {
