@@ -817,7 +817,8 @@
                 nodeSettingsCache[d.id].fixed = true;
                 tick();
             }
-        };
+        }
+        graph.togglePinned = togglePinned;
 
         // Clear all pinned nodes.
         function resetPins() {
@@ -832,9 +833,10 @@
             });
 
             force.start().alpha(0.01);
-        };
+        }
+        graph.resetPins = resetPins;
 
-        function tick(e) {
+            function tick(e) {
             var forceAlpha = force.alpha();
 
             node.style('opacity', function (e) {
@@ -1033,7 +1035,8 @@
                     zoomed();
                 };
             });
-        };
+        }
+        graph.adjustZoom = adjustZoom;
 
       return graph;
     }
