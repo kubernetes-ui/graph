@@ -2,9 +2,7 @@
 
 // TODO(duftler):
 //  Add tests for:
-//    pinning
 //    viewSettingsCache
-//    nodeSettingsCache
 //    clustered view
 
 describe('D3 rendering service', function() {
@@ -340,6 +338,49 @@ describe('D3 rendering service', function() {
     graphDiv.selectAll('.edgelabel').each(function(e) { expect(d3.select(this).style('opacity')).toEqual('1'); });
 
     graphDiv.selectAll('image').each(function(e) { expect(d3.select(this).style('opacity')).toEqual('1'); });
+  });
+
+  it('should update node settings cache when node is pinned and unpinned', function() {
+    // Render the graph.
+    d3Rendering();
+
+    // Pin a node.
+    d3Rendering.togglePinned({id: 2, fixed: 0});
+
+    // Test that it's cached as fixed.
+    var updatedNodeSettingsCache = d3Rendering.nodeSettingsCache();
+    expect(updatedNodeSettingsCache[2].fixed).toBeTruthy();
+
+    // Unpin the same node.
+    d3Rendering.togglePinned({id: 2, fixed: 8});
+
+    // Test that it's not cached as fixed.
+    updatedNodeSettingsCache = d3Rendering.nodeSettingsCache();
+    expect(updatedNodeSettingsCache[2].fixed).toBeFalsy();
+  });
+
+  it('should update node settings cache when pins are reset', function() {
+    // Render the graph.
+    d3Rendering();
+
+    // Pin two nodes.
+    d3Rendering.togglePinned({id: 2, fixed: 0});
+    d3Rendering.togglePinned({id: 3, fixed: 0});
+
+    // Test that they are cached as fixed.
+    var updatedNodeSettingsCache = d3Rendering.nodeSettingsCache();
+    expect(updatedNodeSettingsCache[2].fixed).toBeTruthy();
+    expect(updatedNodeSettingsCache[3].fixed).toBeTruthy();
+
+    // Reset all pins.
+    d3Rendering.resetPins();
+
+    // Test that no nodes are cached as fixed.
+    updatedNodeSettingsCache = d3Rendering.nodeSettingsCache();
+
+    for (var nodeId in updatedNodeSettingsCache) {
+      expect(updatedNodeSettingsCache[nodeId].fixed).toBeFalsy();
+    }
   });
 
   var MOCK_SAMPLE_DATA = [
