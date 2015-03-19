@@ -36,7 +36,7 @@
 
       var found = false;
 
-      searchSet.forEach(function (e) {
+      searchSet.forEach(function(e) {
         if (e.id !== undefined && e.id === item.id) {
           found = true;
           return;
@@ -55,14 +55,14 @@
       var maxRadius = -1;
       var maxCluster = -1;
 
-      nodes.forEach(function (d) {
+      nodes.forEach(function(d) {
         maxCluster = Math.max(maxCluster, d.cluster);
         maxRadius = Math.max(maxRadius, d.radius);
       });
 
       var clusters = new Array(maxCluster + 1);
 
-      nodes.forEach(function (d) {
+      nodes.forEach(function(d) {
         if (!clusters[d.cluster] || (d.radius > clusters[d.cluster].radius)) {
           clusters[d.cluster] = d;
         }
@@ -73,16 +73,13 @@
 
     // Move d to be adjacent to the cluster node.
     function cluster(builtClusters, alpha) {
-      return function (d) {
+      return function(d) {
         var cluster = builtClusters.clusters[d.cluster];
         if (cluster === d) return;
         if (d.x == cluster.x && d.y == cluster.y) {
           d.x += 0.1;
         }
-        var x = d.x - cluster.x,
-            y = d.y - cluster.y,
-            l = Math.sqrt(x * x + y * y),
-            r = d.radius + cluster.radius;
+        var x = d.x - cluster.x, y = d.y - cluster.y, l = Math.sqrt(x * x + y * y), r = d.radius + cluster.radius;
         if (l != r) {
           l = (l - r) / l * alpha;
           d.x -= x *= l;
@@ -96,18 +93,14 @@
     // Resolves collisions between d and all other nodes.
     function collide(d3, nodes, builtClusters, alpha, clusterInnerPadding, clusterOuterPadding) {
       var quadtree = d3.geom.quadtree(nodes);
-      return function (d) {
-        var r = d.radius + builtClusters.maxRadius + Math.max(clusterInnerPadding, clusterOuterPadding),
-            nx1 = d.x - r,
-            nx2 = d.x + r,
-            ny1 = d.y - r,
-            ny2 = d.y + r;
-        quadtree.visit(function (quad, x1, y1, x2, y2) {
+      return function(d) {
+        var r = d.radius + builtClusters.maxRadius + Math.max(clusterInnerPadding, clusterOuterPadding), nx1 = d.x - r,
+            nx2 = d.x + r, ny1 = d.y - r, ny2 = d.y + r;
+        quadtree.visit(function(quad, x1, y1, x2, y2) {
           if (quad.point && (quad.point !== d)) {
-            var x = d.x - quad.point.x,
-                y = d.y - quad.point.y,
-                l = Math.sqrt(x * x + y * y),
-                r = d.radius + quad.point.radius + (d.cluster === quad.point.cluster ? clusterInnerPadding : clusterOuterPadding);
+            var x = d.x - quad.point.x, y = d.y - quad.point.y, l = Math.sqrt(x * x + y * y),
+                r = d.radius + quad.point.radius +
+                    (d.cluster === quad.point.cluster ? clusterInnerPadding : clusterOuterPadding);
             if (l < r) {
               l = (l - r) / l * alpha;
               d.x -= x *= l;
@@ -127,25 +120,21 @@
       d3.selectAll('.d3-context-menu').html('');
       var list = d3.selectAll('.d3-context-menu').append('ul');
       list.selectAll('li')
-        .data(contextMenu)
-        .enter()
-        .append('li')
-        .html(function (d) {
-          return (typeof d.title === 'string') ? d.title : d.title(data);
-        })
-        .on('click', function (d, i) {
-          d.action(elm, data, index);
-          d3.select('.d3-context-menu').style('display', 'none');
-        });
+          .data(contextMenu)
+          .enter()
+          .append('li')
+          .html(function(d) { return (typeof d.title === 'string') ? d.title : d.title(data); })
+          .on('click', function(d, i) {
+            d.action(elm, data, index);
+            d3.select('.d3-context-menu').style('display', 'none');
+          });
 
       // Display context menu.
       d3.select('.d3-context-menu')
-        .style('left', (d3.event.pageX - 2) + 'px')
-        .style('top', (d3.event.pageY - 2) + 'px')
-        .style('display', 'block')
-        .on('contextmenu', function() {
-          d3.event.preventDefault();
-        });
+          .style('left', (d3.event.pageX - 2) + 'px')
+          .style('top', (d3.event.pageY - 2) + 'px')
+          .style('display', 'block')
+          .on('contextmenu', function() { d3.event.preventDefault(); });
 
       d3.event.preventDefault();
     }
@@ -161,7 +150,6 @@
     };
   };
 
-  angular.module('kubernetesApp.components.graph.services.d3', [])
-    .service('d3UtilitiesService', [d3UtilitiesService]);
+  angular.module('kubernetesApp.components.graph.services.d3', []).service('d3UtilitiesService', [d3UtilitiesService]);
 
 })();

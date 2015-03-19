@@ -4,15 +4,11 @@ describe('D3 utilities service', function() {
   var d3UtilitiesService;
 
   // Work around to get ngLodash correctly injected.
-  beforeEach(function () {
-    angular.module('testModule', ['ngLodash', 'kubernetesApp.components.graph']);
-  });
+  beforeEach(function() { angular.module('testModule', ['ngLodash', 'kubernetesApp.components.graph']); });
 
   beforeEach(module('testModule'));
 
-  beforeEach(inject(function (_d3UtilitiesService_) {
-    d3UtilitiesService = _d3UtilitiesService_;
-  }));
+  beforeEach(inject(function(_d3UtilitiesService_) { d3UtilitiesService = _d3UtilitiesService_; }));
 
   it('should generate starting positions within specified radius of origin', function() {
     // Get random starting positions for 10,000 nodes.
@@ -32,68 +28,30 @@ describe('D3 utilities service', function() {
   });
 
   it('should determine whether nodes are neighbors', function() {
-    var linkedByIndex = {
-      '0,0': 1,
-      '1,1': 1,
-      '2,2': 1,
-      '3,3': 1,
-      '4,4': 1,
-      '0,3': 1,
-      '3,4': 1
-    };
+    var linkedByIndex = {'0,0': 1, '1,1': 1, '2,2': 1, '3,3': 1, '4,4': 1, '0,3': 1, '3,4': 1};
 
     // Test that 0 does not neighbor 3 when selectionHops == 0.
-    var isNeighboring = d3UtilitiesService.neighboring(
-      {index: 0},
-      {index: 3},
-      linkedByIndex,
-      0
-    );
+    var isNeighboring = d3UtilitiesService.neighboring({index: 0}, {index: 3}, linkedByIndex, 0);
     expect(isNeighboring).toBeFalsy();
 
     // Test that 3 does not neighbor 4 when selectionHops == 0.
-    isNeighboring = d3UtilitiesService.neighboring(
-      {index: 3},
-      {index: 4},
-      linkedByIndex,
-      0
-    );
+    isNeighboring = d3UtilitiesService.neighboring({index: 3}, {index: 4}, linkedByIndex, 0);
     expect(isNeighboring).toBeFalsy();
 
     // Test that 0 does not neighbor 4 when selectionHops == 0.
-    isNeighboring = d3UtilitiesService.neighboring(
-      {index: 0},
-      {index: 4},
-      linkedByIndex,
-      0
-    );
+    isNeighboring = d3UtilitiesService.neighboring({index: 0}, {index: 4}, linkedByIndex, 0);
     expect(isNeighboring).toBeFalsy();
 
     // Test that 0 does neighbor 3 when selectionHops == 1.
-    isNeighboring = d3UtilitiesService.neighboring(
-      {index: 0},
-      {index: 3},
-      linkedByIndex,
-      1
-    );
+    isNeighboring = d3UtilitiesService.neighboring({index: 0}, {index: 3}, linkedByIndex, 1);
     expect(isNeighboring).toBeTruthy();
 
     // Test that 3 does neighbor 4 when selectionHops == 1.
-    isNeighboring = d3UtilitiesService.neighboring(
-      {index: 3},
-      {index: 4},
-      linkedByIndex,
-      1
-    );
+    isNeighboring = d3UtilitiesService.neighboring({index: 3}, {index: 4}, linkedByIndex, 1);
     expect(isNeighboring).toBeTruthy();
 
     // Test that 0 still does not neighbor 4 when selectionHops == 1.
-    isNeighboring = d3UtilitiesService.neighboring(
-      {index: 0},
-      {index: 4},
-      linkedByIndex,
-      1
-    );
+    isNeighboring = d3UtilitiesService.neighboring({index: 0}, {index: 4}, linkedByIndex, 1);
     expect(isNeighboring).toBeFalsy();
   });
 
@@ -118,15 +76,15 @@ describe('D3 utilities service', function() {
 
   it('should properly build clusters', function() {
     var nodes = [
-      { cluster: 0, radius: 5 },
-      { cluster: 0, radius: 10 },
-      { cluster: 0, radius: 15 },
-      { cluster: 1, radius: 3 },
-      { cluster: 1, radius: 9 },
-      { cluster: 1, radius: 6 },
-      { cluster: 2, radius: 6 },
-      { cluster: 2, radius: 4 },
-      { cluster: 2, radius: 2 },
+      {cluster: 0, radius: 5},
+      {cluster: 0, radius: 10},
+      {cluster: 0, radius: 15},
+      {cluster: 1, radius: 3},
+      {cluster: 1, radius: 9},
+      {cluster: 1, radius: 6},
+      {cluster: 2, radius: 6},
+      {cluster: 2, radius: 4},
+      {cluster: 2, radius: 2},
     ];
 
     var builtClusters = d3UtilitiesService.buildClusters(nodes);

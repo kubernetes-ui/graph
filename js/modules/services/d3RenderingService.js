@@ -42,11 +42,7 @@
       var nodeSettingsCache = {};
 
       // Contains the currently-seleted resources.
-      var selection = {
-        nodes: new Set(),
-        edges: new Set(),
-        edgelabels: new Set()
-      };
+      var selection = {nodes: new Set(), edges: new Set(), edgelabels: new Set()};
 
       var node;
       var link;
@@ -60,9 +56,9 @@
 
         // Add each edge where both the source and target nodes are selected.
         if (link) {
-          link.each(function (e) {
-            if (d3UtilitiesService.setHas(selection.nodes, e.source)
-                && d3UtilitiesService.setHas(selection.nodes, e.target)) {
+          link.each(function(e) {
+            if (d3UtilitiesService.setHas(selection.nodes, e.source) &&
+                d3UtilitiesService.setHas(selection.nodes, e.target)) {
               selection.edges.add(e);
             }
           });
@@ -70,9 +66,9 @@
 
         // Add each edge label where both the source and target nodes are selected.
         if (edgelabels) {
-          edgelabels.each(function (e) {
-            if (d3UtilitiesService.setHas(selection.nodes, e.source)
-                && d3UtilitiesService.setHas(selection.nodes, e.target)) {
+          edgelabels.each(function(e) {
+            if (d3UtilitiesService.setHas(selection.nodes, e.source) &&
+                d3UtilitiesService.setHas(selection.nodes, e.target)) {
               selection.edgelabels.add(e);
             }
           });
@@ -89,7 +85,7 @@
         }
 
         // Reduce the opacity of all but the selected nodes.
-        node.style('opacity', function (e) {
+        node.style('opacity', function(e) {
           var newOpacity = d3UtilitiesService.setHas(selection.nodes, e) ? 1 : notSelectedOpacity;
 
           if (e.origOpacity) {
@@ -101,21 +97,21 @@
 
         // Reduce the opacity of all but the selected edges.
         if (link) {
-          link.style('opacity', function (e) {
+          link.style('opacity', function(e) {
             return d3UtilitiesService.setHas(selection.edges, e) ? 1 : notSelectedOpacity;
           });
         }
 
         // Reduce the opacity of all but the selected edge labels.
         if (edgelabels) {
-          edgelabels.style('opacity', function (e) {
+          edgelabels.style('opacity', function(e) {
             return d3UtilitiesService.setHas(selection.edgelabels, e) ? 1 : notSelectedOpacity;
           });
         }
 
         var selectionIdList = [];
 
-        selection.nodes.forEach(function (e) {
+        selection.nodes.forEach(function(e) {
           if (e.id !== undefined) {
             selectionIdList.push(e.id);
           }
@@ -187,28 +183,30 @@
         d3.select(directiveElement).select('svg').remove();
 
         var svg = d3.select(directiveElement)
-          .append('svg')
-          .attr('width', width)
-          .attr('height', height)
-          .attr('class', 'graph');
+                      .append('svg')
+                      .attr('width', width)
+                      .attr('height', height)
+                      .attr('class', 'graph');
 
-        svg.append('defs').selectAll('marker')
-          .data(['suit', 'licensing', 'resolved'])
-          .enter().append('marker')
-          .attr('id', function(d) { return d; })
-          .attr('viewBox', '0 -5 10 10')
-          .attr('refX', 60)
-          .attr('refY', 0)
-          .attr('markerWidth', 6)
-          .attr('markerHeight', 6)
-          .attr('orient', 'auto')
-          .attr('markerUnits', 'userSpaceOnUse')
-          .append('path')
-          .attr('d', 'M0,-5L10,0L0,5 L10,0 L0, -5')
-          .style('stroke', 'black')
-          .style('opacity', '1');
+        svg.append('defs')
+            .selectAll('marker')
+            .data(['suit', 'licensing', 'resolved'])
+            .enter()
+            .append('marker')
+            .attr('id', function(d) { return d; })
+            .attr('viewBox', '0 -5 10 10')
+            .attr('refX', 60)
+            .attr('refY', 0)
+            .attr('markerWidth', 6)
+            .attr('markerHeight', 6)
+            .attr('orient', 'auto')
+            .attr('markerUnits', 'userSpaceOnUse')
+            .append('path')
+            .attr('d', 'M0,-5L10,0L0,5 L10,0 L0, -5')
+            .style('stroke', 'black')
+            .style('opacity', '1');
 
-        svg.on('contextmenu', function (data, index) {
+        svg.on('contextmenu', function(data, index) {
           if (d3.select('.d3-context-menu').style('display') !== 'block') {
             d3UtilitiesService.showContextMenu(d3, data, index, canvasContextMenu);
           }
@@ -217,9 +215,7 @@
           d3.event.preventDefault();
         });
 
-        var zoom = d3.behavior.zoom()
-          .scaleExtent([0.5, 12])
-          .on('zoom', zoomed);
+        var zoom = d3.behavior.zoom().scaleExtent([0.5, 12]).on('zoom', zoomed);
 
         if (viewSettingsCache.translate && viewSettingsCache.scale) {
           zoom.translate(viewSettingsCache.translate).scale(viewSettingsCache.scale);
@@ -235,29 +231,30 @@
         var showPin = 0;
 
         d3.select('body')
-          .on('keydown', function() {
-            if (d3.event.ctrlKey) {
-              svg.on('wheel.zoom', origWheelZoomHandler);
-              svg.attr('class', 'graph zoom-cursor');
-            } else if (d3.event.metaKey) {
-              showPin |= CONSTANTS.SHOWPIN_METAKEYDOWN_BIT;
+            .on('keydown',
+                function() {
+                  if (d3.event.ctrlKey) {
+                    svg.on('wheel.zoom', origWheelZoomHandler);
+                    svg.attr('class', 'graph zoom-cursor');
+                  } else if (d3.event.metaKey) {
+                    showPin |= CONSTANTS.SHOWPIN_METAKEYDOWN_BIT;
 
-              if (showPin === (CONSTANTS.SHOWPIN_MOUSEOVER_BIT + CONSTANTS.SHOWPIN_METAKEYDOWN_BIT)) {
-                svg.attr('class', 'graph pin-cursor');
+                    if (showPin === (CONSTANTS.SHOWPIN_MOUSEOVER_BIT + CONSTANTS.SHOWPIN_METAKEYDOWN_BIT)) {
+                      svg.attr('class', 'graph pin-cursor');
+                    }
+                  }
+                })
+            .on('keyup', function() {
+              if (!d3.event.ctrlKey) {
+                svg.on('wheel.zoom', wheelScrollHandler);
+                svg.attr('class', 'graph');
               }
-            }
-          })
-          .on('keyup', function() {
-            if (!d3.event.ctrlKey) {
-              svg.on('wheel.zoom', wheelScrollHandler);
-              svg.attr('class', 'graph');
-            }
 
-            if (!d3.event.metaKey) {
-              showPin &= ~CONSTANTS.SHOWPIN_METAKEYDOWN_BIT;
-              svg.attr('class', 'graph');
-            }
-          });
+              if (!d3.event.metaKey) {
+                showPin &= ~CONSTANTS.SHOWPIN_METAKEYDOWN_BIT;
+                svg.attr('class', 'graph');
+              }
+            });
 
         function windowBlur() {
           // If we Cmd-Tab away from this window, the keyup event won't have a chance to fire.
@@ -269,10 +266,10 @@
         window.addEventListener('blur', windowBlur);
 
         var drag = d3.behavior.drag()
-          .origin(function(d) { return d; })
-          .on('dragstart', dragstarted)
-          .on('drag', dragmove)
-          .on('dragend', dragended);
+                       .origin(function(d) { return d; })
+                       .on('dragstart', dragstarted)
+                       .on('drag', dragmove)
+                       .on('dragend', dragended);
 
         var graph = undefined;
         if (controllerScope.viewModelService) {
@@ -283,55 +280,45 @@
           return;
         }
 
-        force = d3.layout.force()
-          .size([width, height])
-          .on('tick', tick);
+        force = d3.layout.force().size([width, height]).on('tick', tick);
 
         var clusterInnerPadding;
         var clusterOuterPadding;
 
         if (graph.configuration.settings.clustered) {
-          force
-            .gravity(CONSTANTS.DEFAULTS.FORCE_CLUSTERED_GRAVITY)
-            .charge(CONSTANTS.DEFAULTS.FORCE_CLUSTERED_CHARGE);
+          force.gravity(CONSTANTS.DEFAULTS.FORCE_CLUSTERED_GRAVITY).charge(CONSTANTS.DEFAULTS.FORCE_CLUSTERED_CHARGE);
 
           clusterInnerPadding = getClusterInnerPadding();
           clusterOuterPadding = getClusterOuterPadding();
         } else {
-          force
-            .gravity(CONSTANTS.DEFAULTS.FORCE_NONCLUSTERED_GRAVITY)
-            .charge(CONSTANTS.DEFAULTS.FORCE_NONCLUSTERED_CHARGE)
-            .linkDistance(function (d) {
-              return d.distance;
-            }).links(graph.links);
+          force.gravity(CONSTANTS.DEFAULTS.FORCE_NONCLUSTERED_GRAVITY)
+              .charge(CONSTANTS.DEFAULTS.FORCE_NONCLUSTERED_CHARGE)
+              .linkDistance(function(d) { return d.distance; })
+              .links(graph.links);
 
           // Create all the line svgs but without locations yet.
           link = g.selectAll('.link')
-            .data(graph.links)
-            .enter().append('line')
-            .attr('class', 'link')
-            .style('marker-end', function (d) {
-              if (d.directed) {
-                return 'url(#suit)';
-              }
-              return 'none';
-            })
-            .style('stroke', function (d) {
-              return d.stroke;
-            })
-            .style('stroke-dasharray', function (d) {
-              return d.dash ? (d.dash + ', ' + d.dash) : ('1, 0');
-            })
-            .style('stroke-width', function (d) {
-              return d.width;
-            });
+                     .data(graph.links)
+                     .enter()
+                     .append('line')
+                     .attr('class', 'link')
+                     .style('marker-end',
+                            function(d) {
+                              if (d.directed) {
+                                return 'url(#suit)';
+                              }
+                              return 'none';
+                            })
+                     .style('stroke', function(d) { return d.stroke; })
+                     .style('stroke-dasharray', function(d) { return d.dash ? (d.dash + ', ' + d.dash) : ('1, 0'); })
+                     .style('stroke-width', function(d) { return d.width; });
         }
 
         var selectedNodeSet = new Set();
         var newPositionCount = 0;
 
         // Apply all cached settings and count number of nodes with new positions.
-        graph.nodes.forEach(function (n) {
+        graph.nodes.forEach(function(n) {
           if (applyCachedSettingsToNodes(n, selectedNodeSet)) {
             ++newPositionCount;
           }
@@ -345,10 +332,9 @@
         force.nodes(graph.nodes);
 
         if (newPositionCount < (CONSTANTS.DEFAULTS.FORCE_REFRESH_THRESHOLD_PERCENTAGE * graph.nodes.length)) {
-          var startingAlpha =
-            graph.configuration.settings.clustered
-            ? CONSTANTS.DEFAULTS.FORCE_CLUSTERED_REFRESH_STARTING_ALPHA
-            : CONSTANTS.DEFAULTS.FORCE_NONCLUSTERED_REFRESH_STARTING_ALPHA;
+          var startingAlpha = graph.configuration.settings.clustered ?
+                                  CONSTANTS.DEFAULTS.FORCE_CLUSTERED_REFRESH_STARTING_ALPHA :
+                                  CONSTANTS.DEFAULTS.FORCE_NONCLUSTERED_REFRESH_STARTING_ALPHA;
 
           force.start().alpha(startingAlpha);
         } else {
@@ -363,13 +349,14 @@
         }
 
         node = g.selectAll('.node')
-          .data(graph.nodes)
-          .enter().append('g')
-          .attr('class', 'node')
-          .on('mouseover', d3_layout_forceMouseover)
-          .on('mouseout', d3_layout_forceMouseout)
-          .on('mouseup', mouseup)
-          .call(drag);
+                   .data(graph.nodes)
+                   .enter()
+                   .append('g')
+                   .attr('class', 'node')
+                   .on('mouseover', d3_layout_forceMouseover)
+                   .on('mouseout', d3_layout_forceMouseout)
+                   .on('mouseup', mouseup)
+                   .call(drag);
 
         function mouseup(d) {
           if (!d3.event.metaKey) {
@@ -382,131 +369,90 @@
         }
 
         // Create the div element that will hold the context menu.
-        d3.selectAll('.d3-context-menu')
-          .data([1])
-          .enter()
-          .append('div')
-          .attr('class', 'd3-context-menu');
+        d3.selectAll('.d3-context-menu').data([1]).enter().append('div').attr('class', 'd3-context-menu');
 
         // Close context menu.
         d3.select('body')
-          .on('click.d3-context-menu', function() {
-            d3.select('.d3-context-menu').style('display', 'none');
-          });
+            .on('click.d3-context-menu', function() { d3.select('.d3-context-menu').style('display', 'none'); });
 
-        node.each(function (n) {
+        node.each(function(n) {
           var singleNode = d3.select(this);
 
           if (n.icon) {
             singleNode.append('image')
-              .attr('xlink:href', function (d) {
-                return d.icon;
-              })
-              .attr('width', function (d) {
-                return d.size[0];
-              })
-              .attr('height', function (d) {
-                return d.size[1];
-              })
-              .on('contextmenu', function (data, index) {
-                d3UtilitiesService.showContextMenu(d3, data, index, nodeContextMenu);
-              });
+                .attr('xlink:href', function(d) { return d.icon; })
+                .attr('width', function(d) { return d.size[0]; })
+                .attr('height', function(d) { return d.size[1]; })
+                .on('contextmenu', function(data, index) {
+                  d3UtilitiesService.showContextMenu(d3, data, index, nodeContextMenu);
+                });
           } else {
             singleNode.append('circle')
-              .attr('r', function (d) {
-                return d.radius;
-              })
-              .style('stroke', function (d) {
-                return d.stroke;
-              })
-              .style('fill', function (d) {
-                return d.fill;
-              })
-              .on('contextmenu', function (data, index) {
-                d3UtilitiesService.showContextMenu(d3, data, index, nodeContextMenu);
-              });
+                .attr('r', function(d) { return d.radius; })
+                .style('stroke', function(d) { return d.stroke; })
+                .style('fill', function(d) { return d.fill; })
+                .on('contextmenu', function(data, index) {
+                  d3UtilitiesService.showContextMenu(d3, data, index, nodeContextMenu);
+                });
           }
         });
 
-        var text = node.append('text')
-          .attr('dx', 10)
-          .attr('dy', '.35em');
+        var text = node.append('text').attr('dx', 10).attr('dy', '.35em');
 
-        text.text(function (d) {
-          return graph.configuration.settings.showNodeLabels && !d.hideLabel ? d.name : '';
-        });
+        text.text(function(d) { return graph.configuration.settings.showNodeLabels && !d.hideLabel ? d.name : ''; });
 
-        text.each(function (e) {
+        text.each(function(e) {
           var singleText = d3.select(this);
           var parentNode = singleText.node().parentNode;
 
-          d3.select(parentNode).append('image')
-            .attr('xlink:href', function (d) {
-              return '/components/graph/img/Pin.svg';
-            })
-            .attr('display', function (d) {
-              return d.fixed & CONSTANTS.FIXED_PINNED_BIT ? '' : 'none';
-            })
-            .attr('width', function (d) {
-              return '13px';
-            })
-            .attr('height', function (d) {
-              return '13px';
-            });
+          d3.select(parentNode)
+              .append('image')
+              .attr('xlink:href', function(d) { return '/components/graph/img/Pin.svg'; })
+              .attr('display', function(d) { return d.fixed & CONSTANTS.FIXED_PINNED_BIT ? '' : 'none'; })
+              .attr('width', function(d) { return '13px'; })
+              .attr('height', function(d) { return '13px'; });
         });
 
         if (!graph.configuration.settings.clustered && graph.configuration.settings.showEdgeLabels) {
           var edgepaths = g.selectAll('.edgepath')
-            .data(graph.links)
-            .enter()
-            .append('path')
-            .attr({
-              d: function (d) {
-                return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
-              },
-              class: 'edgepath',
-              'fill-opacity': 0,
-              'stroke-opacity': 0,
-              fill: 'blue',
-              stroke: 'red',
-              id: function (d, i) {
-                return 'edgepath' + i
-              }
-            })
-            .style('pointer-events', 'none');
+                              .data(graph.links)
+                              .enter()
+                              .append('path')
+                              .attr({
+                                d: function(d) {
+                                  return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
+                                },
+                                class: 'edgepath',
+                                'fill-opacity': 0,
+                                'stroke-opacity': 0,
+                                fill: 'blue',
+                                stroke: 'red',
+                                id: function(d, i) { return 'edgepath' + i }
+                              })
+                              .style('pointer-events', 'none');
 
           edgelabels = g.selectAll('.edgelabel')
-            .data(graph.links)
-            .enter()
-            .append('text')
-            .style('pointer-events', 'none')
-            .attr({
-              class: 'edgelabel',
-              id: function (d, i) {
-                return 'edgelabel' + i
-              },
-              dx: function (d) {
-                return d.distance / 3
-              },
-              dy: 0
-            });
+                           .data(graph.links)
+                           .enter()
+                           .append('text')
+                           .style('pointer-events', 'none')
+                           .attr({
+                             class: 'edgelabel',
+                             id: function(d, i) { return 'edgelabel' + i },
+                             dx: function(d) { return d.distance / 3 },
+                             dy: 0
+                           });
 
           edgelabels.append('textPath')
-            .attr('xlink:href', function (d, i) {
-              return '#edgepath' + i
-            })
-            .style('pointer-events', 'none')
-            .text(function (d, i) {
-              return d.label
-            });
+              .attr('xlink:href', function(d, i) { return '#edgepath' + i })
+              .style('pointer-events', 'none')
+              .text(function(d, i) { return d.label });
         }
 
         var circle = g.selectAll('circle');
 
         if (graph.configuration.settings.clustered && newPositionCount) {
-          circle.attr('r', function (d) {
-            return d.radius;
-          })
+          circle.attr('r', function(d) { return d.radius; })
         }
 
         var image = d3.selectAll('image');
@@ -514,7 +460,7 @@
         // If zero nodes are in the current selection, reset the selection.
         var nodeMatches = new Set();
 
-        node.each(function (e) {
+        node.each(function(e) {
           if (d3UtilitiesService.setHas(selection.nodes, e)) {
             nodeMatches.add(e);
           }
@@ -537,9 +483,7 @@
         }
 
         if (graph.links) {
-          graph.links.forEach(function (d) {
-            linkedByIndex[d.source.index + ',' + d.target.index] = 1;
-          });
+          graph.links.forEach(function(d) { linkedByIndex[d.source.index + ',' + d.target.index] = 1; });
         }
 
         // Adjust selection in response to a single-click on a node.
@@ -552,9 +496,11 @@
             selection.nodes.add(d);
 
             // Add each node within 1 hop from the clicked node.
-            node.each(function (e) {
-              if (d3UtilitiesService.neighboring(d, e, linkedByIndex, controllerScope.viewModelService.getSelectionHops())
-                  | d3UtilitiesService.neighboring(e, d, linkedByIndex, controllerScope.viewModelService.getSelectionHops())) {
+            node.each(function(e) {
+              if (d3UtilitiesService.neighboring(d, e, linkedByIndex,
+                                                 controllerScope.viewModelService.getSelectionHops()) |
+                  d3UtilitiesService.neighboring(e, d, linkedByIndex,
+                                                 controllerScope.viewModelService.getSelectionHops())) {
                 selection.nodes.add(e);
               }
             });
@@ -563,9 +509,11 @@
             selection.nodes.delete(d);
 
             // Remove each node within 1 hop from the clicked node.
-            node.each(function (e) {
-              if (d3UtilitiesService.neighboring(d, e, linkedByIndex, controllerScope.viewModelService.getSelectionHops())
-                  | d3UtilitiesService.neighboring(e, d, linkedByIndex, controllerScope.viewModelService.getSelectionHops())) {
+            node.each(function(e) {
+              if (d3UtilitiesService.neighboring(d, e, linkedByIndex,
+                                                 controllerScope.viewModelService.getSelectionHops()) |
+                  d3UtilitiesService.neighboring(e, d, linkedByIndex,
+                                                 controllerScope.viewModelService.getSelectionHops())) {
                 selection.nodes.delete(e);
               }
             });
@@ -588,7 +536,7 @@
 
         // Clear all pinned nodes.
         function resetPins() {
-          node.each(function (d) {
+          node.each(function(d) {
             // Unset the appropriate bit on each node.
             d.fixed &= ~CONSTANTS.FIXED_PINNED_BIT;
 
@@ -606,7 +554,7 @@
         function tick(e) {
           var forceAlpha = force.alpha();
 
-          node.style('opacity', function (e) {
+          node.style('opacity', function(e) {
             if (e.opacity) {
               var opacity = e.opacity;
 
@@ -619,103 +567,97 @@
           });
 
           if (graph.configuration.settings.clustered) {
-            circle
-              .each(d3UtilitiesService.cluster(builtClusters, 10 * forceAlpha * forceAlpha))
-              .each(d3UtilitiesService.collide(d3, graph.nodes, builtClusters, .5, clusterInnerPadding, clusterOuterPadding));
+            circle.each(d3UtilitiesService.cluster(builtClusters, 10 * forceAlpha * forceAlpha))
+                .each(d3UtilitiesService.collide(d3, graph.nodes, builtClusters, .5, clusterInnerPadding,
+                                                 clusterOuterPadding));
 
-            image
-              .each(d3UtilitiesService.cluster(builtClusters, 10 * forceAlpha * forceAlpha))
-              .each(d3UtilitiesService.collide(d3, graph.nodes, builtClusters, .5, clusterInnerPadding, clusterOuterPadding));
+            image.each(d3UtilitiesService.cluster(builtClusters, 10 * forceAlpha * forceAlpha))
+                .each(d3UtilitiesService.collide(d3, graph.nodes, builtClusters, .5, clusterInnerPadding,
+                                                 clusterOuterPadding));
           } else {
-            link
-              .attr('x1', function (d) {
-                var offsetX = d.source.icon ? d.source.size[0] / 2 : 0;
+            link.attr('x1',
+                      function(d) {
+                        var offsetX = d.source.icon ? d.source.size[0] / 2 : 0;
 
-                return d.source.x + offsetX;
-              })
-              .attr('y1', function (d) {
-                var offsetY = d.source.icon ? d.source.size[1] / 2 : 0;
+                        return d.source.x + offsetX;
+                      })
+                .attr('y1',
+                      function(d) {
+                        var offsetY = d.source.icon ? d.source.size[1] / 2 : 0;
 
-                return d.source.y + offsetY;
-              })
-              .attr('x2', function (d) {
-                var offsetX = d.target.icon ? d.target.size[0] / 2 : 0;
+                        return d.source.y + offsetY;
+                      })
+                .attr('x2',
+                      function(d) {
+                        var offsetX = d.target.icon ? d.target.size[0] / 2 : 0;
 
-                return d.target.x + offsetX;
-              })
-              .attr('y2', function (d) {
-                var offsetY = d.target.icon ? d.target.size[1] / 2 : 0;
+                        return d.target.x + offsetX;
+                      })
+                .attr('y2', function(d) {
+                  var offsetY = d.target.icon ? d.target.size[1] / 2 : 0;
 
-                return d.target.y + offsetY;
-              });
+                  return d.target.y + offsetY;
+                });
 
             if (edgepaths) {
-              edgepaths.attr('d', function (d) {
+              edgepaths.attr('d', function(d) {
                 var path = 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
                 return path
               });
 
-              edgelabels.attr('transform', function (d, i) {
+              edgelabels.attr('transform', function(d, i) {
                 if (d.target.x < d.source.x) {
                   var bbox = this.getBBox();
                   var rx = bbox.x + bbox.width / 2;
                   var ry = bbox.y + bbox.height / 2;
 
                   return 'rotate(180 ' + rx + ' ' + ry + ')';
-                }
-                else {
+                } else {
                   return 'rotate(0)';
                 }
               });
             }
           }
 
-          circle
-            .attr('cx', function (d) {
-              return d.x;
-            })
-            .attr('cy', function (d) {
-              return d.y;
-            });
+          circle.attr('cx', function(d) { return d.x; }).attr('cy', function(d) { return d.y; });
 
-          image.each(function (e) {
+          image.each(function(e) {
             var singleImage = d3.select(this);
             var siblingText = d3.select(this.parentNode).select('text');
             var bbox = siblingText[0][0] ? siblingText[0][0].getBBox() : {width: 0};
             var isPinIcon = singleImage.attr('xlink:href') === '/components/graph/img/Pin.svg';
 
-            singleImage
-              .attr('display', function (d) {
-                if (isPinIcon) {
-                  return d.fixed & CONSTANTS.FIXED_PINNED_BIT ? '' : 'none';
-                } else {
-                  return '';
-                }
-              });
+            singleImage.attr('display', function(d) {
+              if (isPinIcon) {
+                return d.fixed & CONSTANTS.FIXED_PINNED_BIT ? '' : 'none';
+              } else {
+                return '';
+              }
+            });
 
-            singleImage
-              .attr('x', function (d) {
-                if (isPinIcon) {
-                  if (siblingText.text() !== '') {
-                    return d.x + bbox.width + 12;
+            singleImage.attr('x',
+                             function(d) {
+                               if (isPinIcon) {
+                                 if (siblingText.text() !== '') {
+                                   return d.x + bbox.width + 12;
+                                 } else {
+                                   return d.x - 5;
+                                 }
+                               } else {
+                                 return d.x
+                               }
+                             })
+                .attr('y', function(d) {
+                  if (isPinIcon) {
+                    return d.y - 5;
                   } else {
-                    return d.x - 5;
+                    return d.y;
                   }
-                } else {
-                  return d.x
-                }
-              })
-              .attr('y', function (d) {
-                if (isPinIcon) {
-                  return d.y - 5;
-                } else {
-                  return d.y;
-                }
-              });
+                });
           });
 
           if (forceAlpha < 0.04) {
-            graph.nodes.forEach(function (n) {
+            graph.nodes.forEach(function(n) {
               if (n.id) {
                 if (!nodeSettingsCache[n.id]) {
                   nodeSettingsCache[n.id] = {};
@@ -726,20 +668,15 @@
             });
           }
 
-          d3.selectAll('text')
-            .attr('x', function (d) {
-              return d.x;
-            })
-            .attr('y', function (d) {
-              return d.y;
-            });
+          d3.selectAll('text').attr('x', function(d) { return d.x; }).attr('y', function(d) { return d.y; });
         }
 
         // Return the configured padding between nodes within a cluster.
         function getClusterInnerPadding() {
           var result = CONSTANTS.DEFAULTS.CLUSTER_INNER_PADDING;
 
-          if (graph.configuration.settings.clusterSettings && graph.configuration.settings.clusterSettings.innerPadding !== undefined) {
+          if (graph.configuration.settings.clusterSettings &&
+              graph.configuration.settings.clusterSettings.innerPadding !== undefined) {
             result = graph.configuration.settings.clusterSettings.innerPadding;
           }
 
@@ -750,7 +687,8 @@
         function getClusterOuterPadding() {
           var result = CONSTANTS.DEFAULTS.CLUSTER_OUTER_PADDING;
 
-          if (graph.configuration.settings.clusterSettings && graph.configuration.settings.clusterSettings.outerPadding !== undefined) {
+          if (graph.configuration.settings.clusterSettings &&
+              graph.configuration.settings.clusterSettings.outerPadding !== undefined) {
             result = graph.configuration.settings.clusterSettings.outerPadding;
           }
 
@@ -759,37 +697,14 @@
 
         // The context menu to display when not right-clicking on a node.
         var canvasContextMenu = [
-          {
-            title: 'Reset Zoom/Pan',
-            action: function (elm, d, i) {
-              adjustZoom();
-            }
-          },
-          {
-            title: 'Reset Selection',
-            action: function (elm, d, i) {
-              resetSelection();
-            }
-          },
-          {
-            title: 'Reset Pins',
-            action: function (elm, d, i) {
-              resetPins();
-            }
-          }
+          {title: 'Reset Zoom/Pan', action: function(elm, d, i) { adjustZoom(); }},
+          {title: 'Reset Selection', action: function(elm, d, i) { resetSelection(); }},
+          {title: 'Reset Pins', action: function(elm, d, i) { resetPins(); }}
         ];
 
         // The context menu to display when right-clicking on a node.
-        var nodeContextMenu = [
-          {
-            title: function(d) {
-              return 'Inspect Node';
-            },
-            action: function(elm, d, i) {
-              inspectNode(d);
-            }
-          }
-        ];
+        var nodeContextMenu =
+            [{title: function(d) { return 'Inspect Node'; }, action: function(elm, d, i) { inspectNode(d); }}];
 
         // Toggle the pinned state of this node.
         function togglePinned(d) {
@@ -902,10 +817,7 @@
             }
 
             // Circles also get an outline.
-            d3.select(this)
-              .style('stroke', 'black')
-              .style('stroke-width', '2')
-              .style('stroke-opacity', 0.5);
+            d3.select(this).style('stroke', 'black').style('stroke-width', '2').style('stroke-opacity', 0.5);
           }
 
           tick();
@@ -929,11 +841,8 @@
         }
 
         function adjustZoom(factor) {
-          var scale = zoom.scale(),
-              extent = zoom.scaleExtent(),
-              translate = zoom.translate(),
-              x = translate[0], y = translate[1],
-              target_scale = scale * factor;
+          var scale = zoom.scale(), extent = zoom.scaleExtent(), translate = zoom.translate(), x = translate[0],
+              y = translate[1], target_scale = scale * factor;
 
           var reset = !factor;
 
@@ -943,10 +852,12 @@
           }
 
           // If we're already at an extent, done.
-          if (target_scale === extent[0] || target_scale === extent[1]) { return false; }
+          if (target_scale === extent[0] || target_scale === extent[1]) {
+            return false;
+          }
           // If the factor is too much, scale it down to reach the extent exactly.
           var clamped_target_scale = Math.max(extent[0], Math.min(extent[1], target_scale));
-          if (clamped_target_scale != target_scale){
+          if (clamped_target_scale != target_scale) {
             target_scale = clamped_target_scale;
             factor = target_scale / scale;
           }
@@ -961,22 +872,19 @@
           }
 
           // Transition to the new view over 350ms
-          d3.transition().duration(350).tween('zoom', function () {
+          d3.transition().duration(350).tween('zoom', function() {
             var interpolate_scale = d3.interpolate(scale, target_scale);
-            var interpolate_trans = d3.interpolate(translate, [x,y]);
+            var interpolate_trans = d3.interpolate(translate, [x, y]);
 
-            return function (t) {
-              zoom.scale(interpolate_scale(t))
-                .translate(interpolate_trans(t));
+            return function(t) {
+              zoom.scale(interpolate_scale(t)).translate(interpolate_trans(t));
               zoomed();
             };
           });
         }
 
         // Resize the svg element in response to the window resizing.
-        function windowWasResized() {
-          autosizeSVG(d3, true);
-        }
+        function windowWasResized() { autosizeSVG(d3, true); }
 
         // Apply all cached settings to nodes, giving precedence to properties explicitly specified in the view model.
         // Return true if the given node has neither a specified nor cached position. Return false otherwise.
@@ -1050,16 +958,15 @@
       };
 
       // Return the dimensions of the parent container.
-      graph.getParentContainerDimensions = function() {
-        return getParentContainerDimensions(window.d3);
-      };
+      graph.getParentContainerDimensions = function() { return getParentContainerDimensions(window.d3); };
 
       // Get or set the size of the svg element. Returns the rendering service when acting as a setter.
       graph.graphSize = function(newGraphSize) {
         if (!arguments.length) {
-          var svg = window.d3.select(directiveElement).select('svg')
+          var svg = window.d3.select(directiveElement)
+                        .select('svg')
 
-          return [parseInt(svg.attr('width')), parseInt(svg.attr('height'))];
+                            return [parseInt(svg.attr('width')), parseInt(svg.attr('height'))];
         } else {
           resizeSVG(window.d3, newGraphSize);
 
@@ -1098,13 +1005,11 @@
       return graph;
     }
 
-    return {
-      rendering: rendering
-    };
+    return {rendering: rendering};
   };
 
   angular.module('kubernetesApp.components.graph.services.d3.rendering', [])
-    .service('d3RenderingService',
-      ['lodash', 'd3UtilitiesService', '$location', '$rootScope', 'inspectNodeService', d3RenderingService]);
+      .service('d3RenderingService',
+               ['lodash', 'd3UtilitiesService', '$location', '$rootScope', 'inspectNodeService', d3RenderingService]);
 
 })();

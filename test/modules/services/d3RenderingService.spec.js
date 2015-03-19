@@ -1,6 +1,6 @@
 'use strict';
 
-//TODO(duftler):
+// TODO(duftler):
 //  Add tests for:
 //    pinning
 //    viewSettingsCache
@@ -16,9 +16,7 @@ describe('D3 rendering service', function() {
   var d3Rendering;
 
   // Work around to get ngLodash correctly injected.
-  beforeEach(function() {
-    angular.module('testModule', ['ngLodash', 'kubernetesApp.components.graph']);
-  });
+  beforeEach(function() { angular.module('testModule', ['ngLodash', 'kubernetesApp.components.graph']); });
 
   beforeEach(module('testModule'));
 
@@ -34,28 +32,18 @@ describe('D3 rendering service', function() {
 
     // Create the mock scope.
     scope = {
-      viewModelService: {
-        viewModel: {
-          configuration: {},
-          data: MOCK_SAMPLE_DATA[0].data
-        },
-        setSelectionIdList: function() {}
-      }
+      viewModelService:
+          {viewModel: {configuration: {}, data: MOCK_SAMPLE_DATA[0].data}, setSelectionIdList: function() {}}
     };
 
     // Construct and configure the d3 rendering service.
-    d3Rendering = d3RenderingService
-      .rendering()
-      .controllerScope(scope)
-      .directiveElement(graphDiv.node());
+    d3Rendering = d3RenderingService.rendering().controllerScope(scope).directiveElement(graphDiv.node());
 
     // Set the mock data in the scope.
     scope.viewModelService.viewModel.data = MOCK_SAMPLE_DATA[0].data;
   }));
 
-  afterEach(function() {
-    parentDiv.remove();
-  });
+  afterEach(function() { parentDiv.remove(); });
 
   it('should locate the dimensions of the parent', function() {
     // Test that parent container dimensions are properly calculated before rendering.
@@ -305,15 +293,16 @@ describe('D3 rendering service', function() {
     var initialEdgelabelsSelection = d3Rendering.edgelabelsSelection();
     expect(initialEdgelabelsSelection.size).toEqual(2);
 
-    graphDiv.selectAll('.edgelabel').each(function(e) {
-      var opacity = d3.select(this).style('opacity');
+    graphDiv.selectAll('.edgelabel')
+        .each(function(e) {
+          var opacity = d3.select(this).style('opacity');
 
-      if (opacity === '1') {
-        expect(d3UtilitiesService.setHas(initialEdgelabelsSelection, e)).toBeTruthy();
-      } else {
-        expect(d3UtilitiesService.setHas(initialEdgelabelsSelection, e)).toBeFalsy();
-      }
-    });
+          if (opacity === '1') {
+            expect(d3UtilitiesService.setHas(initialEdgelabelsSelection, e)).toBeTruthy();
+          } else {
+            expect(d3UtilitiesService.setHas(initialEdgelabelsSelection, e)).toBeFalsy();
+          }
+        });
 
     // Create and set a new node selection.
     var newNodeSelection = new Set();
@@ -325,15 +314,16 @@ describe('D3 rendering service', function() {
     var updatedEdgelabelsSelection = d3Rendering.edgeSelection();
     expect(updatedEdgelabelsSelection.size).toEqual(1);
 
-    graphDiv.selectAll('.edgelabel').each(function(e) {
-      var opacity = d3.select(this).style('opacity');
+    graphDiv.selectAll('.edgelabel')
+        .each(function(e) {
+          var opacity = d3.select(this).style('opacity');
 
-      if (opacity === '1') {
-        expect(d3UtilitiesService.setHas(updatedEdgelabelsSelection, e)).toBeTruthy();
-      } else {
-        expect(d3UtilitiesService.setHas(updatedEdgelabelsSelection, e)).toBeFalsy();
-      }
-    });
+          if (opacity === '1') {
+            expect(d3UtilitiesService.setHas(updatedEdgelabelsSelection, e)).toBeTruthy();
+          } else {
+            expect(d3UtilitiesService.setHas(updatedEdgelabelsSelection, e)).toBeFalsy();
+          }
+        });
   });
 
   it('should set opacity of all nodes, edges, edgelabels and images to 1 when nothing is selected', function() {
@@ -343,92 +333,32 @@ describe('D3 rendering service', function() {
     // Set the node selection to an empty set.
     d3Rendering.nodeSelection(new Set());
 
-    graphDiv.selectAll('.node').each(function(e) {
-      expect(d3.select(this).style('opacity')).toEqual('1');
-    });
+    graphDiv.selectAll('.node').each(function(e) { expect(d3.select(this).style('opacity')).toEqual('1'); });
 
-    graphDiv.selectAll('.link').each(function(e) {
-      expect(d3.select(this).style('opacity')).toEqual('1');
-    });
+    graphDiv.selectAll('.link').each(function(e) { expect(d3.select(this).style('opacity')).toEqual('1'); });
 
-    graphDiv.selectAll('.edgelabel').each(function(e) {
-      expect(d3.select(this).style('opacity')).toEqual('1');
-    });
+    graphDiv.selectAll('.edgelabel').each(function(e) { expect(d3.select(this).style('opacity')).toEqual('1'); });
 
-    graphDiv.selectAll('image').each(function(e) {
-      expect(d3.select(this).style('opacity')).toEqual('1');
-    });
+    graphDiv.selectAll('image').each(function(e) { expect(d3.select(this).style('opacity')).toEqual('1'); });
   });
 
   var MOCK_SAMPLE_DATA = [
     {
-      'name' : 'All Types',
-      'data' : {
+      'name': 'All Types',
+      'data': {
         'nodes': [
-          {
-            'name': 'service: guestbook',
-            'radius': 16,
-            'fill': 'olivedrab',
-            'id': 1,
-            'selected': true
-          },
-          {
-            'name': 'pod: guestbook-controller',
-            'radius': 20,
-            'fill': 'palegoldenrod',
-            'id': 2,
-            'selected': true
-          },
-          {
-            'name': 'pod: guestbook-controller',
-            'radius': 20,
-            'fill': 'palegoldenrod',
-            'id': 3,
-            'selected': true
-          },
-          {
-            'name': 'pod: guestbook-controller',
-            'radius': 20,
-            'fill': 'palegoldenrod',
-            'id': 55
-          },
-          {
-            'name': 'container: php-redis',
-            'radius': 24,
-            'fill': 'cornflowerblue',
-            'id': 77
-          },
+          {'name': 'service: guestbook', 'radius': 16, 'fill': 'olivedrab', 'id': 1, 'selected': true},
+          {'name': 'pod: guestbook-controller', 'radius': 20, 'fill': 'palegoldenrod', 'id': 2, 'selected': true},
+          {'name': 'pod: guestbook-controller', 'radius': 20, 'fill': 'palegoldenrod', 'id': 3, 'selected': true},
+          {'name': 'pod: guestbook-controller', 'radius': 20, 'fill': 'palegoldenrod', 'id': 55},
+          {'name': 'container: php-redis', 'radius': 24, 'fill': 'cornflowerblue', 'id': 77},
         ],
         'links': [
-          {
-            'source': 0,
-            'target': 1,
-            'width': 2,
-            'stroke': 'black',
-            'distance': 80
-          },
-          {
-            'source': 0,
-            'target': 2,
-            'width': 2,
-            'stroke': 'black',
-            'distance': 80
-          },
-          {
-            'source': 1,
-            'target': 3,
-            'width': 2,
-            'stroke': 'black',
-            'distance': 80
-          },
+          {'source': 0, 'target': 1, 'width': 2, 'stroke': 'black', 'distance': 80},
+          {'source': 0, 'target': 2, 'width': 2, 'stroke': 'black', 'distance': 80},
+          {'source': 1, 'target': 3, 'width': 2, 'stroke': 'black', 'distance': 80},
         ],
-        'configuration': {
-          'settings': {
-            'clustered': false,
-            'showEdgeLabels': true,
-            'showNodeLabels': true
-          }
-        }
+        'configuration': {'settings': {'clustered': false, 'showEdgeLabels': true, 'showNodeLabels': true}}
       }
     },
   ];

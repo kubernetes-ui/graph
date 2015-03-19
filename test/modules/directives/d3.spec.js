@@ -6,13 +6,11 @@ describe('D3 directive', function() {
   var viewModelService;
 
   // Work around to get ngLodash correctly injected.
-  beforeEach(function() {
-    angular.module('testModule', ['ngLodash', 'kubernetesApp.components.graph']);
-  });
+  beforeEach(function() { angular.module('testModule', ['ngLodash', 'kubernetesApp.components.graph']); });
 
   beforeEach(module('testModule'));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_, _viewModelService_){
+  beforeEach(inject(function(_$compile_, _$rootScope_, _viewModelService_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
     viewModelService = _viewModelService_;
@@ -71,33 +69,15 @@ describe('D3 directive', function() {
     expect(element.html()).toContain('<g class="node" style="opacity: 0.');
   });
 
-  var MOCK_SAMPLE_DATA = [
-    {
-      'name' : 'All Types',
-      'data' : {
-        'nodes': [
-          {
-            'name': 'service: guestbook',
-            'radius': 16,
-            'fill': 'olivedrab',
-            'id': 5
-          },
-          {
-            'name': 'pod: guestbook-controller',
-            'radius': 20,
-            'fill': 'palegoldenrod',
-            'id': 2
-          },
-        ],
-        'links': [],
-        'configuration': {
-          'settings': {
-            'clustered': false,
-            'showEdgeLabels': true,
-            'showNodeLabels': true
-          }
-        }
-      }
+  var MOCK_SAMPLE_DATA = [{
+    'name': 'All Types',
+    'data': {
+      'nodes': [
+        {'name': 'service: guestbook', 'radius': 16, 'fill': 'olivedrab', 'id': 5},
+        {'name': 'pod: guestbook-controller', 'radius': 20, 'fill': 'palegoldenrod', 'id': 2},
+      ],
+      'links': [],
+      'configuration': {'settings': {'clustered': false, 'showEdgeLabels': true, 'showNodeLabels': true}}
     }
-  ];
+  }];
 });
