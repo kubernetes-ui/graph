@@ -2,7 +2,6 @@
 
 // TODO(duftler):
 //  Add tests for:
-//    viewSettingsCache
 //    clustered view
 
 describe('D3 rendering service', function() {
@@ -381,6 +380,25 @@ describe('D3 rendering service', function() {
     for (var nodeId in updatedNodeSettingsCache) {
       expect(updatedNodeSettingsCache[nodeId].fixed).toBeFalsy();
     }
+  });
+
+  it('should update view settings cache when image is zoomed', function() {
+    // Render the graph.
+    d3Rendering();
+
+    // Adjust the zoom to 75%.
+    runs(function() {
+      d3Rendering.adjustZoom(0.75);
+    });
+
+    // The zoom is applied via a transition, so we must wait for it to complete.
+    waitsFor(function() {
+      return d3Rendering.viewSettingsCache().scale < 0.77;
+    }, "The view settings cache should be updated.", 1000);
+
+    runs(function() {
+      expect(d3Rendering.viewSettingsCache().scale).toBeLessThan(0.76);
+    });
   });
 
   var MOCK_SAMPLE_DATA = [

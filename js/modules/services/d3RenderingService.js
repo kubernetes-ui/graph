@@ -51,6 +51,9 @@
       var edgepaths;
       var edgelabels;
       var force;
+      var zoom;
+      var g;
+      var center;
 
       // Select all edges and edgelabels where both the source and target nodes are selected.
       function selectEdgesInScope() {
@@ -179,7 +182,8 @@
         // TODO(duftler): Derive the initial svg height from the container rather than the other way around.
         var width = viewSettingsCache.width ? viewSettingsCache.width : getParentContainerDimensions(d3)[0] - 16;
         var height = viewSettingsCache.height ? viewSettingsCache.height : CONSTANTS.DEFAULTS.SVG_INITIAL_HEIGHT;
-        var center = [width / 2, height / 2];
+
+        center = [width / 2, height / 2];
 
         var color = d3.scale.category20();
 
@@ -218,13 +222,13 @@
           d3.event.preventDefault();
         });
 
-        var zoom = d3.behavior.zoom().scaleExtent([0.5, 12]).on('zoom', zoomed);
+        zoom = d3.behavior.zoom().scaleExtent([0.5, 12]).on('zoom', zoomed);
 
         if (viewSettingsCache.translate && viewSettingsCache.scale) {
           zoom.translate(viewSettingsCache.translate).scale(viewSettingsCache.scale);
         }
 
-        var g = svg.append('g');
+        g = svg.append('g');
 
         svg.call(zoom).on('dblclick.zoom', null).call(zoom.event);
 
@@ -367,7 +371,7 @@
               toggleSelected(d);
             }
           } else {
-            this.togglePinned(d);
+            togglePinned(d);
           }
         }
 
@@ -603,16 +607,6 @@
           zoomed();
         }
 
-        function zoomed() {
-          var translate = zoom.translate();
-          var scale = zoom.scale();
-
-          g.attr('transform', 'translate(' + translate + ')scale(' + scale + ')');
-
-          viewSettingsCache.translate = translate;
-          viewSettingsCache.scale = scale;
-        }
-
         function dragstarted(d) {
           d3.event.sourceEvent.stopPropagation();
 
@@ -685,49 +679,6 @@
           }
 
           tick();
-        }
-
-        function adjustZoom(factor) {
-          var scale = zoom.scale(), extent = zoom.scaleExtent(), translate = zoom.translate(), x = translate[0],
-              y = translate[1], target_scale = scale * factor;
-
-          var reset = !factor;
-
-          if (reset) {
-            target_scale = 1;
-            factor = target_scale / scale;
-          }
-
-          // If we're already at an extent, done.
-          if (target_scale === extent[0] || target_scale === extent[1]) {
-            return false;
-          }
-          // If the factor is too much, scale it down to reach the extent exactly.
-          var clamped_target_scale = Math.max(extent[0], Math.min(extent[1], target_scale));
-          if (clamped_target_scale != target_scale) {
-            target_scale = clamped_target_scale;
-            factor = target_scale / scale;
-          }
-
-          // Center each vector, stretch, then put back.
-          x = (x - center[0]) * factor + center[0];
-          y = (y - center[1]) * factor + center[1];
-
-          if (reset) {
-            x = 0;
-            y = 0;
-          }
-
-          // Transition to the new view over 350ms
-          d3.transition().duration(350).tween('zoom', function() {
-            var interpolate_scale = d3.interpolate(scale, target_scale);
-            var interpolate_trans = d3.interpolate(translate, [x, y]);
-
-            return function(t) {
-              zoom.scale(interpolate_scale(t)).translate(interpolate_trans(t));
-              zoomed();
-            };
-          });
         }
 
         // Resize the svg element in response to the window resizing.
@@ -850,7 +801,7 @@
       };
 
         // Toggle the pinned state of this node.
-        graph.togglePinned = function(d) {
+        function togglePinned(d) {
             if (!nodeSettingsCache[d.id]) {
                 nodeSettingsCache[d.id] = {};
             }
@@ -869,7 +820,7 @@
         };
 
         // Clear all pinned nodes.
-        graph.resetPins = function() {
+        function resetPins() {
             node.each(function (d) {
                 // Unset the appropriate bit on each node.
                 d.fixed &= ~CONSTANTS.FIXED_PINNED_BIT;
@@ -1005,14 +956,14 @@
                     }
                 });
             }
-            d3.selectAll('text')
+            window.d3.selectAll('text')
                 .attr('x', function (d) {
                     return d.x;
                 })
                 .attr('y', function (d) {
                     return d.y;
                 });
-        };
+        }
 
         // Get or set the node settings cache. Returns the rendering service when acting as a setter.
         graph.nodeSettingsCache = function(newNodeSettingsCache) {
@@ -1020,6 +971,68 @@
             nodeSettingsCache = newNodeSettingsCache;
 
             return this;
+        };
+
+        // Get or set the view settings cache. Returns the rendering service when acting as a setter.
+        graph.viewSettingsCache = function(newViewSettingsCache) {
+            if (!arguments.length) return viewSettingsCache;
+            viewSettingsCache = newViewSettingsCache;
+
+            return this;
+        };
+
+        function zoomed() {
+            var translate = zoom.translate();
+            var scale = zoom.scale();
+
+            g.attr('transform', 'translate(' + translate + ')scale(' + scale + ')');
+
+            viewSettingsCache.translate = translate;
+            viewSettingsCache.scale = scale;
+        }
+
+        function adjustZoom(factor) {
+            var scale = zoom.scale(), extent = zoom.scaleExtent(), translate = zoom.translate(), x = translate[0],
+                y = translate[1], target_scale = scale * factor;
+
+            var reset = !factor;
+
+            if (reset) {
+                target_scale = 1;
+                factor = target_scale / scale;
+            }
+
+            // If we're already at an extent, done.
+            if (target_scale === extent[0] || target_scale === extent[1]) {
+                return false;
+            }
+            // If the factor is too much, scale it down to reach the extent exactly.
+            var clamped_target_scale = Math.max(extent[0], Math.min(extent[1], target_scale));
+            if (clamped_target_scale != target_scale) {
+                target_scale = clamped_target_scale;
+                factor = target_scale / scale;
+            }
+
+            // Center each vector, stretch, then put back.
+            x = (x - center[0]) * factor + center[0];
+            y = (y - center[1]) * factor + center[1];
+
+            if (reset) {
+                x = 0;
+                y = 0;
+            }
+
+            // Transition to the new view over 350ms
+            window.d3.transition().duration(350).tween('zoom', function() {
+                var interpolate_scale = window.d3.interpolate(scale, target_scale);
+                var interpolate_trans = window.d3.interpolate(translate, [x, y]);
+
+                return function(t) {
+                    zoom.scale(interpolate_scale(t)).translate(interpolate_trans(t));
+
+                    zoomed();
+                };
+            });
         };
 
       return graph;
