@@ -38,19 +38,14 @@ describe('D3 rendering service', function() {
 
     // Set the mock data in the scope.
     scope.viewModelService.viewModel.data = MOCK_SAMPLE_DATA[0].data;
+
+    // Render the graph.
+    d3Rendering();
   }));
 
   afterEach(function() { parentDiv.remove(); });
 
   it('should locate the dimensions of the parent', function() {
-    // Test that parent container dimensions are properly calculated before rendering.
-    var containerDimensionsBeforeRendering = d3Rendering.getParentContainerDimensions();
-    expect(containerDimensionsBeforeRendering[0]).toEqual(500);
-    expect(containerDimensionsBeforeRendering[1]).toEqual(500);
-
-    // Render the graph.
-    d3Rendering();
-
     // Test that container dimensions are properly calculated after rendering.
     var containerDimensionsAfterRendering = d3Rendering.getParentContainerDimensions();
     expect(containerDimensionsAfterRendering[0]).toEqual(500);
@@ -58,9 +53,6 @@ describe('D3 rendering service', function() {
   });
 
   it('should resize the graph implicitly and explicitly', function() {
-    // Render the graph.
-    d3Rendering();
-
     // Test that the initial graph size is calculated properly.
     var initialGraphSize = d3Rendering.graphSize();
     // The initial width is calculated by subtracting 16 from the parent container width.
@@ -80,9 +72,6 @@ describe('D3 rendering service', function() {
   });
 
   it('should respect "selected" property in view model', function() {
-    // Render the graph.
-    d3Rendering();
-
     // Test that the initial selection is calculated properly.
     var initialNodeSelection = d3Rendering.nodeSelection();
     expect(initialNodeSelection.size).toEqual(3);
@@ -92,9 +81,6 @@ describe('D3 rendering service', function() {
   });
 
   it('should completely replace node selection when explicitly set', function() {
-    // Render the graph.
-    d3Rendering();
-
     // Create and set a new node selection.
     var newNodeSelection = new Set();
     newNodeSelection.add({id: 2});
@@ -109,9 +95,6 @@ describe('D3 rendering service', function() {
   });
 
   it('should select appropriate edges with respect to selected nodes in view model', function() {
-    // Render the graph.
-    d3Rendering();
-
     // Test that the expected edges are selected and no more.
     var initialEdgeSelectionIterator = d3Rendering.edgeSelection().values();
 
@@ -133,9 +116,6 @@ describe('D3 rendering service', function() {
   });
 
   it('should select appropriate edges with respect to explicitly set node selection', function() {
-    // Render the graph.
-    d3Rendering();
-
     // Create and set a new node selection.
     var newNodeSelection = new Set();
     newNodeSelection.add({id: 2});
@@ -157,9 +137,6 @@ describe('D3 rendering service', function() {
   });
 
   it('should select appropriate edgelabels with respect to selected nodes in view model', function() {
-    // Render the graph.
-    d3Rendering();
-
     // Test that the expected edgelabels are selected and no more.
     var initialEdgelabelsSelectionIterator = d3Rendering.edgelabelsSelection().values();
 
@@ -181,9 +158,6 @@ describe('D3 rendering service', function() {
   });
 
   it('should select appropriate edgelabels with respect to explicitly set node selection', function() {
-    // Render the graph.
-    d3Rendering();
-
     // Create and set a new node selection.
     var newNodeSelection = new Set();
     newNodeSelection.add({id: 2});
@@ -205,9 +179,6 @@ describe('D3 rendering service', function() {
   });
 
   it('should set opacity of selected nodes to 1, and opacity of all others to something else', function() {
-    // Render the graph.
-    d3Rendering();
-
     // Test that the initial selection is calculated properly.
     var initialNodeSelection = d3Rendering.nodeSelection();
     expect(initialNodeSelection.size).toEqual(3);
@@ -244,9 +215,6 @@ describe('D3 rendering service', function() {
   });
 
   it('should set opacity of selected edges to 1, and opacity of all others to something else', function() {
-    // Render the graph.
-    d3Rendering();
-
     // Test that the initial selection is calculated properly.
     var initialEdgeSelection = d3Rendering.edgeSelection();
     expect(initialEdgeSelection.size).toEqual(2);
@@ -283,9 +251,6 @@ describe('D3 rendering service', function() {
   });
 
   it('should set opacity of selected edgelabels to 1, and opacity of all others to something else', function() {
-    // Render the graph.
-    d3Rendering();
-
     // Test that the initial selection is calculated properly.
     var initialEdgelabelsSelection = d3Rendering.edgelabelsSelection();
     expect(initialEdgelabelsSelection.size).toEqual(2);
@@ -324,9 +289,6 @@ describe('D3 rendering service', function() {
   });
 
   it('should set opacity of all nodes, edges, edgelabels and images to 1 when nothing is selected', function() {
-    // Render the graph.
-    d3Rendering();
-
     // Set the node selection to an empty set.
     d3Rendering.nodeSelection(new Set());
 
@@ -340,9 +302,6 @@ describe('D3 rendering service', function() {
   });
 
   it('should update node settings cache when node is pinned and unpinned', function() {
-    // Render the graph.
-    d3Rendering();
-
     // Pin a node.
     d3Rendering.togglePinned({id: 2, fixed: 0});
 
@@ -359,9 +318,6 @@ describe('D3 rendering service', function() {
   });
 
   it('should update node settings cache when pins are reset', function() {
-    // Render the graph.
-    d3Rendering();
-
     // Pin two nodes.
     d3Rendering.togglePinned({id: 2, fixed: 0});
     d3Rendering.togglePinned({id: 3, fixed: 0});
@@ -383,9 +339,6 @@ describe('D3 rendering service', function() {
   });
 
   it('should update view settings cache when image is zoomed', function() {
-    // Render the graph.
-    d3Rendering();
-
     // Adjust the zoom to 75%.
     runs(function() {
       d3Rendering.adjustZoom(0.75);

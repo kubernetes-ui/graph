@@ -52,10 +52,12 @@ describe('D3 directive', function() {
     // Fire all the watches.
     $rootScope.$digest();
 
-    // Test that at least one node has an opacity of 1.
-    expect(element.html()).toContain('<g class="node" style="opacity: 1');
-    // Test that no nodes have an opacity of less than 1.
-    expect(element.html()).not.toContain('<g class="node" style="opacity: 0.');
+    // Test that each node has an opacity of 1.
+    var nodeList = element[0].querySelectorAll("g > g");
+
+    for (var i = 0; i < nodeList.length; i++) {
+      expect(angular.element(nodeList[i])).toHaveAttr('style', 'opacity: 1;');
+    }
 
     // Set a new selection id list that should trigger a watch.
     $rootScope.selectionIdList = [2];
@@ -63,10 +65,21 @@ describe('D3 directive', function() {
     // Fire all the watches.
     $rootScope.$digest();
 
-    // Test that at least one node has an opacity of 1.
-    expect(element.html()).toContain('<g class="node" style="opacity: 1');
-    // Test that at least one node has an opacity of less than 1.
-    expect(element.html()).toContain('<g class="node" style="opacity: 0.');
+    // Test that at least one node has an opacity of 1 and at least one node has an opacity of less than 1.
+    var foundOpacityOfOne = false;
+    var foundOpacityLessThanOne = false;
+    nodeList = element[0].querySelectorAll("g > g");
+
+    for (var i = 0; i < nodeList.length; i++) {
+      if (nodeList[i].getAttribute("style") === "opacity: 1;") {
+        foundOpacityOfOne = true;
+      } else if (nodeList[i].getAttribute("style") === "opacity: 0.2;") {
+        foundOpacityLessThanOne = true;
+      }
+    }
+
+    expect(foundOpacityOfOne).toBeTruthy();
+    expect(foundOpacityLessThanOne).toBeTruthy();
   });
 
   var MOCK_SAMPLE_DATA = [{
