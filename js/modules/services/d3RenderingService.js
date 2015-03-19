@@ -422,21 +422,21 @@
 
         if (!graph.configuration.settings.clustered && graph.configuration.settings.showEdgeLabels) {
           edgepaths = g.selectAll('.edgepath')
-                              .data(graph.links)
-                              .enter()
-                              .append('path')
-                              .attr({
-                                d: function(d) {
-                                  return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
-                                },
-                                class: 'edgepath',
-                                'fill-opacity': 0,
-                                'stroke-opacity': 0,
-                                fill: 'blue',
-                                stroke: 'red',
-                                id: function(d, i) { return 'edgepath' + i }
-                              })
-                              .style('pointer-events', 'none');
+                          .data(graph.links)
+                          .enter()
+                          .append('path')
+                          .attr({
+                            d: function(d) {
+                              return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
+                            },
+                            class: 'edgepath',
+                            'fill-opacity': 0,
+                            'stroke-opacity': 0,
+                            fill: 'blue',
+                            stroke: 'red',
+                            id: function(d, i) { return 'edgepath' + i }
+                          })
+                          .style('pointer-events', 'none');
 
           edgelabels = g.selectAll('.edgelabel')
                            .data(graph.links)
@@ -800,243 +800,231 @@
         return this;
       };
 
-        // Toggle the pinned state of this node.
-        function togglePinned(d) {
-            if (!nodeSettingsCache[d.id]) {
-                nodeSettingsCache[d.id] = {};
-            }
+      // Toggle the pinned state of this node.
+      function togglePinned(d) {
+        if (!nodeSettingsCache[d.id]) {
+          nodeSettingsCache[d.id] = {};
+        }
 
-            if (d.fixed & CONSTANTS.FIXED_PINNED_BIT) {
-                d.fixed &= ~CONSTANTS.FIXED_PINNED_BIT;
-                force.start().alpha(CONSTANTS.DEFAULTS.FORCE_CLUSTERED_REFRESH_STARTING_ALPHA * 2);
+        if (d.fixed & CONSTANTS.FIXED_PINNED_BIT) {
+          d.fixed &= ~CONSTANTS.FIXED_PINNED_BIT;
+          force.start().alpha(CONSTANTS.DEFAULTS.FORCE_CLUSTERED_REFRESH_STARTING_ALPHA * 2);
 
-                nodeSettingsCache[d.id].fixed = false;
+          nodeSettingsCache[d.id].fixed = false;
+        } else {
+          d.fixed |= CONSTANTS.FIXED_PINNED_BIT;
+
+          nodeSettingsCache[d.id].fixed = true;
+          tick();
+        }
+      }
+      graph.togglePinned = togglePinned;
+
+      // Clear all pinned nodes.
+      function resetPins() {
+        node.each(function(d) {
+          // Unset the appropriate bit on each node.
+          d.fixed &= ~CONSTANTS.FIXED_PINNED_BIT;
+
+          // Ensure the node is not marked in the cache as fixed.
+          if (nodeSettingsCache[d.id]) {
+            nodeSettingsCache[d.id].fixed = false;
+          }
+        });
+
+        force.start().alpha(0.01);
+      }
+      graph.resetPins = resetPins;
+
+      function tick(e) {
+        var forceAlpha = force.alpha();
+
+        node.style('opacity', function(e) {
+          if (e.opacity) {
+            var opacity = e.opacity;
+
+            delete e.opacity;
+
+            return opacity;
+          }
+
+          return window.d3.select(this).style('opacity');
+        });
+
+        if (controllerScope.viewModelService.viewModel.data.configuration.settings.clustered) {
+          circle.each(d3UtilitiesService.cluster(builtClusters, 10 * forceAlpha * forceAlpha))
+              .each(d3UtilitiesService.collide(d3, graph.nodes, builtClusters, .5, clusterInnerPadding,
+                                               clusterOuterPadding));
+
+          image.each(d3UtilitiesService.cluster(builtClusters, 10 * forceAlpha * forceAlpha))
+              .each(d3UtilitiesService.collide(d3, graph.nodes, builtClusters, .5, clusterInnerPadding,
+                                               clusterOuterPadding));
+        } else {
+          link.attr('x1',
+                    function(d) {
+                      var offsetX = d.source.icon ? d.source.size[0] / 2 : 0;
+
+                      return d.source.x + offsetX;
+                    })
+              .attr('y1',
+                    function(d) {
+                      var offsetY = d.source.icon ? d.source.size[1] / 2 : 0;
+
+                      return d.source.y + offsetY;
+                    })
+              .attr('x2',
+                    function(d) {
+                      var offsetX = d.target.icon ? d.target.size[0] / 2 : 0;
+
+                      return d.target.x + offsetX;
+                    })
+              .attr('y2', function(d) {
+                var offsetY = d.target.icon ? d.target.size[1] / 2 : 0;
+
+                return d.target.y + offsetY;
+              });
+
+          if (edgepaths) {
+            edgepaths.attr('d', function(d) {
+              var path = 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
+              return path
+            });
+
+            edgelabels.attr('transform', function(d, i) {
+              if (d.target.x < d.source.x) {
+                var bbox = this.getBBox();
+                var rx = bbox.x + bbox.width / 2;
+                var ry = bbox.y + bbox.height / 2;
+
+                return 'rotate(180 ' + rx + ' ' + ry + ')';
+              } else {
+                return 'rotate(0)';
+              }
+            });
+          }
+        }
+
+        circle.attr('cx', function(d) { return d.x; }).attr('cy', function(d) { return d.y; });
+
+        image.each(function(e) {
+          var singleImage = window.d3.select(this);
+          var siblingText = window.d3.select(this.parentNode).select('text');
+          var bbox = siblingText[0][0] ? siblingText[0][0].getBBox() : {width: 0};
+          var isPinIcon = singleImage.attr('xlink:href') === '/components/graph/img/Pin.svg';
+
+          singleImage.attr('display', function(d) {
+            if (isPinIcon) {
+              return d.fixed & CONSTANTS.FIXED_PINNED_BIT ? '' : 'none';
             } else {
-                d.fixed |= CONSTANTS.FIXED_PINNED_BIT;
-
-                nodeSettingsCache[d.id].fixed = true;
-                tick();
+              return '';
             }
-        }
-        graph.togglePinned = togglePinned;
+          });
 
-        // Clear all pinned nodes.
-        function resetPins() {
-            node.each(function (d) {
-                // Unset the appropriate bit on each node.
-                d.fixed &= ~CONSTANTS.FIXED_PINNED_BIT;
-
-                // Ensure the node is not marked in the cache as fixed.
-                if (nodeSettingsCache[d.id]) {
-                    nodeSettingsCache[d.id].fixed = false;
+          singleImage.attr('x',
+                           function(d) {
+                             if (isPinIcon) {
+                               if (siblingText.text() !== '') {
+                                 return d.x + bbox.width + 12;
+                               } else {
+                                 return d.x - 5;
+                               }
+                             } else {
+                               return d.x
+                             }
+                           })
+              .attr('y', function(d) {
+                if (isPinIcon) {
+                  return d.y - 5;
+                } else {
+                  return d.y;
                 }
-            });
+              });
+        });
 
-            force.start().alpha(0.01);
+        if (forceAlpha < 0.04) {
+          controllerScope.viewModelService.viewModel.data.nodes.forEach(function(n) {
+            if (n.id) {
+              if (!nodeSettingsCache[n.id]) {
+                nodeSettingsCache[n.id] = {};
+              }
+
+              nodeSettingsCache[n.id].position = [n.x, n.y];
+            }
+          });
         }
-        graph.resetPins = resetPins;
+        window.d3.selectAll('text').attr('x', function(d) { return d.x; }).attr('y', function(d) { return d.y; });
+      }
 
-            function tick(e) {
-            var forceAlpha = force.alpha();
+      // Get or set the node settings cache. Returns the rendering service when acting as a setter.
+      graph.nodeSettingsCache = function(newNodeSettingsCache) {
+        if (!arguments.length) return nodeSettingsCache;
+        nodeSettingsCache = newNodeSettingsCache;
 
-            node.style('opacity', function (e) {
-                if (e.opacity) {
-                    var opacity = e.opacity;
+        return this;
+      };
 
-                    delete e.opacity;
+      // Get or set the view settings cache. Returns the rendering service when acting as a setter.
+      graph.viewSettingsCache = function(newViewSettingsCache) {
+        if (!arguments.length) return viewSettingsCache;
+        viewSettingsCache = newViewSettingsCache;
 
-                    return opacity;
-                }
+        return this;
+      };
 
-                return window.d3.select(this).style('opacity');
-            });
+      function zoomed() {
+        var translate = zoom.translate();
+        var scale = zoom.scale();
 
-            if (controllerScope.viewModelService.viewModel.data.configuration.settings.clustered) {
-                circle
-                    .each(d3UtilitiesService.cluster(builtClusters, 10 * forceAlpha * forceAlpha))
-                    .each(d3UtilitiesService.collide(d3, graph.nodes, builtClusters, .5, clusterInnerPadding, clusterOuterPadding));
+        g.attr('transform', 'translate(' + translate + ')scale(' + scale + ')');
 
-                image
-                    .each(d3UtilitiesService.cluster(builtClusters, 10 * forceAlpha * forceAlpha))
-                    .each(d3UtilitiesService.collide(d3, graph.nodes, builtClusters, .5, clusterInnerPadding, clusterOuterPadding));
-            } else {
-                link
-                    .attr('x1', function (d) {
-                        var offsetX = d.source.icon ? d.source.size[0] / 2 : 0;
+        viewSettingsCache.translate = translate;
+        viewSettingsCache.scale = scale;
+      }
 
-                        return d.source.x + offsetX;
-                    })
-                    .attr('y1', function (d) {
-                        var offsetY = d.source.icon ? d.source.size[1] / 2 : 0;
+      function adjustZoom(factor) {
+        var scale = zoom.scale(), extent = zoom.scaleExtent(), translate = zoom.translate(), x = translate[0],
+            y = translate[1], target_scale = scale * factor;
 
-                        return d.source.y + offsetY;
-                    })
-                    .attr('x2', function (d) {
-                        var offsetX = d.target.icon ? d.target.size[0] / 2 : 0;
+        var reset = !factor;
 
-                        return d.target.x + offsetX;
-                    })
-                    .attr('y2', function (d) {
-                        var offsetY = d.target.icon ? d.target.size[1] / 2 : 0;
-
-                        return d.target.y + offsetY;
-                    });
-
-                if (edgepaths) {
-                    edgepaths.attr('d', function (d) {
-                        var path = 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
-                        return path
-                    });
-
-                    edgelabels.attr('transform', function (d, i) {
-                        if (d.target.x < d.source.x) {
-                            var bbox = this.getBBox();
-                            var rx = bbox.x + bbox.width / 2;
-                            var ry = bbox.y + bbox.height / 2;
-
-                            return 'rotate(180 ' + rx + ' ' + ry + ')';
-                        }
-                        else {
-                            return 'rotate(0)';
-                        }
-                    });
-                }
-            }
-
-            circle
-                .attr('cx', function (d) {
-                    return d.x;
-                })
-                .attr('cy', function (d) {
-                    return d.y;
-                });
-
-            image.each(function (e) {
-                var singleImage = window.d3.select(this);
-                var siblingText = window.d3.select(this.parentNode).select('text');
-                var bbox = siblingText[0][0] ? siblingText[0][0].getBBox() : {width: 0};
-                var isPinIcon = singleImage.attr('xlink:href') === '/components/graph/img/Pin.svg';
-
-                singleImage
-                    .attr('display', function (d) {
-                        if (isPinIcon) {
-                            return d.fixed & CONSTANTS.FIXED_PINNED_BIT ? '' : 'none';
-                        } else {
-                            return '';
-                        }
-                    });
-
-                singleImage
-                    .attr('x', function (d) {
-                        if (isPinIcon) {
-                            if (siblingText.text() !== '') {
-                                return d.x + bbox.width + 12;
-                            } else {
-                                return d.x - 5;
-                            }
-                        } else {
-                            return d.x
-                        }
-                    })
-                    .attr('y', function (d) {
-                        if (isPinIcon) {
-                            return d.y - 5;
-                        } else {
-                            return d.y;
-                        }
-                    });
-            });
-
-            if (forceAlpha < 0.04) {
-                controllerScope.viewModelService.viewModel.data.nodes.forEach(function (n) {
-                    if (n.id) {
-                        if (!nodeSettingsCache[n.id]) {
-                            nodeSettingsCache[n.id] = {};
-                        }
-
-                        nodeSettingsCache[n.id].position = [n.x, n.y];
-                    }
-                });
-            }
-            window.d3.selectAll('text')
-                .attr('x', function (d) {
-                    return d.x;
-                })
-                .attr('y', function (d) {
-                    return d.y;
-                });
+        if (reset) {
+          target_scale = 1;
+          factor = target_scale / scale;
         }
 
-        // Get or set the node settings cache. Returns the rendering service when acting as a setter.
-        graph.nodeSettingsCache = function(newNodeSettingsCache) {
-            if (!arguments.length) return nodeSettingsCache;
-            nodeSettingsCache = newNodeSettingsCache;
-
-            return this;
-        };
-
-        // Get or set the view settings cache. Returns the rendering service when acting as a setter.
-        graph.viewSettingsCache = function(newViewSettingsCache) {
-            if (!arguments.length) return viewSettingsCache;
-            viewSettingsCache = newViewSettingsCache;
-
-            return this;
-        };
-
-        function zoomed() {
-            var translate = zoom.translate();
-            var scale = zoom.scale();
-
-            g.attr('transform', 'translate(' + translate + ')scale(' + scale + ')');
-
-            viewSettingsCache.translate = translate;
-            viewSettingsCache.scale = scale;
+        // If we're already at an extent, done.
+        if (target_scale === extent[0] || target_scale === extent[1]) {
+          return false;
+        }
+        // If the factor is too much, scale it down to reach the extent exactly.
+        var clamped_target_scale = Math.max(extent[0], Math.min(extent[1], target_scale));
+        if (clamped_target_scale != target_scale) {
+          target_scale = clamped_target_scale;
+          factor = target_scale / scale;
         }
 
-        function adjustZoom(factor) {
-            var scale = zoom.scale(), extent = zoom.scaleExtent(), translate = zoom.translate(), x = translate[0],
-                y = translate[1], target_scale = scale * factor;
+        // Center each vector, stretch, then put back.
+        x = (x - center[0]) * factor + center[0];
+        y = (y - center[1]) * factor + center[1];
 
-            var reset = !factor;
-
-            if (reset) {
-                target_scale = 1;
-                factor = target_scale / scale;
-            }
-
-            // If we're already at an extent, done.
-            if (target_scale === extent[0] || target_scale === extent[1]) {
-                return false;
-            }
-            // If the factor is too much, scale it down to reach the extent exactly.
-            var clamped_target_scale = Math.max(extent[0], Math.min(extent[1], target_scale));
-            if (clamped_target_scale != target_scale) {
-                target_scale = clamped_target_scale;
-                factor = target_scale / scale;
-            }
-
-            // Center each vector, stretch, then put back.
-            x = (x - center[0]) * factor + center[0];
-            y = (y - center[1]) * factor + center[1];
-
-            if (reset) {
-                x = 0;
-                y = 0;
-            }
-
-            // Transition to the new view over 350ms
-            window.d3.transition().duration(350).tween('zoom', function() {
-                var interpolate_scale = window.d3.interpolate(scale, target_scale);
-                var interpolate_trans = window.d3.interpolate(translate, [x, y]);
-
-                return function(t) {
-                    zoom.scale(interpolate_scale(t)).translate(interpolate_trans(t));
-
-                    zoomed();
-                };
-            });
+        if (reset) {
+          x = 0;
+          y = 0;
         }
-        graph.adjustZoom = adjustZoom;
+
+        // Transition to the new view over 350ms
+        window.d3.transition().duration(350).tween('zoom', function() {
+          var interpolate_scale = window.d3.interpolate(scale, target_scale);
+          var interpolate_trans = window.d3.interpolate(translate, [x, y]);
+
+          return function(t) {
+            zoom.scale(interpolate_scale(t)).translate(interpolate_trans(t));
+
+            zoomed();
+          };
+        });
+      }
+      graph.adjustZoom = adjustZoom;
 
       return graph;
     }
