@@ -55,6 +55,13 @@
       var g;
       var center;
 
+      // Used to store the largest node for each cluster.
+      var builtClusters;
+      // The configured padding between nodes within a cluster.
+      var clusterInnerPadding;
+      // The configured padding between clusters.
+      var clusterOuterPadding;
+
       // Select all edges and edgelabels where both the source and target nodes are selected.
       function selectEdgesInScope() {
         selection.edges.clear();
@@ -289,9 +296,6 @@
 
         force = d3.layout.force().size([width, height]).on('tick', tick);
 
-        var clusterInnerPadding;
-        var clusterOuterPadding;
-
         if (graph.configuration.settings.clustered) {
           force.gravity(CONSTANTS.DEFAULTS.FORCE_CLUSTERED_GRAVITY).charge(CONSTANTS.DEFAULTS.FORCE_CLUSTERED_CHARGE);
 
@@ -347,9 +351,6 @@
         } else {
           force.start();
         }
-
-        // Used to store the largest node for each cluster.
-        var builtClusters;
 
         if (graph.configuration.settings.clustered) {
           builtClusters = d3UtilitiesService.buildClusters(graph.nodes);
@@ -853,12 +854,12 @@
 
         if (controllerScope.viewModelService.viewModel.data.configuration.settings.clustered) {
           circle.each(d3UtilitiesService.cluster(builtClusters, 10 * forceAlpha * forceAlpha))
-              .each(d3UtilitiesService.collide(d3, graph.nodes, builtClusters, .5, clusterInnerPadding,
-                                               clusterOuterPadding));
+              .each(d3UtilitiesService.collide(d3, controllerScope.viewModelService.viewModel.data.nodes,
+                                               builtClusters, .5, clusterInnerPadding, clusterOuterPadding));
 
           image.each(d3UtilitiesService.cluster(builtClusters, 10 * forceAlpha * forceAlpha))
-              .each(d3UtilitiesService.collide(d3, graph.nodes, builtClusters, .5, clusterInnerPadding,
-                                               clusterOuterPadding));
+              .each(d3UtilitiesService.collide(d3, controllerScope.viewModelService.viewModel.data.nodes,
+                                               builtClusters, .5, clusterInnerPadding, clusterOuterPadding));
         } else {
           link.attr('x1',
                     function(d) {
@@ -952,6 +953,7 @@
             }
           });
         }
+
         window.d3.selectAll('text').attr('x', function(d) { return d.x; }).attr('y', function(d) { return d.y; });
       }
 
