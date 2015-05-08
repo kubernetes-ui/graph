@@ -431,7 +431,7 @@
 
           d3.select(parentNode)
               .append('image')
-              .attr('xlink:href', function(d) { return '/components/graph/img/Pin.svg'; })
+              .attr('xlink:href', function(d) { return 'components/graph/img/Pin.svg'; })
               .attr('display', function(d) { return d.fixed & CONSTANTS.FIXED_PINNED_BIT ? '' : 'none'; })
               .attr('width', function(d) { return '13px'; })
               .attr('height', function(d) { return '13px'; });
@@ -927,7 +927,7 @@
           var singleImage = window.d3.select(this);
           var siblingText = window.d3.select(this.parentNode).select('text');
           var bbox = siblingText[0][0] ? siblingText[0][0].getBBox() : {width: 0};
-          var isPinIcon = singleImage.attr('xlink:href') === '/components/graph/img/Pin.svg';
+          var isPinIcon = singleImage.attr('xlink:href') === 'components/graph/img/Pin.svg';
 
           singleImage.attr('display', function(d) {
             if (isPinIcon) {
