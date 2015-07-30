@@ -21,6 +21,15 @@ describe('D3 directive', function() {
   var $rootScope;
   var viewModelService;
 
+  var MOCK_SAMPLE_DATA = [{
+    'nodes': [
+      {'name': 'service: guestbook', 'radius': 16, 'fill': 'olivedrab', 'id': 5},
+      {'name': 'pod: guestbook-controller', 'radius': 20, 'fill': 'palegoldenrod', 'id': 2},
+    ],
+    'links': [],
+    'configuration': {'settings': {'clustered': false, 'showEdgeLabels': true, 'showNodeLabels': true}}
+  }];
+
   // Work around to get ngLodash correctly injected.
   beforeEach(function() { angular.module('testModule', ['ngLodash', 'kubernetesApp.components.graph']); });
 
@@ -42,7 +51,7 @@ describe('D3 directive', function() {
     expect(element.html()).toEqual('<d3-visualization></d3-visualization>');
 
     // Request the viewModelService to update the view model with the specified data.
-    viewModelService.setViewModel(MOCK_SAMPLE_DATA[0].data);
+    viewModelService.setViewModel(MOCK_SAMPLE_DATA[0]);
 
     // Test that the element still hasn't been compiled yet.
     expect(element.html()).toEqual('<d3-visualization></d3-visualization>');
@@ -63,7 +72,7 @@ describe('D3 directive', function() {
     $rootScope.viewModelService = viewModelService;
 
     // Request the viewModelService to update the view model with the specified data. No initial selections.
-    viewModelService.setViewModel(MOCK_SAMPLE_DATA[0].data);
+    viewModelService.setViewModel(MOCK_SAMPLE_DATA[0]);
 
     // Fire all the watches.
     $rootScope.$digest();
@@ -72,7 +81,10 @@ describe('D3 directive', function() {
     var nodeList = element[0].querySelectorAll("g > g");
 
     for (var i = 0; i < nodeList.length; i++) {
-      expect(angular.element(nodeList[i])).toHaveAttr('style', 'opacity: 1;');
+      var node = angular.element(nodeList[i]);
+      if (node.style !== undefined) {
+        expect(node.style).toEqual('opacity: 1;'); 
+      }
     }
 
     // Set a new selection id list that should trigger a watch.
@@ -97,16 +109,4 @@ describe('D3 directive', function() {
     expect(foundOpacityOfOne).toBeTruthy();
     expect(foundOpacityLessThanOne).toBeTruthy();
   });
-
-  var MOCK_SAMPLE_DATA = [{
-    'name': 'All Types',
-    'data': {
-      'nodes': [
-        {'name': 'service: guestbook', 'radius': 16, 'fill': 'olivedrab', 'id': 5},
-        {'name': 'pod: guestbook-controller', 'radius': 20, 'fill': 'palegoldenrod', 'id': 2},
-      ],
-      'links': [],
-      'configuration': {'settings': {'clustered': false, 'showEdgeLabels': true, 'showNodeLabels': true}}
-    }
-  }];
 });

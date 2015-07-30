@@ -2,40 +2,55 @@
   "nodes": {
     "Container": {
       "style": {
-        "radius": 10,
-        "fill": "cornflowerblue"
+        "size": [24, 24],
+        "radius": 12,
+        "icon": "components/graph/img/icons/Container.svg",
+        "fill": "cornflowerblue",
+        "stroke": "dimgray"
       },
       "selected": true,
       "available": true
     },
     "Cluster": {
       "style": {
-        "radius": 30,
-        "fill": "#D32F2F"
+        "size": [34, 34],
+        "radius": 17,
+        "icon": "components/graph/img/icons/Cluster.svg",
+        "fill": "#D32F2F",
+        "stroke": "dimgray"
       },
       "selected": false,
       "available": true
     },
     "Node": {
       "style": {
-        "radius": 25,
-        "fill": "#FF4D81"
+        "size": [34, 34],
+        "radius": 17,
+        "icon": "components/graph/img/icons/Node.svg",
+        "fill": "#FF4D81",
+        "stroke": "dimgray"
       },
       "selected": false,
       "available": true
     },
     "Process": {
       "style": {
-        "radius": 15,
-        "fill": "#FF9800"
+        "size": [24, 24],
+        "radius": 12,
+        "icon": "components/graph/img/icons/Process.svg",
+        "fill": "#FF9800",
+        "stroke": "dimgray"
       },
-      "selected": true,
+      "selected": false,
       "available": true
     },
     "Service": {
       "style": {
-        "radius": 20,
-        "fill": "#7C4DFF"
+        "size": [30, 30],
+        "radius": 15,
+        "icon": "components/graph/img/icons/Service.svg",
+        "fill": "#7C4DFF",
+        "stroke": "dimgray"
       },
       "selected": true,
       "available": true
@@ -43,26 +58,35 @@
     "ReplicationController": {
       "displayName": "Replication Controller",
       "style": {
-        "radius": 20,
-        "fill": "#DE2AFB"
+        "size": [30, 30],
+        "radius": 15,
+        "icon": "components/graph/img/icons/ReplicationController.svg",
+        "fill": "#DE2AFB",
+        "stroke": "dimgray"
       },
       "selected": true,
       "available": true
     },
     "Pod": {
       "style": {
-        "radius": 20,
-        "fill": "#E91E63"
+        "size": [30, 30],
+        "radius": 15,
+        "icon": "components/graph/img/icons/Pod.svg",
+        "fill": "#E91E63",
+        "stroke": "dimgray"
       },
       "selected": true,
       "available": true
     },
     "Image": {
       "style": {
-        "radius": 15,
-        "fill": "#D1C4E9"
+        "size": [24, 24],
+        "radius": 12,
+        "icon": "components/graph/img/icons/Image.svg",
+        "fill": "#D1C4E9",
+        "stroke": "dimgray"
       },
-      "selected": true,
+      "selected": false,
       "available": true
     }
   },
@@ -70,37 +94,46 @@
     "contains": {
       "available": true,
       "style": {
-        "dash": "1",
-        "width": 2,
+        "dash": "1, 1",
+        "width": 1,
         "stroke": "gray",
-        "distance": 40
+        "distance": 10
+      }
+    },
+    "runs": {
+      "available": true,
+      "style": {
+        "dash": "5, 5",
+        "width": 1,
+        "stroke": "#FF4D81",
+        "distance": 10
       }
     },
     "balances": {
       "available": true,
       "style": {
-        "width": 3,
+        "width": 1,
         "stroke": "#7C4DFF",
         "dash": "5, 5",
-        "distance": 60
+        "distance": 15
       }
     },
     "uses": {
       "available": true,
       "style": {
-        "width": 3,
+        "width": 1,
         "stroke": "#D1C4E9",
         "dash": "5, 5",
-        "distance": 60
+        "distance": 15
       }
     },
     "monitors": {
       "available": true,
       "style": {
-        "width": 3,
+        "width": 1,
         "stroke": "#DE2AFB",
         "dash": "5, 5",
-        "distance": 60
+        "distance": 15
       }
     }
   }

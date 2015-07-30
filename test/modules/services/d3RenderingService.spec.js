@@ -28,6 +28,24 @@ describe('D3 rendering service', function() {
   var scope;
   var d3Rendering;
 
+  var MOCK_SAMPLE_DATA = [
+    {
+      'nodes': [
+        {'name': 'service: guestbook', 'radius': 16, 'fill': 'olivedrab', 'id': 1, 'selected': true},
+        {'name': 'pod: guestbook-controller', 'radius': 20, 'fill': 'palegoldenrod', 'id': 2, 'selected': true},
+        {'name': 'pod: guestbook-controller', 'radius': 20, 'fill': 'palegoldenrod', 'id': 3, 'selected': true},
+        {'name': 'pod: guestbook-controller', 'radius': 20, 'fill': 'palegoldenrod', 'id': 55},
+        {'name': 'container: php-redis', 'radius': 24, 'fill': 'cornflowerblue', 'id': 77}
+      ],
+      'links': [
+        {'source': 0, 'target': 1, 'width': 2, 'stroke': 'black', 'distance': 80},
+        {'source': 0, 'target': 2, 'width': 2, 'stroke': 'black', 'distance': 80},
+        {'source': 1, 'target': 3, 'width': 2, 'stroke': 'black', 'distance': 80}
+      ],
+      'configuration': {'settings': {'clustered': false, 'showEdgeLabels': true, 'showNodeLabels': true}}
+    }
+  ];
+
   // Work around to get ngLodash correctly injected.
   beforeEach(function() { angular.module('testModule', ['ngLodash', 'kubernetesApp.components.graph']); });
 
@@ -45,15 +63,19 @@ describe('D3 rendering service', function() {
 
     // Create the mock scope.
     scope = {
-      viewModelService:
-          {viewModel: {configuration: {}, data: MOCK_SAMPLE_DATA[0].data}, setSelectionIdList: function() {}}
+      viewModelService: {
+        viewModel: {
+          data: MOCK_SAMPLE_DATA[0]
+        },
+        setSelectionIdList: function() {}
+      }
     };
 
     // Construct and configure the d3 rendering service.
     d3Rendering = d3RenderingService.rendering().controllerScope(scope).directiveElement(graphDiv.node());
 
     // Set the mock data in the scope.
-    scope.viewModelService.viewModel.data = MOCK_SAMPLE_DATA[0].data;
+    scope.viewModelService.viewModel.data = MOCK_SAMPLE_DATA[0];
 
     // Render the graph.
     d3Rendering();
@@ -354,35 +376,37 @@ describe('D3 rendering service', function() {
     }
   });
 
+  // This is the equivalent of the old waitsFor/runs syntax
+  // which was removed from Jasmine 2. From https://gist.github.com/abreckner/110e28897d42126a3bb9.
+  var waitsForAndRuns = function(escapeFunction, runFunction, escapeTime) {
+    // check the escapeFunction every millisecond so as soon as it is met we can escape the function
+    var interval = setInterval(function() {
+      if (escapeFunction()) {
+        clearWaitsForAndRuns();
+        runFunction();
+      }
+    }, 1);
+   
+    // in case we never reach the escapeFunction, we will time out
+    // at the escapeTime
+    var timeOut = setTimeout(function() {
+      clearWaitsForAndRuns();
+      runFunction();
+    }, escapeTime);
+   
+    // clear the interval and the timeout
+    function clearWaitsForAndRuns(){
+      clearInterval(interval);
+      clearTimeout(timeOut);
+    }
+  };
+
   it('should update view settings cache when image is zoomed', function() {
     // Adjust the zoom to 75%.
-    runs(function() { d3Rendering.adjustZoom(0.75); });
-
-    // The zoom is applied via a transition, so we must wait for it to complete.
-    waitsFor(function() { return d3Rendering.viewSettingsCache().scale < 0.77; },
-             "The view settings cache should be updated.", 1000);
-
-    runs(function() { expect(d3Rendering.viewSettingsCache().scale).toBeLessThan(0.76); });
+    d3Rendering.adjustZoom(0.75);
+    waitsForAndRuns(
+      function() { return d3Rendering.viewSettingsCache().scale < 0.77; }, 
+      function() { expect(d3Rendering.viewSettingsCache().scale).toBeLessThan(0.76); }, 
+      1000);
   });
-
-  var MOCK_SAMPLE_DATA = [
-    {
-      'name': 'All Types',
-      'data': {
-        'nodes': [
-          {'name': 'service: guestbook', 'radius': 16, 'fill': 'olivedrab', 'id': 1, 'selected': true},
-          {'name': 'pod: guestbook-controller', 'radius': 20, 'fill': 'palegoldenrod', 'id': 2, 'selected': true},
-          {'name': 'pod: guestbook-controller', 'radius': 20, 'fill': 'palegoldenrod', 'id': 3, 'selected': true},
-          {'name': 'pod: guestbook-controller', 'radius': 20, 'fill': 'palegoldenrod', 'id': 55},
-          {'name': 'container: php-redis', 'radius': 24, 'fill': 'cornflowerblue', 'id': 77},
-        ],
-        'links': [
-          {'source': 0, 'target': 1, 'width': 2, 'stroke': 'black', 'distance': 80},
-          {'source': 0, 'target': 2, 'width': 2, 'stroke': 'black', 'distance': 80},
-          {'source': 1, 'target': 3, 'width': 2, 'stroke': 'black', 'distance': 80},
-        ],
-        'configuration': {'settings': {'clustered': false, 'showEdgeLabels': true, 'showNodeLabels': true}}
-      }
-    },
-  ];
 });

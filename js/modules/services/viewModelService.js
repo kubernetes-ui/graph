@@ -13,12 +13,10 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-
 /**=========================================================
  * Module: Graph
  * Visualizer for force directed graph
  =========================================================*/
-
 (function() {
   "use strict";
 
@@ -27,78 +25,124 @@
   var viewModelService = function ViewModelService(_) {
     var defaultConfiguration = {
       "legend": undefined,
-      "settings": {"clustered": false, "showEdgeLabels": false, "showNodeLabels": true},
+      "settings": {
+        "clustered": false,
+        "showEdgeLabels": false,
+        "showNodeLabels": true
+      },
       "selectionHops": 1,
       "selectionIdList": []
     };
 
+    var defaultNode = {
+      name: 'no data'
+    };
+
     var defaultData = {
       "configuration": defaultConfiguration,
-      "nodes": [{"name": "no data", "radius": 10, "fill": "cornflowerblue"}],
+      "nodes": [],
       "links": []
     };
 
-    var viewModel = {
-      "data": defaultData,
-      "default": defaultData,
-      "version": 0,
-      "transformNames": []
-    };
-
-    var getLegend = function() {
-      return (viewModel && viewModel.data && viewModel.data.configuration) ? viewModel.data.configuration.legend :
-                                                                             undefined;
-    };
-
-    var setLegend = function(legend) {
-      if (viewModel && viewModel.data && viewModel.data.configuration) {
-        viewModel.data.configuration.legend = legend;
+    // Load the default data.
+    var loadDefaultData = function(defaultLegend) {
+      if (defaultLegend && defaultLegend.nodes && defaultLegend.nodes.Cluster) {
+        var legendEntry = defaultLegend.nodes.Cluster;
+        if (legendEntry) {
+          var legendStyle = legendEntry.style;
+          if (legendStyle) {
+            _.assign(defaultNode, legendStyle);
+          }
+        }
       }
-    };
 
-    var getSettings = function() {
-      return (viewModel && viewModel.data && viewModel.data.configuration) ? viewModel.data.configuration.settings :
-                                                                             undefined;
-    };
-
-    var setSettings = function(settings) {
-      if (viewModel && viewModel.data && viewModel.data.configuration) {
-        viewModel.data.configuration.settings = settings;
-      }
-    };
-
-    var getSelectionHops = function() {
-      return (viewModel && viewModel.data && viewModel.data.configuration) ?
-                 viewModel.data.configuration.selectionHops :
-                 1;
-    };
-
-    var setSelectionHops = function(selectionHops) {
-      if (viewModel && viewModel.data && viewModel.data.configuration) {
-        viewModel.data.configuration.selectionHops = selectionHops;
-      }
-    };
-
-    var getSelectionIdList = function() {
-      return (viewModel && viewModel.data && viewModel.data.configuration) ?
-                 viewModel.data.configuration.selectionIdList :
-                 [];
-    };
-
-    var setSelectionIdList = function(selectionIdList) {
-      if (viewModel && viewModel.data && viewModel.data.configuration) {
-        viewModel.data.configuration.selectionIdList = selectionIdList;
+      if (defaultData.nodes.length < 1) {
+        defaultData.nodes = [defaultNode];
       }
     };
 
     // Load the default legend.
     (function() {
       $.getJSON("components/graph/assets/legend.json")
-          .done(function(legend) { defaultData.configuration.legend = legend; })
-          .fail(function(jqxhr, settings, exception) {
-            console.log('ERROR: Could not load default legend: ' + exception);
-          });
+        .done(function(legend) {
+          defaultData.configuration.legend = legend;
+          loadDefaultData(legend);
+        })
+        .fail(function(jqxhr, settings, exception) {
+          console.log('ERROR: Could not load default legend: ' + exception);
+        });
     }());
+
+    var viewModel = {
+      "data": undefined,
+      "default": undefined,
+      "version": 0,
+      "transformNames": []
+    };
+
+    var getViewModelData = function() {
+      if (!viewModel.data || viewModel.data.nodes.length < 1) {
+        viewModel.data = defaultData;
+      }
+
+      if (!viewModel.default || viewModel.default.nodes.length < 1) {
+        viewModel.default = defaultData;
+      }
+
+      return viewModel.data;
+    };
+
+    var getViewModelConfiguration = function() {
+      var data = getViewModelData();
+      return data ? data.configuration : undefined;
+    };
+
+    var getLegend = function() {
+      return (getViewModelConfiguration()) ?
+        viewModel.data.configuration.legend :
+        undefined;
+    };
+
+    var setLegend = function(legend) {
+      if (getViewModelConfiguration()) {
+        viewModel.data.configuration.legend = legend;
+      }
+    };
+
+    var getSettings = function() {
+      return (getViewModelConfiguration()) ?
+        viewModel.data.configuration.settings :
+        undefined;
+    };
+
+    var setSettings = function(settings) {
+      if (getViewModelConfiguration()) {
+        viewModel.data.configuration.settings = settings;
+      }
+    };
+
+    var getSelectionHops = function() {
+      return (getViewModelConfiguration()) ?
+        viewModel.data.configuration.selectionHops :
+        1;
+    };
+
+    var setSelectionHops = function(selectionHops) {
+      if (getViewModelConfiguration()) {
+        viewModel.data.configuration.selectionHops = selectionHops;
+      }
+    };
+
+    var getSelectionIdList = function() {
+      return (getViewModelConfiguration()) ?
+        viewModel.data.configuration.selectionIdList : [];
+    };
+
+    var setSelectionIdList = function(selectionIdList) {
+      if (getViewModelConfiguration()) {
+        viewModel.data.configuration.selectionIdList = selectionIdList;
+      }
+    };
 
     var defaultTransformName = undefined;
     var transformsByName = {};
@@ -114,7 +158,9 @@
         return fileName;
       };
 
-      var getConstructor = function(constructorName) { return window[constructorName]; };
+      var getConstructor = function(constructorName) {
+        return window[constructorName];
+      };
 
       var bindTransform = function(constructorName, directoryEntry) {
         var constructor = getConstructor(constructorName);
@@ -142,13 +188,15 @@
             // Load the script into the window scope.
             var scriptPath = "components/graph/assets/transforms/" + directoryEntry.script;
             $.getScript(scriptPath)
-                .done(function() {
-                  // Defer to give the load opportunity to complete.
-                  _.defer(function() { bindTransform(constructorName, directoryEntry); });
-                })
-                .fail(function(jqxhr, settings, exception) {
-                  console.log('ERROR: Could not load transform "' + directoryEntry.name + '": ' + exception);
+              .done(function() {
+                // Defer to give the load opportunity to complete.
+                _.defer(function() {
+                  bindTransform(constructorName, directoryEntry);
                 });
+              })
+              .fail(function(jqxhr, settings, exception) {
+                console.log('ERROR: Could not load transform "' + directoryEntry.name + '": ' + exception);
+              });
           } else {
             bindTransform(constructorName, directoryEntry);
           }
@@ -157,17 +205,19 @@
 
       // Load the transform directory
       $.getJSON("components/graph/assets/transforms.json")
-          .done(function(transforms) {
-            // Defer to give the load opportunity to complete.
-            _.defer(function() {
-              if (transforms.directory) {
-                _.forEach(transforms.directory, function(directoryEntry) { loadTransform(directoryEntry); });
-              }
-            });
-          })
-          .fail(function(jqxhr, settings, exception) {
-            console.log('ERROR: Could not load transform directory: ' + exception);
+        .done(function(transforms) {
+          // Defer to give the load opportunity to complete.
+          _.defer(function() {
+            if (transforms.directory) {
+              _.forEach(transforms.directory, function(directoryEntry) {
+                loadTransform(directoryEntry);
+              });
+            }
           });
+        })
+        .fail(function(jqxhr, settings, exception) {
+          console.log('ERROR: Could not load transform directory: ' + exception);
+        });
     }());
 
     var setViewModel = function(data) {
@@ -264,12 +314,12 @@
           };
 
           var chain = _.chain(toData.links)
-                          .forEach(function(toLink) {
-                            setStyle(toLink, legend.links);
-                            if (toLink.type) {
-                              getIndex(toLink, idToIndex);
-                            }
-                          });
+            .forEach(function(toLink) {
+              setStyle(toLink, legend.links);
+              if (toLink.type) {
+                getIndex(toLink, idToIndex);
+              }
+            });
 
           chain = chain.filter("type");
           if (filtered) {
@@ -285,11 +335,17 @@
         var legend = configuration.legend;
         var settings = configuration.settings;
 
-        _.forOwn(legend.nodes, function(nodeEntry) { nodeEntry.available = false; });
+        _.forOwn(legend.nodes, function(nodeEntry) {
+          nodeEntry.available = false;
+        });
 
-        var chain = _.chain(toData.nodes).forEach(function(toNode) { setStyle(toNode, legend.nodes); });
+        var chain = _.chain(toData.nodes).forEach(function(toNode) {
+          setStyle(toNode, legend.nodes);
+        });
 
-        var filtered = _.any(legend.nodes, function(nodeEntry) { return !nodeEntry.selected; });
+        var filtered = _.any(legend.nodes, function(nodeEntry) {
+          return !nodeEntry.selected;
+        });
 
         chain = chain.filter("type");
         if (filtered) {
@@ -299,10 +355,14 @@
         }
 
         if (settings && settings.clustered) {
-          chain = chain.forEach(function(toNode) { setCluster(toNode, typeToCluster); });
+          chain = chain.forEach(function(toNode) {
+            setCluster(toNode, typeToCluster);
+          });
         }
 
-        toData.nodes = chain.forEach(function(toNode) { setIndex(toNode, idToIndex); }).value();
+        toData.nodes = chain.forEach(function(toNode) {
+          setIndex(toNode, idToIndex);
+        }).value();
 
         if (toData.links) {
           processLinks(toData, legend, filtered);
