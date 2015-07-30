@@ -48,19 +48,23 @@
 .details-table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: fixed;
 }
 
 .details-table-content-row {
   width: 100%;
 }
 
-.details-table-content {
-  width: 100%;
-  font-size: 0.8em;
-  padding: 8px;
-  word-break: break-all;
-  word-wrap: break-word;
+.details-table-content-tag {
+  padding: 5px;
+  white-space: pre-wrap;
+  margin: 0px;
+}
+
+.details-table-content-value {
+  padding: 5px;
+  word-break: break-all; 
+  white-space: pre-wrap;
+  margin: 0px;
 }
 
 .sidenav-card {
@@ -75,6 +79,8 @@
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
+  margin-top: 6px;
+  margin-bottom: 6px;
 }
 
 .legend-table-content-row {
@@ -82,22 +88,15 @@
 }
 
 .legend-table-icon {
-  width: 24px;
-  height: 24px;
-  padding-top: 8px;
-  padding-left: 8px;
-  padding-right: 8px;
-  padding-bottom: 4px;
+  width: 34px;
+  height: 34px;
+  padding: 5px;
 }
 
 .legend-table-text {
-  font-size: 0.8em;
-  padding-top: 4px;
-  padding-left: 8px;
-  padding-right: 8px;
-  padding-bottom: 4px;
+  font-size: 12px;
+  padding: 5px;
   word-break: break-all;
-  word-wrap: break-word;
   vertical-align: center;
 }
 
@@ -110,7 +109,7 @@
 }
 
 .pin-cursor {
-  cursor: url(/components/graph/img/Pin.svg) 6 21, auto;
+  cursor: url(../../components/graph/img/Pin.svg) 6 21, auto;
 }
 
 .zoom-cursor {

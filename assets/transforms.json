@@ -21,7 +21,6 @@
             },
             "properties": {
               "tags": {
-                "timestamp": "$.timestamp"
               }
             }
           },
@@ -34,11 +33,9 @@
             },
             "properties": {
               "tags": {
-                "Dns": "$.properties.HostConfig.Dns",
-                "DnsSearch": "$.properties.HostConfig.DnsSearch",
-                "state": "$.properties.State",
-                "volumes": "$.properties.Volumes",
-                "timestamp": "$.timestamp"
+                "HostConfig": "$.properties.HostConfig",
+                "State": "$properties.State",
+                "labels": "$.properties.metadata.labels"
               }
             }
           },
@@ -51,13 +48,8 @@
             },
             "properties": {
               "tags": {
-                "architecture": "$.properties.Architecture",
-                "checksum": "$.properties.Checksum",
-                "command": "$.properties.Config.Cmd",
-                "environment": "$.properties.Config.Env",
-                "exposedPorts": "$.properties.Config.ExposedPorts",
-                "image": "$.properties.Config.Image",
-                "timestamp": "$.timestamp"
+                "Config": "$.properties.Config",
+                "labels": "$.properties.metadata.labels"
               }
             }
           },
@@ -70,10 +62,8 @@
             },
             "properties": {
               "tags": {
-                "hostIP": "$.properties.hostIP",
-                "resources": "$.properties.resources",
-                "status": "$.properties.status.conditions",
-                "timestamp": "$.timestamp"
+                "status": "$.properties.status",
+                "labels": "$.properties.metadata.labels"
               }
             }
           },
@@ -86,11 +76,8 @@
             },
             "properties": {
               "tags": {
-                "hostIP": "$.properties.currentState.hostIP",
-                "namespace": "$.properties.namespace",
-                "podIP": "$.properties.currentState.podIP",
-                "status": "$.properties.currentState.status",
-                "timestamp": "$.timestamp"
+                "status": "$.properties.status",
+                "labels": "$.properties.metadata.labels"
               }
             }
           },
@@ -103,13 +90,18 @@
             },
             "properties": {
               "tags": {
-                "command": "$.properties.COMMAND",
-                "%CPU": "$.properties.%CPU",
+                "%CPU": "$.properties.%CPU", 
                 "%MEM": "$.properties.%MEM",
+                "COMMAND": "$.properties.COMMAND", 
                 "PID": "$.properties.PID",
-                "time": "$.properties.TIME",
-                "user": "$.properties.USER",
-                "timestamp": "$.timestamp"
+                "RSS": "$.properties.RSS", 
+                "START": "$.properties.START", 
+                "STAT": "$.properties.STAT", 
+                "TIME": "$.properties.TIME",
+                "TTY": "$.properties.TTY", 
+                "USER": "$.properties.USER",
+                "VSZ": "$.properties.VSZ",
+                "labels": "$.properties.metadata.labels"
               }
             }
           },
@@ -122,12 +114,9 @@
             },
             "properties": {
               "tags": {
-                "dnsPolicy": "$.properties.desiredState.podTemplate.desiredState.manifest.dnsPolicy",
-                "restartPolicy": "$.properties.desiredState.podTemplate.desiredState.manifest.restartPolicy",
-                "labels": "$.properties.labels",
-                "namespace": "$.properties.namespace",
-                "replicas": "$.properties.desiredState.replicas",
-                "timestamp": "$.timestamp"
+                "replicas": "$.properties.spec.replicas",
+                "selector": "$.properties.spec.selector",
+                "labels": "$.properties.metadata.labels"
               }
             }
           },
@@ -140,14 +129,9 @@
             },
             "properties": {
               "tags": {
-                "containerPort": "$.properties.containerPort",
-                "createExternalLoadBalancer": "$.properties.createExternalLoadBalancer",
-                "labels": "$.properties.labels",
-                "namespace": "$.properties.namespace",
-                "port": "$.properties.port",
-                "portalIP": "$.properties.portalIP",
-                "publicIPs": "$.properties.publicIPs",
-                "timestamp": "$.timestamp"
+                "spec": "$.properties.spec",
+                "status": "$.properties.status",
+                "labels": "$.properties.metadata.labels"
               }
             }
           }

@@ -119,7 +119,9 @@
             var result = [];
             var legend = viewModelService.getLegend();
             if (legend && legend.nodes) {
-              result = _.keys(legend.nodes).filter(function(type) { return legend.nodes[type].available; }).sort();
+              result = _.keys(legend.nodes)
+                .filter(function(type) { return legend.nodes[type].available; })
+                .sort();
             }
 
             return result;
@@ -140,7 +142,45 @@
             var legend = viewModelService.getLegend();
             if (legend && legend.nodes && legend.nodes[type]) {
               if (legend.nodes[type].selected) {
-                result = legend.nodes[type].style.fill;
+                if (legend.nodes[type].style) {
+                  result = legend.nodes[type].style.fill;
+                }
+              }
+            }
+
+            return result;
+          };
+
+          $scope.getLegendNodeStroke = function(type) {
+            var result = "dimgray";
+            var legend = viewModelService.getLegend();
+            if (legend && legend.nodes && legend.nodes[type]) {
+              if (legend.nodes[type].style.stroke) {
+                result = legend.nodes[type].style.stroke;
+              }
+            }
+
+            return result;
+          };
+
+          $scope.getLegendNodeStrokeWidth = function(type) {
+            var result = "1";
+            var legend = viewModelService.getLegend();
+            if (legend && legend.nodes && legend.nodes[type]) {
+              if (legend.nodes[type].style.strokeWidth) {
+                result = legend.nodes[type].style.strokeWidth;
+              }
+            }
+
+            return result;
+          };
+
+          $scope.getLegendNodeIcon = function(type) {
+            var result = null;
+            var legend = viewModelService.getLegend();
+            if (legend && legend.nodes && legend.nodes[type]) {
+              if (legend.nodes[type].style.icon) {
+                result = legend.nodes[type].style.icon;
               }
             }
 
@@ -197,8 +237,8 @@
           var stringifyNoQuotes = function(result) {
             if (typeof result !== "string") {
               if (result !== "undefined") {
-                result = JSON.stringify(result);
-            result = result.replace(/\"([^(\")"]+)\":/g, "$1:");
+                result = JSON.stringify(result, null, 2);
+                result = result.replace(/\"([^(\")"]+)\":/g, "$1:");
               } else {
                 result = "undefined";
               }
@@ -215,7 +255,7 @@
                 if (value) {
                   var result = stringifyNoQuotes(value);
                   if (result.length > 0) {
-                    results[property] = result;
+                    results[property] = result.trim();
                   }
                 }
               });
